@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>(function(){try{var t=localStorage.getItem('linkify-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <script>(function(){try{var p=new URLSearchParams(location.search).get('lang');var l=p||localStorage.getItem('linkify-lang');if(l==='fr'||l==='en'){document.documentElement.setAttribute('lang',l);document.documentElement.setAttribute('dir','ltr');}}catch(e){}})();</script>
+  <title>Linkify.ma — منصة ربط الأطر التربوية بالمؤسسات التعليمية بالمغرب</title>
+  <meta name="description" content="منصة مغربية تربط الأساتذة والأطر التربوية بالمؤسسات التعليمية الخاصة القريبة منهم: مدارس خاصة، مراكز لغات، مراكز تكوين، وحضانات. مجاني للأساتذة." />
+
+  <meta property="og:title" content="Linkify.ma — وصلة بين الأساتذة والمؤسسات التعليمية" />
+  <meta property="og:description" content="سجّل مجاناً وخلّي المؤسسات التعليمية القريبة منك توصل لملفك المهني." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ar_MA" />
+  <meta property="og:url" content="https://linkify.ma/" />
+  <meta property="og:image" content="https://linkify.ma/og-image.png" />
+
+  <!-- canonical + multilingual SEO -->
+  <link rel="canonical" href="https://linkify.ma/" />
+  <link rel="alternate" hreflang="ar" href="https://linkify.ma/?lang=ar" />
+  <link rel="alternate" hreflang="fr" href="https://linkify.ma/?lang=fr" />
+  <link rel="alternate" hreflang="en" href="https://linkify.ma/?lang=en" />
+  <link rel="alternate" hreflang="x-default" href="https://linkify.ma/" />
+  <meta property="og:locale:alternate" content="fr_FR" />
+  <meta property="og:locale:alternate" content="en_US" />
+
+  <!-- favicons (generated from logo) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="shortcut icon" href="favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <!-- Analytics: Cloudflare Web Analytics (free, cookieless, no cookie banner).
+       Activate: dash.cloudflare.com -> Web Analytics -> Add a site (linkify.ma) -> copy the token
+       and replace PASTE_CLOUDFLARE_TOKEN below. Works on any host (no need to proxy DNS). -->
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "PASTE_CLOUDFLARE_TOKEN"}'></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============ HEADER ============ -->
+  <header class="site-header">
+    <nav class="nav container">
+      <a href="#top" class="brand" aria-label="Linkify">
+        <span class="brand-logo" role="img" aria-label="Linkify"></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#register" data-i18n="nav.register">سجّل</a></li>
+        <li><a href="#how" data-i18n="nav.how">آلية العمل</a></li>
+        <li><a href="#why" data-i18n="nav.why">لماذا Linkify</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button id="langToggle" class="lang-toggle" type="button" aria-label="Language / اللغة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="langLabel">AR</span></button>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="تبديل الوضع الليلي / النهاري"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+        <a href="#register" class="btn btn-primary btn-sm" data-i18n="nav.cta">سجّل مجاناً</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <span class="badge" data-i18n="hero.badge">مجاني تماماً للأساتذة</span>
+          <h1 data-i18n="hero.h1">المؤسسة التعليمية التي تبحث عنك… قد تكون على بُعد بضعة كيلومترات.</h1>
+          <p class="lead" data-i18n="hero.lead">
+            تربط Linkify الأطر التربوية والإدارية بالمؤسسات التعليمية الخاصة القريبة منهم.
+            أنشئ ملفك المهني مرة واحدة، ودع صنّاع القرار يصلون إليك.
+          </p>
+          <div class="hero-cta">
+            <a href="#register" class="btn btn-primary btn-lg" data-i18n="hero.cta">أنشئ ملفك الآن ↓</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="match-stage" id="matchStage">
+            <svg class="match-beams" id="matchBeams" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#126cb4" />
+                  <stop offset="1" stop-color="#6366f1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="match-label match-label-l" data-i18n="match.left">المؤسسات</span>
+            <span class="match-label match-label-r" data-i18n="match.right">الأساتذة</span>
+            <div class="match-core"><span class="core-aura"></span><img class="core-icon" src="icon.png" alt="" /></div>
+            <div class="match-caption">
+              <span class="cap-dot"></span>
+              <span class="cap-text"><strong data-i18n="match.title">مطابقة ذكية</strong><span class="sub" data-i18n="match.sub">نربط الكفاءة بالفرصة الأقرب</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ REGISTRATION FORM (right after hero) ============ -->
+    <section id="register" class="section form-section">
+      <div class="container form-wrap">
+        <header class="form-head">
+          <h2 class="section-title" data-i18n="form.title">أنشئ ملفك المهني — مجاناً</h2>
+          <p class="section-sub" data-i18n="form.sub">
+            املأ ملفك في دقائق، ودع المؤسسات القريبة منك تصل إليك. كل خطوة قصيرة.
+          </p>
+        </header>
+
+        <!-- progress -->
+        <div class="progress" aria-hidden="true">
+          <div class="progress-bar"><span id="progressFill"></span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span></div>
+        </div>
+
+        <form id="registerForm" novalidate enctype="multipart/form-data">
+
+          <!-- honeypot: hidden from humans; bots that fill it are rejected -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <!-- ===== STEP 1: المعلومات الشخصية ===== -->
+          <fieldset class="form-step is-active" data-step="1">
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="s1.legend">المعلومات الشخصية</span></legend>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="first_name"><span data-i18n="f.first">الاسم الشخصي</span> <span class="req">*</span></label>
+                <input type="text" id="first_name" name="first_name" required autocomplete="given-name" />
+              </div>
+              <div class="field">
+                <label for="last_name"><span data-i18n="f.last">الاسم العائلي</span> <span class="req">*</span></label>
+                <input type="text" id="last_name" name="last_name" required autocomplete="family-name" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="age"><span data-i18n="f.age">السن</span> <span class="req">*</span></label>
+                <input type="number" id="age" name="age" min="18" max="75" required inputmode="numeric" />
+              </div>
+              <div class="field">
+                <span class="label"><span data-i18n="f.gender">الجنس</span> <span class="req">*</span></span>
+                <div class="radio-row">
+                  <label class="pill"><input type="radio" name="gender" value="ذكر" required /> <span data-i18n="g.male">ذكر</span></label>
+                  <label class="pill"><input type="radio" name="gender" value="أنثى" /> <span data-i18n="g.female">أنثى</span></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="city"><span data-i18n="f.city">المدينة</span> <span class="req">*</span></label>
+                <select id="city" name="city" required>
+                  <option value="" disabled selected data-i18n="ph.city">اختر مدينتك</option>
+                  <option value="القنيطرة" data-i18n="city.kenitra">القنيطرة</option><option value="سلا" data-i18n="city.sale">سلا</option><option value="الرباط" data-i18n="city.rabat">الرباط</option><option value="تمارة" data-i18n="city.temara">تمارة</option>
+                  <option value="الصخيرات" data-i18n="city.skhirat">الصخيرات</option><option value="بوزنيقة" data-i18n="city.bouznika">بوزنيقة</option><option value="المحمدية" data-i18n="city.mohammedia">المحمدية</option><option value="الدار البيضاء" data-i18n="city.casa">الدار البيضاء</option>
+                  <option value="طنجة" data-i18n="city.tanger">طنجة</option><option value="تطوان" data-i18n="city.tetouan">تطوان</option><option value="العرائش" data-i18n="city.larache">العرائش</option><option value="القصر الكبير" data-i18n="city.ksarkebir">القصر الكبير</option>
+                  <option value="سيدي سليمان" data-i18n="city.sidislimane">سيدي سليمان</option><option value="سيدي قاسم" data-i18n="city.sidikacem">سيدي قاسم</option><option value="وزان" data-i18n="city.ouezzane">وزان</option><option value="مكناس" data-i18n="city.meknes">مكناس</option>
+                  <option value="فاس" data-i18n="city.fes">فاس</option><option value="صفرو" data-i18n="city.sefrou">صفرو</option><option value="تازة" data-i18n="city.taza">تازة</option><option value="وجدة" data-i18n="city.oujda">وجدة</option>
+                  <option value="بركان" data-i18n="city.berkane">بركان</option><option value="الناضور" data-i18n="city.nador">الناضور</option><option value="خريبكة" data-i18n="city.khouribga">خريبكة</option><option value="بني ملال" data-i18n="city.benimellal">بني ملال</option>
+                  <option value="الفقيه بن صالح" data-i18n="city.fkihbensalah">الفقيه بن صالح</option><option value="سطات" data-i18n="city.settat">سطات</option><option value="برشيد" data-i18n="city.berrechid">برشيد</option><option value="الجديدة" data-i18n="city.eljadida">الجديدة</option>
+                  <option value="سيدي بنور" data-i18n="city.sidibennour">سيدي بنور</option><option value="آسفي" data-i18n="city.safi">آسفي</option><option value="الصويرة" data-i18n="city.essaouira">الصويرة</option><option value="مراكش" data-i18n="city.marrakech">مراكش</option>
+                  <option value="قلعة السراغنة" data-i18n="city.kelaa">قلعة السراغنة</option><option value="أكادير" data-i18n="city.agadir">أكادير</option><option value="إنزكان" data-i18n="city.inezgane">إنزكان</option><option value="آيت ملول" data-i18n="city.aitmelloul">آيت ملول</option>
+                  <option value="تارودانت" data-i18n="city.taroudant">تارودانت</option><option value="تيزنيت" data-i18n="city.tiznit">تيزنيت</option>
+                  <option value="مدينة أخرى" data-i18n="opt.cityOther">مدينة أخرى</option>
+                </select>
+              </div>
+              <div class="field conditional" id="city-other-wrap" hidden>
+                <label for="city_other"><span data-i18n="f.cityOther">اسم مدينتك</span> <span class="req">*</span></label>
+                <input type="text" id="city_other" name="city_other" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="neighborhood"><span data-i18n="f.neigh">الحي السكني</span> <span class="req">*</span></label>
+              <input type="text" id="neighborhood" name="neighborhood" required
+                     data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
+              <small class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <span data-i18n="hint.neigh">أدخل اسم الحي بدقة — هذا يساعد في إيجاد الفرص الأقرب إلى مكان سكناك.</span></small>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="whatsapp"><span data-i18n="f.whatsapp">رقم الواتساب</span> <span class="req">*</span></label>
+                <input type="tel" id="whatsapp" name="whatsapp" required inputmode="tel"
+                       placeholder="06xxxxxxxx" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="email"><span data-i18n="f.email">البريد الإلكتروني</span> <span class="req">*</span></label>
+                <input type="email" id="email" name="email" required autocomplete="email"
+                       placeholder="example@email.com" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 2: معلومات عامة + التعليم ===== -->
+          <fieldset class="form-step" data-step="2" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12.5V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><span data-i18n="s2.legend">معلومات عامة وتعليمية</span></legend>
+
+            <div class="field">
+              <span class="label" data-i18n="f.transport">هل تتوفر على وسيلة نقل خاصة؟</span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="transport" value="نعم، سيارة" /> <span data-i18n="tr.car">سيارة</span></label>
+                <label class="pill"><input type="radio" name="transport" value="نعم، دراجة نارية" /> <span data-i18n="tr.moto">دراجة نارية</span></label>
+                <label class="pill"><input type="radio" name="transport" value="لا أملك وسيلة نقل" /> <span data-i18n="tr.none">لا أملك</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.license">هل تتوفر على رخصة قيادة؟</span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="license" value="رخصة سيارة" /> <span data-i18n="lic.car">رخصة سيارة</span></label>
+                <label class="pill"><input type="radio" name="license" value="رخصة دراجة نارية" /> <span data-i18n="lic.moto">رخصة دراجة</span></label>
+                <label class="pill"><input type="radio" name="license" value="لا أملك رخصة" /> <span data-i18n="lic.none">لا أملك</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.relocate">مستعد للانتقال لمدينة أخرى من أجل العمل؟</span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="relocate" value="نعم، مستعد تماماً" /> <span data-i18n="rel.yes">نعم تماماً</span></label>
+                <label class="pill"><input type="radio" name="relocate" value="حسب العرض والامتيازات" /> <span data-i18n="rel.offer">حسب العرض</span></label>
+                <label class="pill"><input type="radio" name="relocate" value="لا، مدينتي فقط" /> <span data-i18n="rel.no">مدينتي فقط</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.track">التوجه العام</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="track" value="علمي / تقني" required /> <span data-i18n="tk.sci">علمي / تقني</span></label>
+                <label class="pill"><input type="radio" name="track" value="أدبي / إنساني" /> <span data-i18n="tk.lit">أدبي / إنساني</span></label>
+                <label class="pill"><input type="radio" name="track" value="التعليم الأولي والمربيات" /> <span data-i18n="tk.pre">تعليم أولي ومربيات</span></label>
+              </div>
+              <small class="hint" data-i18n="hint.track">بناءً على توجهك، سنعرض عليك المواد المناسبة في الخطوة التالية.</small>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="diploma"><span data-i18n="f.diploma">أعلى شهادة حصلت عليها</span> <span class="req">*</span></label>
+                <select id="diploma" name="diploma" required>
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="مستوى بكالوريا" data-i18n="dp.bacLevel">مستوى بكالوريا</option><option value="بكالوريا" data-i18n="dp.bac">بكالوريا</option><option value="دبلوم سنتين" data-i18n="dp.dut">دبلوم سنتين</option>
+                  <option value="إجازة" data-i18n="dp.lic">إجازة</option><option value="ماستر" data-i18n="dp.master">ماستر</option><option value="مهندس" data-i18n="dp.eng">مهندس</option><option value="دكتوراه" data-i18n="dp.phd">دكتوراه</option>
+                  <option value="غير ذلك" data-i18n="dp.other">غير ذلك</option>
+                </select>
+              </div>
+              <div class="field conditional" id="diploma-other-wrap" hidden>
+                <label for="diploma_other"><span data-i18n="f.diplomaOther">اذكر اسم الشهادة</span> <span class="req">*</span></label>
+                <input type="text" id="diploma_other" name="diploma_other" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="specialty"><span data-i18n="f.specialty">التخصص</span> <span class="req">*</span></label>
+                <input type="text" id="specialty" name="specialty" required data-i18n-ph="ph.specialty" placeholder="مثال: رياضيات، لغة فرنسية..." />
+              </div>
+              <div class="field">
+                <label for="university" data-i18n="f.university">المؤسسة أو الجامعة</label>
+                <input type="text" id="university" name="university" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 3: اللغات + الملفات ===== -->
+          <fieldset class="form-step" data-step="3" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg><span data-i18n="s3.legend">الكفاءات اللغوية وملفاتك</span></legend>
+
+            <p class="field-group-title" data-i18n="lang.rate">قيّم مستواك في اللغات التالية:</p>
+            <div class="lang-grid">
+              <div class="lang-row">
+                <span data-i18n="lang.ar">العربية</span>
+                <select name="lang_ar">
+                  <option value="اللغة الأم" data-i18n="lv.native">اللغة الأم</option><option value="ممتاز" data-i18n="lv.exc">ممتاز</option><option value="متوسط" data-i18n="lv.mid">متوسط</option><option value="أساسي" data-i18n="lv.basic">أساسي</option><option value="لا توجد معرفة" data-i18n="lv.none">لا توجد معرفة</option>
+                </select>
+              </div>
+              <div class="lang-row">
+                <span data-i18n="lang.fr">الفرنسية</span>
+                <select name="lang_fr">
+                  <option value="" disabled selected>—</option><option value="ممتاز" data-i18n="lv.exc">ممتاز</option><option value="متوسط" data-i18n="lv.mid">متوسط</option><option value="أساسي" data-i18n="lv.basic">أساسي</option><option value="لا توجد معرفة" data-i18n="lv.none">لا توجد معرفة</option>
+                </select>
+              </div>
+              <div class="lang-row">
+                <span data-i18n="lang.en">الإنجليزية</span>
+                <select name="lang_en">
+                  <option value="" disabled selected>—</option><option value="ممتاز" data-i18n="lv.exc">ممتاز</option><option value="متوسط" data-i18n="lv.mid">متوسط</option><option value="أساسي" data-i18n="lv.basic">أساسي</option><option value="لا توجد معرفة" data-i18n="lv.none">لا توجد معرفة</option>
+                </select>
+              </div>
+              <div class="lang-row">
+                <span data-i18n="lang.es">الإسبانية</span>
+                <select name="lang_es">
+                  <option value="" disabled selected>—</option><option value="ممتاز" data-i18n="lv.exc">ممتاز</option><option value="متوسط" data-i18n="lv.mid">متوسط</option><option value="أساسي" data-i18n="lv.basic">أساسي</option><option value="لا توجد معرفة" data-i18n="lv.none">لا توجد معرفة</option>
+                </select>
+              </div>
+              <div class="lang-row">
+                <span data-i18n="lang.de">الألمانية</span>
+                <select name="lang_de">
+                  <option value="" disabled selected>—</option><option value="ممتاز" data-i18n="lv.exc">ممتاز</option><option value="متوسط" data-i18n="lv.mid">متوسط</option><option value="أساسي" data-i18n="lv.basic">أساسي</option><option value="لا توجد معرفة" data-i18n="lv.none">لا توجد معرفة</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field file-field">
+              <label for="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span data-i18n="f.cv">السيرة الذاتية (CV)</span> <span class="req">*</span></label>
+              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
+              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 5MB. هذا الملف أساسي في ملفك.</small>
+            </div>
+
+            <div class="field file-field">
+              <label for="certs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="f.certs">شواهد إضافية (اختياري)</span></label>
+              <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" />
+              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... (ملف واحد، أقصى حجم 5MB)</small>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 4: التدريس ===== -->
+          <fieldset class="form-step" data-step="4" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg><span data-i18n="s4.legend">ماذا وأين تريد أن تُدرّس</span></legend>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.subjects">المواد / اللغات التي تريد تدريسها</span> <span class="req">*</span></span>
+              <small class="hint subjects-hint" data-i18n="hint.subjects">المواد معروضة بناءً على توجهك العام. غيّر التوجه في الخطوة السابقة لتتغيّر.</small>
+              <div class="check-grid">
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="الرياضيات" /> <span data-i18n="sub.math">الرياضيات</span></label>
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="الفيزياء والكيمياء" /> <span data-i18n="sub.pc">الفيزياء والكيمياء</span></label>
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="علوم الحياة والأرض" /> <span data-i18n="sub.svt">علوم الحياة والأرض</span></label>
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="المعلوميات" /> <span data-i18n="sub.it">المعلوميات</span></label>
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="تسيير ومحاسبة" /> <span data-i18n="sub.acc">تسيير ومحاسبة</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="التربية الإسلامية" /> <span data-i18n="sub.islam">التربية الإسلامية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة العربية" /> <span data-i18n="sub.arabic">اللغة العربية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة الفرنسية" /> <span data-i18n="sub.french">اللغة الفرنسية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة الإنجليزية" /> <span data-i18n="sub.english">اللغة الإنجليزية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة الإسبانية" /> <span data-i18n="sub.spanish">اللغة الإسبانية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة الألمانية" /> <span data-i18n="sub.german">اللغة الألمانية</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="الفلسفة" /> <span data-i18n="sub.philo">الفلسفة</span></label>
+                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="التاريخ والجغرافيا" /> <span data-i18n="sub.hist">التاريخ والجغرافيا</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="مهارات حركية دقيقة" /> <span data-i18n="sub.motor">مهارات حركية دقيقة</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="التربية الحس حركية" /> <span data-i18n="sub.psy">التربية الحس حركية</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="اللغات المبكرة" /> <span data-i18n="sub.earlyLang">اللغات المبكرة</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="أناشيد وقصص الأطفال" /> <span data-i18n="sub.songs">أناشيد وقصص الأطفال</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.levels">الفئة العمرية / الأسلاك التي تقدر تتعامل معها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="levels" value="التعليم الأولي (3-5 سنوات)" /> <span data-i18n="lvl.pre">التعليم الأولي (3-5 سنوات)</span></label>
+                <label class="check"><input type="checkbox" name="levels" value="التعليم الابتدائي" /> <span data-i18n="lvl.primary">الابتدائي</span></label>
+                <label class="check"><input type="checkbox" name="levels" value="التعليم الإعدادي" /> <span data-i18n="lvl.college">الإعدادي</span></label>
+                <label class="check"><input type="checkbox" name="levels" value="التعليم الثانوي التأهيلي" /> <span data-i18n="lvl.high">الثانوي التأهيلي</span></label>
+                <label class="check"><input type="checkbox" name="levels" value="التعليم العالي" /> <span data-i18n="lvl.higher">التعليم العالي</span></label>
+                <label class="check"><input type="checkbox" name="levels" value="تعليم الكبار / التكوين المستمر" /> <span data-i18n="lvl.adult">تعليم الكبار / التكوين المستمر</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.instTypes">أنواع المؤسسات التي ترغب في العمل بها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="institution_types" value="مدرسة خاصة" /> <span data-i18n="it.school">مدرسة خاصة</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" value="مركز دعم وتقوية" /> <span data-i18n="it.support">مركز دعم وتقوية</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" value="مركز لغات" /> <span data-i18n="it.lang">مركز لغات</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" value="مركز تكوين مهني" /> <span data-i18n="it.training">مركز تكوين مهني</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" value="حضانة / تعليم أولي" /> <span data-i18n="it.nursery">حضانة / تعليم أولي</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" value="مؤسسة تعليم عالي خاصة" /> <span data-i18n="it.higher">تعليم عالي خاص</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.schedule">نمط الدوام الذي تقدر تشتغل به</span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="schedule" value="دوام كامل" /> <span data-i18n="sch.full">دوام كامل</span></label>
+                <label class="pill"><input type="radio" name="schedule" value="دوام جزئي" /> <span data-i18n="sch.part">دوام جزئي</span></label>
+                <label class="pill"><input type="radio" name="schedule" value="ساعات إضافية / حصص محددة" /> <span data-i18n="sch.hours">ساعات / حصص محددة</span></label>
+                <label class="pill"><input type="radio" name="schedule" value="كل ما سبق" /> <span data-i18n="sch.all">كل ما سبق</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="f.substitute">هل أنت مستعد للعمل كأستاذ بديل (احتياط) عند الغياب الطارئ؟</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="substitute" value="نعم، متاح للتعويض الطارئ" /> <span data-i18n="subst.yes">نعم، متاح</span></label>
+                <label class="pill"><input type="radio" name="substitute" value="نعم، حسب الظروف" /> <span data-i18n="subst.cond">حسب الظروف</span></label>
+                <label class="pill"><input type="radio" name="substitute" value="لا" /> <span data-i18n="subst.no">لا</span></label>
+              </div>
+              <small class="hint" data-i18n="hint.substitute">تبحث المؤسسات كثيراً عن أساتذة مستعدين للتعويض الطارئ خلال الموسم — هذا الاستعداد يرفع من فرصك.</small>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 5: الخبرة المهنية (conditional) ===== -->
+          <fieldset class="form-step" data-step="5" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg><span data-i18n="s5.legend">الخبرة المهنية</span></legend>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.hasExp">هل سبق لك العمل في مجال التعليم؟</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="has_experience" value="نعم" required /> <span data-i18n="exp.yes">نعم</span></label>
+                <label class="pill"><input type="radio" name="has_experience" value="لا (حديث التخرج)" /> <span data-i18n="exp.no">لا (حديث التخرج)</span></label>
+              </div>
+            </div>
+
+            <div class="conditional exp-block" id="experience-block" hidden>
+              <div class="field">
+                <label for="exp_years" data-i18n="f.expYears">عدد سنوات الخبرة الإجمالية</label>
+                <select id="exp_years" name="exp_years">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="أقل من سنة" data-i18n="ey.lt1">أقل من سنة</option><option value="بين سنة و 3 سنوات" data-i18n="ey.1to3">بين سنة و 3 سنوات</option>
+                  <option value="بين 4 و 5 سنوات" data-i18n="ey.4to5">بين 4 و 5 سنوات</option><option value="أكثر من 5 سنوات" data-i18n="ey.gt5">أكثر من 5 سنوات</option>
+                </select>
+              </div>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="last_inst" data-i18n="f.lastInst">آخر مؤسسة عملت بها (أو الحالية)</label>
+                  <input type="text" id="last_inst" name="last_inst" />
+                </div>
+                <div class="field">
+                  <label for="last_role" data-i18n="f.lastRole">آخر منصب (أو الحالي)</label>
+                  <input type="text" id="last_role" name="last_role" data-i18n-ph="ph.lastRole" placeholder="معلم، حارس عام..." />
+                </div>
+              </div>
+              <div class="field">
+                <label for="schools" data-i18n="f.schools">أبرز المدارس والمراكز التي عملت بها</label>
+                <textarea id="schools" name="schools" rows="3"
+                  data-i18n-ph="ph.schools" placeholder="قدّم أكبر قدر من التفاصيل لنجد لك أفضل المناصب المناسبة."></textarea>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 6: المهارات + الصورة + الموافقة ===== -->
+          <fieldset class="form-step" data-step="6" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span data-i18n="s6.legend">مهارات إضافية وإنهاء التسجيل</span></legend>
+
+            <div class="field">
+              <span class="label" data-i18n="f.skills">المهارات التربوية والرقمية (اختياري)</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="skills" value="التدريس عن بعد (Zoom, Meet, Teams)" /> <span data-i18n="sk.remote">التدريس عن بعد</span></label>
+                <label class="check"><input type="checkbox" name="skills" value="تصميم المحتوى (Canva, Genially, PPT)" /> <span data-i18n="sk.content">تصميم المحتوى التعليمي</span></label>
+                <label class="check"><input type="checkbox" name="skills" value="دمج الذكاء الاصطناعي فالتعليم" /> <span data-i18n="sk.ai">الذكاء الاصطناعي في التعليم</span></label>
+                <label class="check"><input type="checkbox" name="skills" value="التحليل الإحصائي (SPSS)" /> <span data-i18n="sk.spss">التحليل الإحصائي (SPSS)</span></label>
+                <label class="check"><input type="checkbox" name="skills" value="المسرح التربوي والتنشيط" /> <span data-i18n="sk.theater">المسرح التربوي والتنشيط</span></label>
+                <label class="check"><input type="checkbox" name="skills" value="تدبير الأنشطة الموازية والنوادي" /> <span data-i18n="sk.clubs">الأنشطة الموازية والنوادي</span></label>
+                <label class="check"><input type="checkbox" id="skill_other" name="skills" value="مهارة أخرى" /> <span data-i18n="sk.other">مهارة أخرى</span></label>
+              </div>
+            </div>
+
+            <div class="field conditional" id="skill-other-wrap" hidden>
+              <label for="skill_other_text" data-i18n="f.skillOther">اذكر مهاراتك الأخرى</label>
+              <input type="text" id="skill_other_text" name="skill_other_text" />
+            </div>
+
+            <div class="field file-field">
+              <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="f.photo">الصورة الشخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
+              <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
+              <small class="hint" data-i18n="hint.photo">يمكنك تجاوزها الآن وإضافتها لاحقاً إلى ملفك. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent" name="consent" required />
+                <span><span data-i18n="f.consent">أوافق على مشاركة بياناتي مع المؤسسات التعليمية الشريكة لغرض التوظيف، وأقرّ بأنني اطّلعت على</span> <a href="privacy.html" target="_blank" rel="noopener" data-i18n="f.privacyLink">سياسة الخصوصية</a><span class="req"> *</span></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- ===== NAV + STATUS ===== -->
+          <div class="form-nav">
+            <button type="button" class="btn btn-ghost" id="prevBtn" hidden data-i18n="btn.prev">السابق</button>
+            <button type="button" class="btn btn-primary" id="nextBtn" data-i18n="btn.next">التالي</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" hidden><span data-i18n="btn.submit">إرسال وإنشاء الملف</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+          </div>
+
+          <div id="formStatus" class="form-status" hidden></div>
+        </form>
+
+        <!-- success screen -->
+        <div id="successScreen" class="success-screen" hidden>
+          <div class="success-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <h3 data-i18n="ok.title">تهانينا! تم تسجيل ملفك بنجاح.</h3>
+          <p data-i18n="ok.body">سنتواصل معك عبر الواتساب أو البريد الإلكتروني عند توفّر فرصة قريبة منك تناسبك.</p>
+          <div class="share-block">
+            <p class="share-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="ok.share">تعرف أساتذة قد تفيدهم المنصة؟ شارك معهم الرابط:</span></p>
+            <a id="waShare" class="btn wa-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> <span data-i18n="ok.wa">شارك عبر واتساب</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title" data-i18n="how.title">كيف تعمل Linkify</h2>
+        <p class="section-sub" data-i18n="how.sub">ثلاث خطوات بسيطة، دون تعقيد.</p>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><h3 data-i18n="how.1t">أنشئ ملفك</h3><p data-i18n="how.1b">أدخل معلوماتك المهنية مرة واحدة: التخصص، الخبرة، اللغات، وموقعك الجغرافي.</p></div>
+          <div class="step"><div class="step-num">2</div><h3 data-i18n="how.2t">نوصلك بالأقرب إليك</h3><p data-i18n="how.2b">تجد المؤسسات التعليمية القريبة من سكناك ملفك ضمن قاعدة بياناتنا.</p></div>
+          <div class="step"><div class="step-num">3</div><h3 data-i18n="how.3t">تواصل مباشر</h3><p data-i18n="how.3b">تتواصل معك المؤسسة المهتمة مباشرة. القرار النهائي دائماً بيدك.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY ============ -->
+    <section id="why" class="section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="why.title">لماذا Linkify</h2>
+        <div class="features">
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><h3 data-i18n="why.1t">القُرب الجغرافي</h3><p data-i18n="why.1b">نركّز على الفرص القريبة من سكناك — وقت أقل في الطريق، واستقرار أكبر.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg></span><h3 data-i18n="why.2t">مجاني للأساتذة</h3><p data-i18n="why.2b">إنشاء الملف والظهور للمؤسسات مجاني بالكامل.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span><h3 data-i18n="why.3t">ملف مهني منظّم</h3><p data-i18n="why.3b">سيرتك وشهاداتك ولغاتك في مكان واحد، كما يفضّله المدراء.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span><h3 data-i18n="why.4t">بياناتك محمية</h3><p data-i18n="why.4b">نشارك معلوماتك فقط بعد موافقتك، ومع المؤسسات الشريكة لا غير.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT (human trust line) ============ -->
+    <section class="section section-alt about-strip">
+      <div class="container">
+        <p class="about-line" data-i18n="about.line">Linkify مبادرة مغربية هدفها سدّ الفجوة بين الأطر التربوية الكفؤة والمؤسسات التعليمية التي تحتاجها — بطريقة مجانية، قريبة، وآمنة.</p>
+      </div>
+    </section>
+
+    <!-- ============ FOR INSTITUTIONS — hidden for now (teacher data-collection phase only) ============ -->
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="#top" class="brand"><img src="logo-dark.png" alt="Linkify" class="footer-logo" /></a>
+        <p class="footer-tag" data-i18n="foot.tag">نربط الكفاءات التربوية بالفرص القريبة منها.</p>
+      </div>
+      <div class="footer-contact">
+        <a href="mailto:contact@linkify.ma">contact@linkify.ma</a>
+        <span data-i18n="foot.made">صُنع بالمغرب 🇲🇦</span>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year"></span> Linkify.ma — <span data-i18n="foot.rights">جميع الحقوق محفوظة.</span></span>
+    </div>
+  </footer>
+
+  <!-- back to top -->
+  <button id="toTop" class="to-top" type="button" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
+
+  <!-- Lenis smooth scroll (buttery inertia, like beacons.ai) -->
+  <script type="module">
+    import Lenis from 'https://unpkg.com/lenis@1.3.25/dist/lenis.mjs';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) {
+      var lenis = new Lenis({
+        lerp: 0.085,          // lower = smoother / more "float"
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.6,
+      });
+      window.lenis = lenis;
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+
+      // make in-page anchor links glide via Lenis (offset for sticky header)
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          var id = a.getAttribute('href');
+          if (id === '#' || id === '#top') { e.preventDefault(); lenis.scrollTo(0); return; }
+          var target = document.querySelector(id);
+          if (target) { e.preventDefault(); lenis.scrollTo(target, { offset: -72 }); }
+        });
+      });
+    }
+  </script>
+
+  <script src="i18n.js" defer></script>
+  <script src="hero-match.js" defer></script>
+  <script src="interactions.js" defer></script>
+  <script src="form.js" defer></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      var KEY = 'linkify-theme', root = document.documentElement, btn = document.getElementById('themeToggle');
+      function effective() {
+        var t = root.getAttribute('data-theme');
+        return t ? t : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+      var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+      function setIcon() { if (btn) btn.innerHTML = effective() === 'dark' ? SUN : MOON; }
+      setIcon();
+      var animTimer;
+      if (btn) btn.addEventListener('click', function () {
+        var next = effective() === 'dark' ? 'light' : 'dark';
+        // brief window where colours cross-fade
+        root.classList.add('theme-anim');
+        clearTimeout(animTimer);
+        animTimer = setTimeout(function () { root.classList.remove('theme-anim'); }, 500);
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        setIcon();
+        // little spin/fade on the icon to mask the swap
+        btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin');
+      });
+    })();
+  </script>
+</body>
+</html>
