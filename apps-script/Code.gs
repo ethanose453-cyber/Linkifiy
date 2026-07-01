@@ -79,8 +79,9 @@ function setupSecrets() {
     DRIVE_FOLDER_ID: "",
     NOTIFY_EMAIL: "",
     SITE_URL: "https://linkify.ma",
-    CALLMEBOT_PHONE: "",
-    CALLMEBOT_APIKEY: ""
+    GREENAPI_ID: "",
+    GREENAPI_TOKEN: "",
+    ADMIN_PHONE: ""
   };
   var store = PropertiesService.getScriptProperties();
   Object.keys(secrets).forEach(function (k) { if (secrets[k] !== "") store.setProperty(k, secrets[k]); });
@@ -421,16 +422,25 @@ function normalizePhone(v) {
 }
 
 function adminAlert(text) {
-  var phone = prop("CALLMEBOT_PHONE");
-  var apikey = prop("CALLMEBOT_APIKEY");
-  if (!phone || !apikey) return;
+  var id = prop("GREENAPI_ID");
+  var token = prop("GREENAPI_TOKEN");
+  var to = normalizePhone(prop("ADMIN_PHONE"));
+  if (!id || !token || !to) return;
+  var apiUrl = prop("GREENAPI_URL") || "https://api.green-api.com";
   try {
-    var url = "https://api.callmebot.com/whatsapp.php"
-      + "?phone=" + encodeURIComponent(phone)
-      + "&text=" + encodeURIComponent(text)
-      + "&apikey=" + encodeURIComponent(apikey);
-    UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    var url = apiUrl + "/waInstance" + id + "/sendMessage/" + token;
+    UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({ chatId: to + "@c.us", message: text }),
+      muteHttpExceptions: true
+    });
   } catch (e) {}
+}
+
+// Run this from the editor to test that Green API alerts reach your WhatsApp.
+function testAlert() {
+  adminAlert("Linkify test alert - if you received this on WhatsApp, Green API works. Sample: https://wa.me/212600000000?text=hello");
 }
 
 
