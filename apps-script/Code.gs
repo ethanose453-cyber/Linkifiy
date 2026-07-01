@@ -1,5 +1,5 @@
 /* ===========================================================
-   Linkify.ma — Google Apps Script backend
+   Linkify.ma — Google Apps Script backend (hardened)
    -----------------------------------------------------------
    Handles:
      1) doPost  → save/upsert a registration (partial OR complete)
@@ -7,56 +7,44 @@
                   emails you on each completed registration.
      2) doGet   → ?resume=TOKEN returns saved fields so the form
                   can prefill and drop the visitor where they left.
-     3) processAbandoners → hourly trigger that finds people who
-                  started but didn't finish, and queues a warm,
-                  personalized WhatsApp message (wa.me link) in a
-                  "To Contact" tab at 1h / 24h / 72h. Optionally
-                  pings YOU on WhatsApp via CallMeBot.
+     3) processAbandoners → hourly trigger that queues warm,
+                  personalized WhatsApp nudges at 1h/24h/72h into a
+                  "To Contact" tab. Optionally pings YOU via CallMeBot.
 
-   HOW TO INSTALL: see SETUP.md. In short:
-     - Open your Google Sheet → Extensions → Apps Script
-     - Paste this whole file, fill CONFIG below
-     - Deploy → New deployment → Web app → Anyone
-     - Run createTrigger() once (authorize) to enable retargeting
+   SECURITY (applied throughout):
+     - Secrets are read from Script Properties (env-var equivalent),
+       never hardcoded. See setupSecrets() / SETUP.md.
+     - Every request is rate limited (per submissionId + global).
+     - All user input is validated (email/phone/age/step/files) AND
+       sanitized before it touches the sheet (incl. formula-injection
+       neutralization for =,+,-,@ and control-char stripping).
+     - No SQL is used; sheet access is via the Sheets API (no string
+       query building), so there is no SQL-injection surface.
    =========================================================== */
 
 
-/* ============ CONFIG — edit these ============ */
+/* ============ NON-SECRET CONFIG ============ */
+/* Secrets/IDs are NOT here — set them in Script Properties (see setupSecrets).
+   These are safe, non-sensitive defaults only. */
 var CONFIG = {
-  // Your Google Sheet ID (from its URL: /spreadsheets/d/THIS_PART/edit).
-  // Leave empty ("") ONLY if this script is bound to the Sheet
-  // (opened via the Sheet → Extensions → Apps Script).
-  SHEET_ID: "PASTE_SHEET_ID",
+  SHEET_NAME: "Registrations",          // tab that stores registrations
+  SITE_URL_DEFAULT: "https://linkify.ma", // fallback if SITE_URL prop is unset
+  NUDGE_HOURS: [1, 24, 72],             // retargeting schedule (hours)
 
-  // Tab that stores registrations. Auto-created if it doesn't exist.
-  SHEET_NAME: "Registrations",
-
-  // Google Drive folder ID for uploaded files (CV / certs / photo).
-  // Leave as-is to auto-use a folder named "Linkify Uploads" in My Drive.
-  DRIVE_FOLDER_ID: "PASTE_DRIVE_FOLDER_ID",
-
-  // Where the "new registration" notification email is sent.
-  NOTIFY_EMAIL: "contact@linkify.ma",
-
-  // Public site URL, used to build resume links (fallback only —
-  // the form sends its own resumeUrl which is preferred).
-  SITE_URL: "https://linkify.ma",
-
-  // Retargeting nudge schedule, in HOURS after the last activity.
-  NUDGE_HOURS: [1, 24, 72],
-
-  // --- Optional: CallMeBot admin alert (pings YOU, not the teacher) ---
-  // Leave both empty to disable. To enable: add CallMeBot's number to
-  // your WhatsApp contacts, send "I allow callmebot to send me messages",
-  // then paste your number (intl, e.g. 2126xxxxxxxx) + the API key it returns.
-  CALLMEBOT_PHONE: "",
-  CALLMEBOT_APIKEY: ""
+  // limits
+  MAX_FIELD_LEN: 5000,                  // max chars stored per text cell
+  MAX_FILE_BYTES: 6 * 1024 * 1024,      // 6 MB hard cap per file
+  RL_PER_SID: 30,                       // max writes per submissionId / minute
+  RL_GLOBAL: 600,                       // max requests globally / minute
+  RL_WINDOW_SEC: 60
 };
 
+// Keys read from Script Properties (Project Settings → Script properties).
+var SECRET_KEYS = ["SHEET_ID", "DRIVE_FOLDER_ID", "NOTIFY_EMAIL", "SITE_URL", "CALLMEBOT_PHONE", "CALLMEBOT_APIKEY"];
 
 /* Canonical column order (only used when creating a fresh sheet).
-   Existing sheets are matched by header NAME, and any missing columns
-   are appended — so your already-collected data is never disturbed. */
+   Existing sheets are matched by header NAME; missing columns are
+   appended, so already-collected data is never disturbed. */
 var HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "submittedAt",
   "first_name", "last_name", "age", "gender", "city", "city_other", "neighborhood", "whatsapp", "email",
@@ -69,16 +57,45 @@ var HEADERS = [
   "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
 ];
 
-// form file input id  →  sheet column that stores its Drive link
+// form file input  →  sheet column + allowed extensions
 var FILE_FIELDS = { cv: "cv_url", certs: "certs_url", photo: "photo_url" };
+var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
+
+
+/* ============ SECRETS (env-var equivalent) ============ */
+function prop(key) {
+  try {
+    var v = PropertiesService.getScriptProperties().getProperty(key);
+    return (v === null || v === undefined) ? "" : String(v);
+  } catch (e) { return ""; }
+}
+function siteUrl() { return prop("SITE_URL") || CONFIG.SITE_URL_DEFAULT; }
+
+/* OPTIONAL one-time helper: fill the values, Run once, THEN blank them out again.
+   Prefer the UI: Project Settings → Script properties → Add. */
+function setupSecrets() {
+  var secrets = {
+    SHEET_ID: "",          // your Google Sheet ID
+    DRIVE_FOLDER_ID: "",   // your Drive folder ID
+    NOTIFY_EMAIL: "",      // where new-registration emails go
+    SITE_URL: "https://linkify.ma",
+    CALLMEBOT_PHONE: "",   // optional admin alert
+    CALLMEBOT_APIKEY: ""   // optional admin alert
+  };
+  var store = PropertiesService.getScriptProperties();
+  Object.keys(secrets).forEach(function (k) { if (secrets[k] !== "") store.setProperty(k, secrets[k]); });
+}
 
 
 /* ============ WEB APP ENTRY POINTS ============ */
 
 function doPost(e) {
-  var lock = LockService.getScriptLock();
-  try { lock.waitLock(30000); } catch (err) { /* proceed best-effort */ }
   try {
+    // basic global rate limit (per-IP is not available in Apps Script)
+    if (rateLimited("global", CONFIG.RL_GLOBAL, CONFIG.RL_WINDOW_SEC)) {
+      return json({ status: "rate_limited" });
+    }
+
     var data = JSON.parse(e.postData.contents);
 
     // anti-spam honeypot: bots fill the hidden "website" field
@@ -86,63 +103,86 @@ function doPost(e) {
       return json({ status: "ignored" });
     }
 
+    var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
+
+    // per-submission rate limit
+    if (rateLimited("sid_" + sid, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
+      return json({ status: "rate_limited" });
+    }
+
     var isPartial = (data.partial === true) || (data.status === "partial");
-    var sheet = getSheet();
-    var map = ensureHeaders(sheet);
 
-    var sid = data.submissionId || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
-    var rowIndex = findRow(sheet, map, sid);
-    var now = new Date();
+    // validate BEFORE writing anything
+    var errors = validatePayload(data, isPartial);
+    if (errors.length) return json({ status: "invalid", fields: errors });
 
-    // collect known text fields present in this payload
-    var record = {};
-    HEADERS.forEach(function (h) {
-      if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = data[h];
-    });
-    record.submissionId = sid;
-    record.status = isPartial ? "partial" : "complete";
-    if (data.currentStep !== undefined && data.currentStep !== null) record.currentStep = data.currentStep;
-    record.updatedAt = now.toISOString();
-    if (!isPartial) record.submittedAt = data.submittedAt || now.toISOString();
-    record.resume_url = data.resumeUrl || (CONFIG.SITE_URL + "?resume=" + encodeURIComponent(sid));
+    var lock = LockService.getScriptLock();
+    try { lock.waitLock(30000); } catch (err) {}
+    try {
+      var sheet = getSheet();
+      var map = ensureHeaders(sheet);
+      var rowIndex = findRow(sheet, map, sid);
+      var now = new Date();
 
-    // uploads (usually only on final submit, but handled whenever present)
-    if (data.files) {
-      var folder = getFolder();
-      Object.keys(FILE_FIELDS).forEach(function (field) {
-        var f = data.files[field];
-        if (f && f.data) {
-          try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); }
-          catch (upErr) { /* keep going even if one file fails */ }
-        }
+      // collect + sanitize known text fields present in this payload
+      var record = {};
+      HEADERS.forEach(function (h) {
+        if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
       });
-    }
+      record.submissionId = sid;
+      record.status = isPartial ? "partial" : "complete";
+      if (data.currentStep !== undefined && data.currentStep !== null) {
+        record.currentStep = clampInt(data.currentStep, 0, 10, 0);
+      }
+      record.updatedAt = now.toISOString();
+      if (!isPartial) record.submittedAt = now.toISOString();
+      record.resume_url = siteUrl() + "?resume=" + encodeURIComponent(sid);
 
-    if (rowIndex > 0) {
-      updateRow(sheet, map, rowIndex, record);   // upsert: never wipes untouched fields
-    } else {
-      record.createdAt = now.toISOString();
-      appendRow(sheet, map, record);
-    }
+      // uploads (validated: type + size)
+      if (data.files) {
+        var folder = getFolder();
+        Object.keys(FILE_FIELDS).forEach(function (field) {
+          var f = data.files[field];
+          if (f && f.data) {
+            var check = validateFile(field, f);
+            if (check.ok) {
+              try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr) {}
+            }
+          }
+        });
+      }
 
-    // email you only when a registration is completed
-    if (!isPartial) {
-      try { notifyEmail(record); } catch (mailErr) {}
-    }
+      if (rowIndex > 0) {
+        updateRow(sheet, map, rowIndex, record);   // upsert: never wipes untouched fields
+      } else {
+        record.createdAt = now.toISOString();
+        appendRow(sheet, map, record);
+      }
 
-    return json({ status: isPartial ? "partial" : "success" });
+      if (!isPartial) { try { notifyEmail(record); } catch (mailErr) {} }
+
+      return json({ status: isPartial ? "partial" : "success" });
+    } finally {
+      try { lock.releaseLock(); } catch (e2) {}
+    }
   } catch (err) {
-    return json({ status: "error", message: String(err) });
-  } finally {
-    try { lock.releaseLock(); } catch (e2) {}
+    return json({ status: "error" }); // don't leak internals
   }
 }
 
 function doGet(e) {
-  var token = (e && e.parameter) ? e.parameter.resume : null;
-  if (!token) {
-    return json({ status: "ok", message: "Linkify backend is running." });
+  if (rateLimited("global", CONFIG.RL_GLOBAL, CONFIG.RL_WINDOW_SEC)) {
+    return json({ status: "rate_limited" });
   }
+  var raw = (e && e.parameter) ? e.parameter.resume : null;
+  if (!raw) return json({ status: "ok", message: "Linkify backend is running." });
+
+  var token = sanitizeToken(raw);              // strict: [A-Za-z0-9_-]{1,64}
+  if (!token) return json({ status: "notfound" });
+  if (rateLimited("get_" + token, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
+    return json({ status: "rate_limited" });
+  }
+
   try {
     var sheet = getSheet();
     var map = ensureHeaders(sheet);
@@ -152,35 +192,31 @@ function doGet(e) {
     var values = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
     var record = {};
     Object.keys(map).forEach(function (h) {
-      // don't expose stored file URLs in the public resume payload
-      if (h === "cv_url" || h === "certs_url" || h === "photo_url") return;
+      if (h === "cv_url" || h === "certs_url" || h === "photo_url") return; // don't expose file URLs
       var v = values[map[h] - 1];
       if (v !== "" && v !== null && v !== undefined) record[h] = v;
     });
     return json({ status: "found", record: record });
   } catch (err) {
-    return json({ status: "error", message: String(err) });
+    return json({ status: "error" });
   }
 }
 
 
 /* ============ RETARGETING ENGINE ============ */
-/* Run createTrigger() ONCE to schedule this every hour. */
 function processAbandoners() {
   var sheet = getSheet();
   var map = ensureHeaders(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return;
 
-  var width = sheet.getLastColumn();
-  var rows = sheet.getRange(2, 1, last - 1, width).getValues();
+  var rows = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
   var now = new Date();
   var contact = getContactSheet();
 
   for (var i = 0; i < rows.length; i++) {
     var row = rows[i];
     var rowNum = i + 2;
-
     if (String(cell(row, map, "status")) !== "partial") continue;
 
     var updatedAt = cell(row, map, "updatedAt");
@@ -191,27 +227,18 @@ function processAbandoners() {
     var name = cell(row, map, "first_name") || "";
     var phone = normalizePhone(cell(row, map, "whatsapp"));
     var sid = cell(row, map, "submissionId");
-    var resumeUrl = cell(row, map, "resume_url") || (CONFIG.SITE_URL + "?resume=" + encodeURIComponent(sid));
+    var resumeUrl = cell(row, map, "resume_url") || (siteUrl() + "?resume=" + encodeURIComponent(sid));
 
     for (var n = 0; n < CONFIG.NUDGE_HOURS.length; n++) {
       var stage = n + 1;
       var col = map["nudge" + stage + "_at"];
-      var alreadySent = row[col - 1];
-
-      if (!alreadySent && hours >= CONFIG.NUDGE_HOURS[n]) {
+      if (!row[col - 1] && hours >= CONFIG.NUDGE_HOURS[n]) {
         var msg = buildNudgeMessage(stage, name, resumeUrl);
         var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
-
-        // queue it for the team to click (semi-automatic, free, ban-safe)
-        contact.appendRow([now, name, phone, "Nudge " + stage, resumeUrl, waLink, msg]);
-
-        // mark this nudge so it's never queued twice
+        contact.appendRow([now, sanitizeCell(name), phone, "Nudge " + stage, resumeUrl, waLink, sanitizeCell(msg)]);
         sheet.getRange(rowNum, col).setValue(now);
-
-        // optional: ping you on WhatsApp that a lead is waiting
         adminAlert("Linkify — تذكير " + stage + " جاهز:\n" + name + " (" + phone + ")\n" + waLink);
-
-        break; // at most one nudge per person per run
+        break; // one nudge per person per run
       }
     }
   }
@@ -230,15 +257,92 @@ function buildNudgeMessage(stage, name, resumeUrl) {
 }
 
 
+/* ============ VALIDATION + SANITIZATION ============ */
+
+// server-side validation (mirrors the frontend checks)
+function validatePayload(data, isPartial) {
+  var errors = [];
+  var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var phoneRe = /^(?:\+212|212|0)[567]\d{8}$/;
+
+  if (data.email && !emailRe.test(String(data.email))) errors.push("email");
+  if (data.whatsapp && !phoneRe.test(String(data.whatsapp).replace(/[\s\-().]/g, ""))) errors.push("whatsapp");
+  if (data.age !== undefined && data.age !== "") {
+    var a = parseInt(data.age, 10);
+    if (isNaN(a) || a < 16 || a > 80) errors.push("age");
+  }
+  if (data.currentStep !== undefined && data.currentStep !== null && data.currentStep !== "") {
+    var st = parseInt(data.currentStep, 10);
+    if (isNaN(st) || st < 0 || st > 10) errors.push("currentStep");
+  }
+  // required fields only when finishing
+  if (!isPartial) {
+    ["first_name", "last_name", "whatsapp", "email"].forEach(function (f) {
+      if (!data[f] || String(data[f]).trim() === "") errors.push("missing:" + f);
+    });
+    if (!data.consent) errors.push("missing:consent");
+  }
+  return errors;
+}
+
+function validateFile(field, f) {
+  try {
+    var name = String(f.name || "");
+    var ext = name.indexOf(".") >= 0 ? name.split(".").pop().toLowerCase() : "";
+    var allowed = ALLOWED_EXT[field] || [];
+    if (allowed.indexOf(ext) === -1) return { ok: false, reason: "type" };
+    // base64 → approximate byte size
+    var bytes = Math.floor(String(f.data).length * 3 / 4);
+    if (bytes > CONFIG.MAX_FILE_BYTES) return { ok: false, reason: "size" };
+    return { ok: true };
+  } catch (e) { return { ok: false, reason: "error" }; }
+}
+
+// neutralize formula/CSV injection + strip control chars + cap length
+function sanitizeCell(v) {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "number") return v;
+  if (v instanceof Date) return v;
+  var s = String(v);
+  if (s.length > CONFIG.MAX_FIELD_LEN) s = s.substring(0, CONFIG.MAX_FIELD_LEN);
+  s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ""); // control chars
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;                              // formula injection guard
+  return s;
+}
+
+// only allow safe id chars; returns "" if invalid
+function sanitizeToken(v) {
+  if (!v) return "";
+  var s = String(v);
+  return /^[A-Za-z0-9_-]{1,64}$/.test(s) ? s : "";
+}
+
+function clampInt(v, min, max, dflt) {
+  var n = parseInt(v, 10);
+  if (isNaN(n)) return dflt;
+  return Math.max(min, Math.min(max, n));
+}
+
+// lightweight rate limiter (best-effort; CacheService, not per-IP)
+function rateLimited(key, maxHits, windowSec) {
+  try {
+    var cache = CacheService.getScriptCache();
+    var k = "rl_" + key;
+    var cur = parseInt(cache.get(k) || "0", 10);
+    if (cur >= maxHits) return true;
+    cache.put(k, String(cur + 1), windowSec);
+    return false;
+  } catch (e) { return false; }
+}
+
+
 /* ============ SHEET HELPERS (header-name based, non-destructive) ============ */
 
-// Opens by SHEET_ID if provided, otherwise falls back to the bound spreadsheet.
 function getSpreadsheet() {
-  if (CONFIG.SHEET_ID && CONFIG.SHEET_ID.indexOf("PASTE") === -1 && CONFIG.SHEET_ID !== "") {
-    return SpreadsheetApp.openById(CONFIG.SHEET_ID);
-  }
+  var id = prop("SHEET_ID");
+  if (id) return SpreadsheetApp.openById(id);
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error("Set CONFIG.SHEET_ID, or bind this script to your Sheet (Sheet → Extensions → Apps Script).");
+  if (!ss) throw new Error("Set SHEET_ID in Script Properties, or bind this script to your Sheet.");
   return ss;
 }
 
@@ -253,7 +357,6 @@ function getSheet() {
   return sh;
 }
 
-// returns { headerName: 1-based column index }, appending any missing canonical headers
 function ensureHeaders(sheet) {
   var lastCol = Math.max(sheet.getLastColumn(), 1);
   var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
@@ -286,17 +389,13 @@ function appendRow(sheet, map, record) {
   var width = sheet.getLastColumn();
   var row = [];
   for (var i = 0; i < width; i++) row.push("");
-  Object.keys(record).forEach(function (k) {
-    if (map[k]) row[map[k] - 1] = record[k];
-  });
+  Object.keys(record).forEach(function (k) { if (map[k]) row[map[k] - 1] = record[k]; });
   sheet.appendRow(row);
 }
 
 function updateRow(sheet, map, rowIndex, record) {
   Object.keys(record).forEach(function (k) {
-    if (map[k] && record[k] !== undefined) {
-      sheet.getRange(rowIndex, map[k]).setValue(record[k]);
-    }
+    if (map[k] && record[k] !== undefined) sheet.getRange(rowIndex, map[k]).setValue(record[k]);
   });
 }
 
@@ -307,10 +406,9 @@ function cell(row, map, headerName) {
 
 function getContactSheet() {
   var ss = getSpreadsheet();
-  var name = "To Contact";
-  var sh = ss.getSheetByName(name);
+  var sh = ss.getSheetByName("To Contact");
   if (!sh) {
-    sh = ss.insertSheet(name);
+    sh = ss.insertSheet("To Contact");
     sh.getRange(1, 1, 1, 7).setValues([["queuedAt", "name", "phone", "stage", "resumeUrl", "whatsappLink", "message"]]);
     sh.setFrozenRows(1);
   }
@@ -318,19 +416,18 @@ function getContactSheet() {
 }
 
 
-/* ============ FILES / EMAIL / WHATSAPP HELPERS ============ */
+/* ============ FILES / EMAIL / WHATSAPP ============ */
 
 function getFolder() {
-  if (CONFIG.DRIVE_FOLDER_ID && CONFIG.DRIVE_FOLDER_ID.indexOf("PASTE") === -1) {
-    return DriveApp.getFolderById(CONFIG.DRIVE_FOLDER_ID);
-  }
+  var id = prop("DRIVE_FOLDER_ID");
+  if (id) return DriveApp.getFolderById(id);
   var it = DriveApp.getFoldersByName("Linkify Uploads");
   return it.hasNext() ? it.next() : DriveApp.createFolder("Linkify Uploads");
 }
 
 function saveFile(folder, fileObj, baseName) {
   var bytes = Utilities.base64Decode(fileObj.data);
-  var safeName = baseName + "_" + (fileObj.name || "file");
+  var safeName = sanitizeToken(baseName) + "_" + String(fileObj.name || "file").replace(/[^\w.\-]/g, "_");
   var blob = Utilities.newBlob(bytes, fileObj.type || "application/octet-stream", safeName);
   var file = folder.createFile(blob);
   try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
@@ -338,14 +435,15 @@ function saveFile(folder, fileObj, baseName) {
 }
 
 function notifyEmail(record) {
-  if (!CONFIG.NOTIFY_EMAIL) return;
+  var to = prop("NOTIFY_EMAIL");
+  if (!to) return;
   var name = ((record.first_name || "") + " " + (record.last_name || "")).trim();
   var subject = "Linkify — تسجيل جديد: " + (name || record.submissionId);
   var lines = [];
   HEADERS.forEach(function (h) {
     if (record[h] !== undefined && record[h] !== "") lines.push(h + ": " + record[h]);
   });
-  MailApp.sendEmail(CONFIG.NOTIFY_EMAIL, subject, lines.join("\n"));
+  MailApp.sendEmail(to, subject, lines.join("\n"));
 }
 
 // Moroccan phone → international digits (no +), e.g. 0612... → 212612...
@@ -356,24 +454,30 @@ function normalizePhone(v) {
   if (s.indexOf("00") === 0) s = s.substring(2);
   if (s.charAt(0) === "0") s = "212" + s.substring(1);
   else if (s.indexOf("212") !== 0 && s.length === 9) s = "212" + s;
-  return s;
+  return s.replace(/\D/g, ""); // digits only
 }
 
-// pings YOU (admin) on WhatsApp via CallMeBot — disabled unless configured
+// pings YOU (admin) via CallMeBot — disabled unless both props are set
 function adminAlert(text) {
-  if (!CONFIG.CALLMEBOT_PHONE || !CONFIG.CALLMEBOT_APIKEY) return;
+  var phone = prop("CALLMEBOT_PHONE");
+  var apikey = prop("CALLMEBOT_APIKEY");
+  if (!phone || !apikey) return;
   try {
     var url = "https://api.callmebot.com/whatsapp.php"
-      + "?phone=" + encodeURIComponent(CONFIG.CALLMEBOT_PHONE)
+      + "?phone=" + encodeURIComponent(phone)
       + "&text=" + encodeURIComponent(text)
-      + "&apikey=" + encodeURIComponent(CONFIG.CALLMEBOT_APIKEY);
+      + "&apikey=" + encodeURIComponent(apikey);
     UrlFetchApp.fetch(url, { muteHttpExceptions: true });
-  } catch (e) { /* ignore alert failures */ }
+  } catch (e) {}
 }
 
 
-/* ============ ONE-TIME SETUP ============ */
-// Run this once from the Apps Script editor to enable hourly retargeting.
+/* ============ RESPONSE + ONE-TIME SETUP ============ */
+function json(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// Run ONCE from the editor to enable hourly retargeting.
 function createTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === "processAbandoners") ScriptApp.deleteTrigger(t);

@@ -280,6 +280,8 @@ document.addEventListener("DOMContentLoaded", () => {
      Opened from a WhatsApp/email link like ...?resume=TOKEN
      Fetches saved fields, prefills them, and jumps to the saved step. */
   async function loadResume(token) {
+    // defense in depth: only accept safe token characters
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(token))) return;
     try {
       setStatus("loading", "جاري استرجاع بياناتك المحفوظة…");
       const res = await fetch(GOOGLE_SCRIPT_URL + "?resume=" + encodeURIComponent(token), { method: "GET" });

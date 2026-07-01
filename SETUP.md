@@ -24,20 +24,27 @@
 ## الخطوة 3 — أنشئ الـ Apps Script
 1. سير لـ [script.new](https://script.new) (كيفتح محرر Apps Script جديد).
 2. مسح أي كود كاين، ولصق **كامل محتوى** الملف [`apps-script/Code.gs`](apps-script/Code.gs).
-3. فوق فالكود، عمّر `CONFIG` بالقيم ديالك:
-   ```js
-   var CONFIG = {
-     SHEET_ID:        "ID ديال الجدول من الخطوة 1",
-     SHEET_NAME:      "Registrations",          // خلّيه هكا
-     DRIVE_FOLDER_ID: "ID ديال المجلد من الخطوة 2",
-     NOTIFY_EMAIL:    "بريدك@gmail.com",
-     SITE_URL:        "https://linkify.ma",     // بدّلو بالرابط النهائي ديال الموقع
-     NUDGE_HOURS:     [1, 24, 72],              // توقيت رسائل التذكير (بالساعات)
-     CALLMEBOT_PHONE:  "",                      // (اختياري) شوف قسم CallMeBot
-     CALLMEBOT_APIKEY: ""
-   };
-   ```
-4. حفظ (💾 أو Ctrl+S).
+3. حفظ (💾 أو Ctrl+S).
+
+## الخطوة 3.5 — حطّ الأسرار فـ Script Properties (بدل ما تكتبهم فالكود) 🔐
+> 🔒 **أمان:** المفاتيح والـ IDs **ماكيتكتبوش فالكود**، كيتحطو فـ "Script Properties" (بحال environment variables).
+
+1. فمحرر Apps Script، اضغط ⚙️ **Project Settings** (على اليسار).
+2. نزّل لقسم **Script Properties** → **Add script property**.
+3. زيد هاد المفاتيح (property = value):
+
+   | Property | Value |
+   |----------|-------|
+   | `SHEET_ID` | ID ديال الجدول من الخطوة 1 |
+   | `DRIVE_FOLDER_ID` | ID ديال المجلد من الخطوة 2 |
+   | `NOTIFY_EMAIL` | بريدك@gmail.com |
+   | `SITE_URL` | https://linkify.ma |
+   | `CALLMEBOT_PHONE` | (اختياري) رقمك بصيغة دولية |
+   | `CALLMEBOT_APIKEY` | (اختياري) شوف قسم CallMeBot |
+
+4. اضغط **Save script properties**.
+
+> 💡 توقيت رسائل التذكير (`NUDGE_HOURS`) كيتبدّل فوق فالكود فـ `CONFIG` (ماشي سرّي).
 
 ## الخطوة 4 — انشر الـ Web App
 1. فوق على اليمين: **Deploy → New deployment**.
@@ -81,7 +88,7 @@
 1. زيد الرقم **+34 644 66 32 62** لـ contacts ديالك.
 2. صيفط ليه فـ WhatsApp: `I allow callmebot to send me messages`.
 3. غادي يجاوبك بـ **API key** ديالك.
-4. عمّر `CALLMEBOT_PHONE` (رقمك بصيغة دولية، مثلاً `2126xxxxxxxx`) و `CALLMEBOT_APIKEY` فـ `CONFIG`، وأعد النشر.
+4. عمّر `CALLMEBOT_PHONE` (رقمك بصيغة دولية، مثلاً `2126xxxxxxxx`) و `CALLMEBOT_APIKEY` فـ **Script Properties** (الخطوة 3.5)، وأعد النشر.
 
 > ⚠️ CallMeBot كيصيفط غير ليك أنت (اللي وافقتي)، **ماشي للأساتذة**. الأساتذة كيتواصل معاهم عبر الروابط اللي فـ `To Contact`.
 
@@ -104,7 +111,7 @@
 ## 🔄 ترقية من نسخة قديمة
 
 إيلا عندك باكند خدّام من قبل والبيانات مجموعة فيه:
-- **ماتمسحش الجدول القديم.** حطّ نفس `SHEET_ID` ديالو فالـ `CONFIG`.
+- **ماتمسحش الجدول القديم.** حطّ نفس `SHEET_ID` ديالو فـ **Script Properties** (الخطوة 3.5).
 - الكود الجديد كيتعرّف على الأعمدة بالاسم، وكيزيد غير الأعمدة الناقصة (بحال `status`, `currentStep`, `resume_url`, `nudge1_at`...) **بلا ما يمسّ بياناتك القديمة**.
 - الصفوف القديمة اللي بلا `status` ماغاديش تدخل فنظام التذكير (حيت ماشي `partial`) — وهادا اللي بغيناه.
 - بدّل الكود القديم بالكامل بالجديد، أعد النشر (نسخة جديدة)، ورن `createTrigger` مرة وحدة.
