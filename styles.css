@@ -421,6 +421,22 @@ textarea { resize: vertical; }
 .check-consent { border: 0; background: transparent; padding: 0; align-items: flex-start; font-weight: 600; }
 .check-consent a { color: var(--teal-dark); text-decoration: underline; }
 
+/* neighborhood autocomplete */
+.autocomplete { position: relative; }
+.ac-list {
+  position: absolute; z-index: 30;
+  top: calc(100% + 4px); inset-inline-start: 0; inset-inline-end: 0;
+  margin: 0; padding: 5px; list-style: none;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; box-shadow: var(--shadow);
+  max-height: 240px; overflow-y: auto;
+}
+.ac-item {
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  font-size: .92rem; color: var(--ink); line-height: 1.4;
+}
+.ac-item:hover, .ac-item.is-active { background: var(--tint); color: var(--teal-dark); }
+
 /* step-1 privacy/opt-in note (retargeting consent) */
 .step-consent-note {
   display: flex; align-items: flex-start; gap: 8px;
