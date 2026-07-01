@@ -1,64 +1,55 @@
 /* ===========================================================
-   Linkify.ma — Google Apps Script backend (hardened)
+   Linkify.ma - Google Apps Script backend (ASCII-safe, paste-proof)
    -----------------------------------------------------------
-   Handles:
-     1) doPost  → save/upsert a registration (partial OR complete)
-                  keyed by submissionId, uploads files to Drive,
-                  emails you on each completed registration.
-     2) doGet   → ?resume=TOKEN returns saved fields so the form
-                  can prefill and drop the visitor where they left.
-     3) processAbandoners → hourly trigger that queues warm,
-                  personalized WhatsApp nudges at 1h/24h/72h into a
-                  "To Contact" tab. Optionally pings YOU via CallMeBot.
+   1) doPost  -> save/upsert a registration (partial OR complete),
+                 upload files to Drive, email you on completion.
+   2) doGet   -> ?resume=TOKEN returns saved fields to prefill the form.
+   3) processAbandoners -> hourly trigger that queues warm WhatsApp
+                 nudges at 1h/24h/72h into a "To Contact" tab.
 
-   SECURITY (applied throughout):
-     - Secrets are read from Script Properties (env-var equivalent),
-       never hardcoded. See setupSecrets() / SETUP.md.
-     - Every request is rate limited (per submissionId + global).
-     - All user input is validated (email/phone/age/step/files) AND
-       sanitized before it touches the sheet (incl. formula-injection
-       neutralization for =,+,-,@ and control-char stripping).
-     - No SQL is used; sheet access is via the Sheets API (no string
-       query building), so there is no SQL-injection surface.
+   SECURITY:
+     - Secrets read from Script Properties (env-var equivalent).
+     - Rate limiting per submissionId + global.
+     - All input validated + sanitized (formula-injection guard).
+     - No SQL is used (Sheets API), so no SQL-injection surface.
+
+   NOTE: user-facing Arabic strings are written with \u escapes so the
+   whole file stays ASCII and pastes cleanly into the editor.
    =========================================================== */
 
 
 /* ============ NON-SECRET CONFIG ============ */
-/* Secrets/IDs are NOT here — set them in Script Properties (see setupSecrets).
-   These are safe, non-sensitive defaults only. */
 var CONFIG = {
-  SHEET_NAME: "",                       // "" = use the FIRST sheet (your existing data sheet)
-  SITE_URL_DEFAULT: "https://linkify.ma", // fallback if SITE_URL prop is unset
-  NUDGE_HOURS: [1, 24, 72],             // retargeting schedule (hours)
-
-  // limits
-  MAX_FIELD_LEN: 5000,                  // max chars stored per text cell
-  MAX_FILE_BYTES: 6 * 1024 * 1024,      // 6 MB hard cap per file
-  RL_PER_SID: 30,                       // max writes per submissionId / minute
-  RL_GLOBAL: 600,                       // max requests globally / minute
+  SHEET_NAME: "",                        // "" = use the FIRST sheet (your existing data sheet)
+  SITE_URL_DEFAULT: "https://linkify.ma",
+  NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
+  MAX_FIELD_LEN: 5000,
+  MAX_FILE_BYTES: 6 * 1024 * 1024,
+  RL_PER_SID: 30,
+  RL_GLOBAL: 600,
   RL_WINDOW_SEC: 60
 };
 
-// Keys read from Script Properties (Project Settings → Script properties).
-var SECRET_KEYS = ["SHEET_ID", "DRIVE_FOLDER_ID", "NOTIFY_EMAIL", "SITE_URL", "CALLMEBOT_PHONE", "CALLMEBOT_APIKEY"];
-
-/* Canonical columns. Order mirrors your EXISTING sheet, then appends the
-   retargeting-engine columns at the end. Existing columns are matched by
-   NAME and never moved; only missing ones are appended — so your
-   already-collected data is preserved untouched. */
 var HEADERS = [
   "submittedAt", "first_name", "last_name", "age", "gender", "city", "city_other",
   "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "track", "diploma",
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
   "subjects", "levels", "institution_types", "schedule", "substitute", "has_experience", "exp_years", "last_inst",
   "last_role", "schools", "skills", "skill_other_text", "consent", "CV_URL", "CERTS_URL", "PHOTO_URL",
-  // --- retargeting engine columns (appended; won't disturb existing data) ---
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
 ];
 
-// form file input  →  sheet column + allowed extensions
 var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL" };
 var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
+
+/* Arabic message parts (escaped, ASCII-safe) */
+var GREET_PRE = "\u0633\u0644\u0627\u0645 ";
+var GREET_WAVE = " \ud83d\udc4b";
+var GREET_ANON = "\u0627\u0644\u0633\u0644\u0627\u0645 \u0639\u0644\u064a\u0643\u0645 \ud83d\udc4b";
+var P1A = "\n\n\u0644\u0627\u062d\u0638\u0646\u0627 \u0623\u0646\u0643 \u0628\u062f\u064a\u062a\u064a \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0641\u0640 Linkify \u0648\u0645\u0627 \u0643\u0645\u0651\u0644\u062a\u064a\u0647\u0634. \u062a\u0642\u062f\u0631 \u062a\u0643\u0645\u0651\u0644 \u0645\u0646 \u0646\u0641\u0633 \u0627\u0644\u0628\u0644\u0627\u0635\u0629 \u0627\u0644\u0644\u064a \u0648\u0642\u0641\u062a\u064a \u0641\u064a\u0647\u0627 \u0645\u0646 \u0647\u0646\u0627:\n";
+var P1B = "\n\n\u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0645\u062c\u0627\u0646\u064a \u062a\u0645\u0627\u0645\u0627\u064b \u2705 \u0648\u0643\u064a\u0627\u062e\u062f \u063a\u064a\u0631 \u062f\u0642\u0627\u0626\u0642.";
+var P2A = "\n\n\u0645\u0644\u0641\u0643 \u0641\u0640 Linkify \u0645\u0627\u0632\u0627\u0644 \u0645\u0627 \u0643\u0645\u0651\u0644\u0634. \u0627\u0644\u0645\u0624\u0633\u0633\u0627\u062a \u0627\u0644\u062a\u0639\u0644\u064a\u0645\u064a\u0629 \u0627\u0644\u0642\u0631\u064a\u0628\u0629 \u0645\u0646\u0643 \u0643\u062a\u0642\u0644\u0628 \u0639\u0644\u0649 \u0623\u0633\u0627\u062a\u0630\u0629 \u0628\u062d\u0627\u0644\u0643 \ud83c\udfaf\n\u0643\u0645\u0651\u0644 \u062a\u0633\u062c\u064a\u0644\u0643 (\u0628\u0627\u0642\u064a \u063a\u064a\u0631 \u062e\u0637\u0648\u0627\u062a \u0642\u0644\u0627\u0644):\n";
+var P3A = "\n\n\u0622\u062e\u0631 \u062a\u0630\u0643\u064a\u0631 \ud83d\ude4f \u0643\u0645\u0651\u0644 \u0645\u0644\u0641\u0643 \u0641\u0640 Linkify \u0628\u0627\u0634 \u0627\u0644\u0645\u062f\u0627\u0631\u0633 \u0627\u0644\u0642\u0631\u064a\u0628\u0629 \u0645\u0646\u0643 \u064a\u0642\u062f\u0631\u0648 \u064a\u0648\u0635\u0644\u0648 \u0644\u064a\u0643. \u0645\u062c\u0627\u0646\u0627\u064b \u0648\u0645\u0646 \u0646\u0641\u0633 \u0627\u0644\u0628\u0644\u0627\u0635\u0629:\n";
 
 
 /* ============ SECRETS (env-var equivalent) ============ */
@@ -70,16 +61,14 @@ function prop(key) {
 }
 function siteUrl() { return prop("SITE_URL") || CONFIG.SITE_URL_DEFAULT; }
 
-/* OPTIONAL one-time helper: fill the values, Run once, THEN blank them out again.
-   Prefer the UI: Project Settings → Script properties → Add. */
 function setupSecrets() {
   var secrets = {
-    SHEET_ID: "",          // your Google Sheet ID
-    DRIVE_FOLDER_ID: "",   // your Drive folder ID
-    NOTIFY_EMAIL: "",      // where new-registration emails go
+    SHEET_ID: "",
+    DRIVE_FOLDER_ID: "",
+    NOTIFY_EMAIL: "",
     SITE_URL: "https://linkify.ma",
-    CALLMEBOT_PHONE: "",   // optional admin alert
-    CALLMEBOT_APIKEY: ""   // optional admin alert
+    CALLMEBOT_PHONE: "",
+    CALLMEBOT_APIKEY: ""
   };
   var store = PropertiesService.getScriptProperties();
   Object.keys(secrets).forEach(function (k) { if (secrets[k] !== "") store.setProperty(k, secrets[k]); });
@@ -87,31 +76,20 @@ function setupSecrets() {
 
 
 /* ============ WEB APP ENTRY POINTS ============ */
-
 function doPost(e) {
   try {
-    // basic global rate limit (per-IP is not available in Apps Script)
     if (rateLimited("global", CONFIG.RL_GLOBAL, CONFIG.RL_WINDOW_SEC)) {
       return json({ status: "rate_limited" });
     }
-
     var data = JSON.parse(e.postData.contents);
-
-    // anti-spam honeypot: bots fill the hidden "website" field
     if (data.website && String(data.website).trim() !== "") {
       return json({ status: "ignored" });
     }
-
     var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
-
-    // per-submission rate limit
     if (rateLimited("sid_" + sid, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
       return json({ status: "rate_limited" });
     }
-
     var isPartial = (data.partial === true) || (data.status === "partial");
-
-    // validate BEFORE writing anything
     var errors = validatePayload(data, isPartial);
     if (errors.length) return json({ status: "invalid", fields: errors });
 
@@ -123,7 +101,6 @@ function doPost(e) {
       var rowIndex = findRow(sheet, map, sid);
       var now = new Date();
 
-      // collect + sanitize known text fields present in this payload
       var record = {};
       HEADERS.forEach(function (h) {
         if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
@@ -137,7 +114,6 @@ function doPost(e) {
       if (!isPartial) record.submittedAt = now.toISOString();
       record.resume_url = siteUrl() + "?resume=" + encodeURIComponent(sid);
 
-      // uploads (validated: type + size)
       if (data.files) {
         var folder = getFolder();
         Object.keys(FILE_FIELDS).forEach(function (field) {
@@ -152,20 +128,19 @@ function doPost(e) {
       }
 
       if (rowIndex > 0) {
-        updateRow(sheet, map, rowIndex, record);   // upsert: never wipes untouched fields
+        updateRow(sheet, map, rowIndex, record);
       } else {
         record.createdAt = now.toISOString();
         appendRow(sheet, map, record);
       }
 
       if (!isPartial) { try { notifyEmail(record); } catch (mailErr) {} }
-
       return json({ status: isPartial ? "partial" : "success" });
     } finally {
       try { lock.releaseLock(); } catch (e2) {}
     }
   } catch (err) {
-    return json({ status: "error" }); // don't leak internals
+    return json({ status: "error" });
   }
 }
 
@@ -175,23 +150,20 @@ function doGet(e) {
   }
   var raw = (e && e.parameter) ? e.parameter.resume : null;
   if (!raw) return json({ status: "ok", message: "Linkify backend is running." });
-
-  var token = sanitizeToken(raw);              // strict: [A-Za-z0-9_-]{1,64}
+  var token = sanitizeToken(raw);
   if (!token) return json({ status: "notfound" });
   if (rateLimited("get_" + token, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
     return json({ status: "rate_limited" });
   }
-
   try {
     var sheet = getSheet();
     var map = ensureHeaders(sheet);
     var rowIndex = findRow(sheet, map, token);
     if (rowIndex < 1) return json({ status: "notfound" });
-
     var values = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
     var record = {};
     Object.keys(map).forEach(function (h) {
-      if (h === "CV_URL" || h === "CERTS_URL" || h === "PHOTO_URL") return; // don't expose file URLs
+      if (h === "CV_URL" || h === "CERTS_URL" || h === "PHOTO_URL") return;
       var v = values[map[h] - 1];
       if (v !== "" && v !== null && v !== undefined) record[h] = v;
     });
@@ -208,7 +180,6 @@ function processAbandoners() {
   var map = ensureHeaders(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return;
-
   var rows = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
   var now = new Date();
   var contact = getContactSheet();
@@ -217,12 +188,10 @@ function processAbandoners() {
     var row = rows[i];
     var rowNum = i + 2;
     if (String(cell(row, map, "status")) !== "partial") continue;
-
     var updatedAt = cell(row, map, "updatedAt");
     var t = updatedAt ? new Date(updatedAt).getTime() : 0;
     if (!t) continue;
     var hours = (now.getTime() - t) / 3600000;
-
     var name = cell(row, map, "first_name") || "";
     var phone = normalizePhone(cell(row, map, "whatsapp"));
     var sid = cell(row, map, "submissionId");
@@ -236,34 +205,26 @@ function processAbandoners() {
         var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
         contact.appendRow([now, sanitizeCell(name), phone, "Nudge " + stage, resumeUrl, waLink, sanitizeCell(msg)]);
         sheet.getRange(rowNum, col).setValue(now);
-        adminAlert("Linkify — تذكير " + stage + " جاهز:\n" + name + " (" + phone + ")\n" + waLink);
-        break; // one nudge per person per run
+        adminAlert("Linkify - nudge " + stage + " ready:\n" + name + " (" + phone + ")\n" + waLink);
+        break;
       }
     }
   }
 }
 
 function buildNudgeMessage(stage, name, resumeUrl) {
-  var hi = name ? ("سلام " + name + " 👋") : "السلام عليكم 👋";
-  if (stage === 1) {
-    return hi + "\n\nلاحظنا أنك بديتي التسجيل فـ Linkify وما كمّلتيهش. تقدر تكمّل من نفس البلاصة اللي وقفتي فيها من هنا:\n" + resumeUrl +
-      "\n\nالتسجيل مجاني تماماً ✅ وكياخد غير دقائق.";
-  }
-  if (stage === 2) {
-    return hi + "\n\nملفك فـ Linkify مازال ما كمّلش. المؤسسات التعليمية القريبة منك كتقلب على أساتذة بحالك 🎯\nكمّل تسجيلك (باقي غير خطوات قلال):\n" + resumeUrl;
-  }
-  return hi + "\n\nآخر تذكير 🙏 كمّل ملفك فـ Linkify باش المدارس القريبة منك يقدرو يوصلو ليك. مجاناً ومن نفس البلاصة:\n" + resumeUrl;
+  var hi = name ? (GREET_PRE + name + GREET_WAVE) : GREET_ANON;
+  if (stage === 1) return hi + P1A + resumeUrl + P1B;
+  if (stage === 2) return hi + P2A + resumeUrl;
+  return hi + P3A + resumeUrl;
 }
 
 
 /* ============ VALIDATION + SANITIZATION ============ */
-
-// server-side validation (mirrors the frontend checks)
 function validatePayload(data, isPartial) {
   var errors = [];
   var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   var phoneRe = /^(?:\+212|212|0)[567]\d{8}$/;
-
   if (data.email && !emailRe.test(String(data.email))) errors.push("email");
   if (data.whatsapp && !phoneRe.test(String(data.whatsapp).replace(/[\s\-().]/g, ""))) errors.push("whatsapp");
   if (data.age !== undefined && data.age !== "") {
@@ -274,7 +235,6 @@ function validatePayload(data, isPartial) {
     var st = parseInt(data.currentStep, 10);
     if (isNaN(st) || st < 0 || st > 10) errors.push("currentStep");
   }
-  // required fields only when finishing
   if (!isPartial) {
     ["first_name", "last_name", "whatsapp", "email"].forEach(function (f) {
       if (!data[f] || String(data[f]).trim() === "") errors.push("missing:" + f);
@@ -290,26 +250,23 @@ function validateFile(field, f) {
     var ext = name.indexOf(".") >= 0 ? name.split(".").pop().toLowerCase() : "";
     var allowed = ALLOWED_EXT[field] || [];
     if (allowed.indexOf(ext) === -1) return { ok: false, reason: "type" };
-    // base64 → approximate byte size
     var bytes = Math.floor(String(f.data).length * 3 / 4);
     if (bytes > CONFIG.MAX_FILE_BYTES) return { ok: false, reason: "size" };
     return { ok: true };
   } catch (e) { return { ok: false, reason: "error" }; }
 }
 
-// neutralize formula/CSV injection + strip control chars + cap length
 function sanitizeCell(v) {
   if (v === null || v === undefined) return "";
   if (typeof v === "number") return v;
   if (v instanceof Date) return v;
   var s = String(v);
   if (s.length > CONFIG.MAX_FIELD_LEN) s = s.substring(0, CONFIG.MAX_FIELD_LEN);
-  s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ""); // control chars
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;                              // formula injection guard
+  s = s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
   return s;
 }
 
-// only allow safe id chars; returns "" if invalid
 function sanitizeToken(v) {
   if (!v) return "";
   var s = String(v);
@@ -322,7 +279,6 @@ function clampInt(v, min, max, dflt) {
   return Math.max(min, Math.min(max, n));
 }
 
-// lightweight rate limiter (best-effort; CacheService, not per-IP)
 function rateLimited(key, maxHits, windowSec) {
   try {
     var cache = CacheService.getScriptCache();
@@ -335,8 +291,7 @@ function rateLimited(key, maxHits, windowSec) {
 }
 
 
-/* ============ SHEET HELPERS (header-name based, non-destructive) ============ */
-
+/* ============ SHEET HELPERS ============ */
 function getSpreadsheet() {
   var id = prop("SHEET_ID");
   if (id) return SpreadsheetApp.openById(id);
@@ -361,7 +316,6 @@ function ensureHeaders(sheet) {
   var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var map = {};
   header.forEach(function (h, i) { if (h !== "" && h !== null) map[String(h)] = i + 1; });
-
   var missing = HEADERS.filter(function (h) { return !map[h]; });
   if (missing.length) {
     var start = sheet.getLastColumn() + 1;
@@ -416,7 +370,6 @@ function getContactSheet() {
 
 
 /* ============ FILES / EMAIL / WHATSAPP ============ */
-
 function getFolder() {
   var id = prop("DRIVE_FOLDER_ID");
   if (id) return DriveApp.getFolderById(id);
@@ -437,7 +390,7 @@ function notifyEmail(record) {
   var to = prop("NOTIFY_EMAIL");
   if (!to) return;
   var name = ((record.first_name || "") + " " + (record.last_name || "")).trim();
-  var subject = "Linkify — تسجيل جديد: " + (name || record.submissionId);
+  var subject = "New Linkify registration: " + (name || record.submissionId);
   var lines = [];
   HEADERS.forEach(function (h) {
     if (record[h] !== undefined && record[h] !== "") lines.push(h + ": " + record[h]);
@@ -445,7 +398,6 @@ function notifyEmail(record) {
   MailApp.sendEmail(to, subject, lines.join("\n"));
 }
 
-// Moroccan phone → international digits (no +), e.g. 0612... → 212612...
 function normalizePhone(v) {
   if (!v) return "";
   var s = String(v).replace(/[\s\-().]/g, "");
@@ -453,10 +405,9 @@ function normalizePhone(v) {
   if (s.indexOf("00") === 0) s = s.substring(2);
   if (s.charAt(0) === "0") s = "212" + s.substring(1);
   else if (s.indexOf("212") !== 0 && s.length === 9) s = "212" + s;
-  return s.replace(/\D/g, ""); // digits only
+  return s.replace(/\D/g, "");
 }
 
-// pings YOU (admin) via CallMeBot — disabled unless both props are set
 function adminAlert(text) {
   var phone = prop("CALLMEBOT_PHONE");
   var apikey = prop("CALLMEBOT_APIKEY");
@@ -476,7 +427,6 @@ function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
-// Run ONCE from the editor to enable hourly retargeting.
 function createTrigger() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === "processAbandoners") ScriptApp.deleteTrigger(t);
