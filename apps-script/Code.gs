@@ -27,7 +27,7 @@
 /* Secrets/IDs are NOT here — set them in Script Properties (see setupSecrets).
    These are safe, non-sensitive defaults only. */
 var CONFIG = {
-  SHEET_NAME: "Registrations",          // tab that stores registrations
+  SHEET_NAME: "",                       // "" = use the FIRST sheet (your existing data sheet)
   SITE_URL_DEFAULT: "https://linkify.ma", // fallback if SITE_URL prop is unset
   NUDGE_HOURS: [1, 24, 72],             // retargeting schedule (hours)
 
@@ -42,23 +42,22 @@ var CONFIG = {
 // Keys read from Script Properties (Project Settings → Script properties).
 var SECRET_KEYS = ["SHEET_ID", "DRIVE_FOLDER_ID", "NOTIFY_EMAIL", "SITE_URL", "CALLMEBOT_PHONE", "CALLMEBOT_APIKEY"];
 
-/* Canonical column order (only used when creating a fresh sheet).
-   Existing sheets are matched by header NAME; missing columns are
-   appended, so already-collected data is never disturbed. */
+/* Canonical columns. Order mirrors your EXISTING sheet, then appends the
+   retargeting-engine columns at the end. Existing columns are matched by
+   NAME and never moved; only missing ones are appended — so your
+   already-collected data is preserved untouched. */
 var HEADERS = [
-  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "submittedAt",
-  "first_name", "last_name", "age", "gender", "city", "city_other", "neighborhood", "whatsapp", "email",
-  "transport", "license", "relocate", "track", "diploma", "diploma_other", "specialty", "university",
-  "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
-  "subjects", "levels", "institution_types", "schedule", "substitute",
-  "has_experience", "exp_years", "last_inst", "last_role", "schools",
-  "skills", "skill_other_text",
-  "cv_url", "certs_url", "photo_url",
-  "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
+  "submittedAt", "first_name", "last_name", "age", "gender", "city", "city_other",
+  "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "track", "diploma",
+  "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
+  "subjects", "levels", "institution_types", "schedule", "substitute", "has_experience", "exp_years", "last_inst",
+  "last_role", "schools", "skills", "skill_other_text", "consent", "CV_URL", "CERTS_URL", "PHOTO_URL",
+  // --- retargeting engine columns (appended; won't disturb existing data) ---
+  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
 ];
 
 // form file input  →  sheet column + allowed extensions
-var FILE_FIELDS = { cv: "cv_url", certs: "certs_url", photo: "photo_url" };
+var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL" };
 var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
 
 
@@ -192,7 +191,7 @@ function doGet(e) {
     var values = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
     var record = {};
     Object.keys(map).forEach(function (h) {
-      if (h === "cv_url" || h === "certs_url" || h === "photo_url") return; // don't expose file URLs
+      if (h === "CV_URL" || h === "CERTS_URL" || h === "PHOTO_URL") return; // don't expose file URLs
       var v = values[map[h] - 1];
       if (v !== "" && v !== null && v !== undefined) record[h] = v;
     });
@@ -348,9 +347,9 @@ function getSpreadsheet() {
 
 function getSheet() {
   var ss = getSpreadsheet();
-  var sh = ss.getSheetByName(CONFIG.SHEET_NAME);
-  if (!sh) {
-    sh = ss.insertSheet(CONFIG.SHEET_NAME);
+  var sh = CONFIG.SHEET_NAME ? ss.getSheetByName(CONFIG.SHEET_NAME) : ss.getSheets()[0];
+  if (!sh) sh = ss.insertSheet(CONFIG.SHEET_NAME || "Registrations");
+  if (sh.getLastRow() === 0) {
     sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
     sh.setFrozenRows(1);
   }
