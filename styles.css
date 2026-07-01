@@ -421,6 +421,16 @@ textarea { resize: vertical; }
 .check-consent { border: 0; background: transparent; padding: 0; align-items: flex-start; font-weight: 600; }
 .check-consent a { color: var(--teal-dark); text-decoration: underline; }
 
+/* step-1 privacy/opt-in note (retargeting consent) */
+.step-consent-note {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 18px; padding: 12px 14px;
+  background: var(--bg-alt); border-radius: 10px;
+  color: var(--ink-soft); font-size: .82rem; line-height: 1.55;
+}
+.step-consent-note > svg { width: 16px; height: 16px; color: var(--teal); flex: none; margin-top: 2px; }
+.step-consent-note a { color: var(--teal-dark); text-decoration: underline; }
+
 /* validation error */
 .field.has-error input, .field.has-error select, .field.has-error textarea { border-color: #e11d48; }
 .field-error { color: #e11d48; font-size: .85rem; margin-top: 6px; font-weight: 600; }

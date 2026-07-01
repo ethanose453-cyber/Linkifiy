@@ -8,7 +8,27 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh2xUP0OzYuV
 
 const MAX_FILE_MB = 5;
 const SHARE_URL = "https://linkify.ma"; // بدّل بالرابط النهائي ديال الموقع ملي يكون جاهز
-const SUBMISSION_ID = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+
+/* ---------- stable submission id + resume token ----------
+   Priority: ?resume=TOKEN in URL  →  saved id in localStorage  →  brand new id.
+   Reusing the same id means every partial save updates the SAME row (upsert),
+   and a WhatsApp resume link (?resume=...) reconnects the visitor to their record. */
+const SID_KEY = "linkify-sid";
+function makeSid() { return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10); }
+function getResumeToken() { try { return new URLSearchParams(location.search).get("resume"); } catch (e) { return null; } }
+const RESUME_TOKEN = getResumeToken();
+let SUBMISSION_ID = (function () {
+  if (RESUME_TOKEN) { try { localStorage.setItem(SID_KEY, RESUME_TOKEN); } catch (e) {} return RESUME_TOKEN; }
+  try { const s = localStorage.getItem(SID_KEY); if (s) return s; } catch (e) {}
+  const n = makeSid();
+  try { localStorage.setItem(SID_KEY, n); } catch (e) {}
+  return n;
+})();
+
+function buildResumeUrl() {
+  const base = (location.protocol.indexOf("http") === 0) ? (location.origin + location.pathname) : SHARE_URL;
+  return base + "?resume=" + encodeURIComponent(SUBMISSION_ID);
+}
 
 // translation helper (i18n.js defines window.t; fall back to key)
 function T(k) { return (typeof window.t === "function") ? window.t(k) : k; }
@@ -183,7 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- navigation ---------- */
   nextBtn.addEventListener("click", () => {
     if (!validateStep(current)) return;
-    if (current < total - 1) showStep(++current);
+    if (current < total - 1) {
+      current++;
+      savePartial(current);   // save progress the moment they advance (upsert, non-blocking)
+      showStep(current);
+    }
   });
   prevBtn.addEventListener("click", () => { if (current > 0) showStep(--current); });
 
@@ -212,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showSuccess() {
+    try { localStorage.removeItem(SID_KEY); } catch (e) {}   // completed -> reset id
     var shareUrl = location.protocol.indexOf("http") === 0 ? location.origin + location.pathname : SHARE_URL;
     var waMsg = T("wa.msg") + " " + shareUrl;
     var wa = document.getElementById("waShare");
@@ -223,6 +248,80 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.linkifyConfetti) window.linkifyConfetti();
     if (window.lenis) window.lenis.scrollTo(successScreen, { offset: -120 });
     else successScreen.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  /* ---------- progressive partial save (retargeting engine) ----------
+     Fires on every "next". Sends TEXT fields only (fast, no files) so we
+     capture the lead even if they never finish. Non-blocking + silent. */
+  function savePartial(reachedIndex) {
+    try {
+      const hp = document.getElementById("website");
+      if (hp && hp.value.trim()) return;                 // bot -> ignore
+      if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return; // backend not wired yet
+
+      const payload = collectData();
+      payload.submissionId = SUBMISSION_ID;
+      payload.currentStep = reachedIndex;                 // 0-based step to resume at
+      payload.partial = true;
+      payload.status = "partial";
+      payload.updatedAt = new Date().toISOString();
+      payload.resumeUrl = buildResumeUrl();
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        keepalive: true                                   // survives page unload
+      }).catch(function () { /* silent: never block the user */ });
+    } catch (e) { /* silent */ }
+  }
+
+  /* ---------- resume where you stopped ----------
+     Opened from a WhatsApp/email link like ...?resume=TOKEN
+     Fetches saved fields, prefills them, and jumps to the saved step. */
+  async function loadResume(token) {
+    try {
+      setStatus("loading", "جاري استرجاع بياناتك المحفوظة…");
+      const res = await fetch(GOOGLE_SCRIPT_URL + "?resume=" + encodeURIComponent(token), { method: "GET" });
+      const data = await res.json();
+      clearStatus();
+      if (!data || data.status !== "found" || !data.record) return;
+      prefill(data.record);
+      const idx = parseInt(data.record.currentStep, 10);
+      if (!isNaN(idx) && idx >= 0 && idx < total) { current = idx; showStep(current); }
+    } catch (e) { clearStatus(); /* fall back to a fresh form */ }
+  }
+
+  function prefill(rec) {
+    Object.keys(rec).forEach(function (key) {
+      const val = rec[key];
+      if (val === "" || val === null || val === undefined) return;
+      let els;
+      try { els = form.querySelectorAll('[name="' + (window.CSS && CSS.escape ? CSS.escape(key) : key) + '"]'); }
+      catch (e) { return; }
+      if (!els || !els.length) return;
+      const first = els[0];
+      if (first.type === "radio") {
+        els.forEach(function (r) { if (r.value === String(val)) r.checked = true; });
+      } else if (first.type === "checkbox") {
+        const vals = String(val).split(",").map(function (s) { return s.trim(); });
+        els.forEach(function (c) { if (vals.indexOf(c.value) !== -1) c.checked = true; });
+      } else if (first.type === "file") {
+        /* files can't be prefilled for security reasons — user re-attaches */
+      } else {
+        first.value = val;
+      }
+    });
+    // re-run conditional logic so restored values reveal the right fields
+    ["city", "diploma"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.dispatchEvent(new Event("change"));
+    });
+    form.querySelectorAll('input[name="has_experience"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
+    form.querySelectorAll('input[name="track"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
+    const so = document.getElementById("skill_other");
+    if (so && so.checked) so.dispatchEvent(new Event("change"));
+    filterSubjects();
   }
 
   /* ---------- submit ---------- */
@@ -257,6 +356,10 @@ document.addEventListener("DOMContentLoaded", () => {
       payload.files = files;
       payload.submittedAt = new Date().toISOString();
       payload.submissionId = SUBMISSION_ID;
+      payload.status = "complete";
+      payload.partial = false;
+      payload.currentStep = total - 1;
+      payload.resumeUrl = buildResumeUrl();
 
       // text/plain = "simple request" => no CORS preflight; Apps Script returns a
       // readable JSON response with Access-Control-Allow-Origin: *
@@ -285,4 +388,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* init */
   showStep(0, false);
+  if (RESUME_TOKEN) loadResume(RESUME_TOKEN);
 });
