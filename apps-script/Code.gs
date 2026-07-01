@@ -13,8 +13,8 @@
      - All input validated + sanitized (formula-injection guard).
      - No SQL is used (Sheets API), so no SQL-injection surface.
 
-   NOTE: user-facing Arabic strings are written with \u escapes so the
-   whole file stays ASCII and pastes cleanly into the editor.
+   NOTE: user-facing Arabic strings are stored as Base64 (pure ASCII) and
+   decoded at runtime, so the whole file pastes cleanly into any editor.
    =========================================================== */
 
 
@@ -42,14 +42,26 @@ var HEADERS = [
 var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL" };
 var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
 
-/* Arabic message parts (escaped, ASCII-safe) */
-var GREET_PRE = "\u0633\u0644\u0627\u0645 ";
-var GREET_WAVE = " \ud83d\udc4b";
-var GREET_ANON = "\u0627\u0644\u0633\u0644\u0627\u0645 \u0639\u0644\u064a\u0643\u0645 \ud83d\udc4b";
-var P1A = "\n\n\u0644\u0627\u062d\u0638\u0646\u0627 \u0623\u0646\u0643 \u0628\u062f\u064a\u062a\u064a \u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0641\u0640 Linkify \u0648\u0645\u0627 \u0643\u0645\u0651\u0644\u062a\u064a\u0647\u0634. \u062a\u0642\u062f\u0631 \u062a\u0643\u0645\u0651\u0644 \u0645\u0646 \u0646\u0641\u0633 \u0627\u0644\u0628\u0644\u0627\u0635\u0629 \u0627\u0644\u0644\u064a \u0648\u0642\u0641\u062a\u064a \u0641\u064a\u0647\u0627 \u0645\u0646 \u0647\u0646\u0627:\n";
-var P1B = "\n\n\u0627\u0644\u062a\u0633\u062c\u064a\u0644 \u0645\u062c\u0627\u0646\u064a \u062a\u0645\u0627\u0645\u0627\u064b \u2705 \u0648\u0643\u064a\u0627\u062e\u062f \u063a\u064a\u0631 \u062f\u0642\u0627\u0626\u0642.";
-var P2A = "\n\n\u0645\u0644\u0641\u0643 \u0641\u0640 Linkify \u0645\u0627\u0632\u0627\u0644 \u0645\u0627 \u0643\u0645\u0651\u0644\u0634. \u0627\u0644\u0645\u0624\u0633\u0633\u0627\u062a \u0627\u0644\u062a\u0639\u0644\u064a\u0645\u064a\u0629 \u0627\u0644\u0642\u0631\u064a\u0628\u0629 \u0645\u0646\u0643 \u0643\u062a\u0642\u0644\u0628 \u0639\u0644\u0649 \u0623\u0633\u0627\u062a\u0630\u0629 \u0628\u062d\u0627\u0644\u0643 \ud83c\udfaf\n\u0643\u0645\u0651\u0644 \u062a\u0633\u062c\u064a\u0644\u0643 (\u0628\u0627\u0642\u064a \u063a\u064a\u0631 \u062e\u0637\u0648\u0627\u062a \u0642\u0644\u0627\u0644):\n";
-var P3A = "\n\n\u0622\u062e\u0631 \u062a\u0630\u0643\u064a\u0631 \ud83d\ude4f \u0643\u0645\u0651\u0644 \u0645\u0644\u0641\u0643 \u0641\u0640 Linkify \u0628\u0627\u0634 \u0627\u0644\u0645\u062f\u0627\u0631\u0633 \u0627\u0644\u0642\u0631\u064a\u0628\u0629 \u0645\u0646\u0643 \u064a\u0642\u062f\u0631\u0648 \u064a\u0648\u0635\u0644\u0648 \u0644\u064a\u0643. \u0645\u062c\u0627\u0646\u0627\u064b \u0648\u0645\u0646 \u0646\u0641\u0633 \u0627\u0644\u0628\u0644\u0627\u0635\u0629:\n";
+/* Arabic WhatsApp message parts, Base64 (UTF-8). Decoded lazily in msg_(). */
+var MSG_B64 = {
+  GREET_PRE: "2LPZhNin2YUg",
+  GREET_WAVE: "IPCfkYs=",
+  GREET_ANON: "2KfZhNiz2YTYp9mFINi52YTZitmD2YUg8J+Riw==",
+  P1A: "CgrZhNin2K3YuNmG2Kcg2KPZhtmDINio2K/Zitiq2Yog2KfZhNiq2LPYrNmK2YQg2YHZgCBMaW5raWZ5INmI2YXYpyDZg9mF2ZHZhNiq2YrZh9i0LiDYqtmC2K/YsSDYqtmD2YXZkdmEINmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipINin2YTZhNmKINmI2YLZgdiq2Yog2YHZitmH2Kcg2YXZhiDZh9mG2Kc6Cg==",
+  P1B: "CgrYp9mE2KrYs9is2YrZhCDZhdis2KfZhtmKINiq2YXYp9mF2KfZiyDinIUg2YjZg9mK2KfYrtivINi62YrYsSDYr9mC2KfYptmCLg==",
+  P2A: "CgrZhdmE2YHZgyDZgdmAIExpbmtpZnkg2YXYp9iy2KfZhCDZhdinINmD2YXZkdmE2LQuINin2YTZhdik2LPYs9in2Kog2KfZhNiq2LnZhNmK2YXZitipINin2YTZgtix2YrYqNipINmF2YbZgyDZg9iq2YLZhNioINi52YTZiSDYo9iz2KfYqtiw2Kkg2KjYrdin2YTZgyDwn46vCtmD2YXZkdmEINiq2LPYrNmK2YTZgyAo2KjYp9mC2Yog2LrZitixINiu2LfZiNin2Kog2YLZhNin2YQpOgo=",
+  P3A: "CgrYotiu2LEg2KrYsNmD2YrYsSDwn5mPINmD2YXZkdmEINmF2YTZgdmDINmB2YAgTGlua2lmeSDYqNin2LQg2KfZhNmF2K/Yp9ix2LMg2KfZhNmC2LHZitio2Kkg2YXZhtmDINmK2YLYr9ix2Ygg2YrZiNi12YTZiCDZhNmK2YMuINmF2KzYp9mG2KfZiyDZiNmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipOgo="
+};
+var _MSG = null;
+function msg_(k) {
+  if (!_MSG) {
+    _MSG = {};
+    Object.keys(MSG_B64).forEach(function (x) {
+      _MSG[x] = Utilities.newBlob(Utilities.base64Decode(MSG_B64[x])).getDataAsString("UTF-8");
+    });
+  }
+  return _MSG[k];
+}
 
 
 /* ============ SECRETS (env-var equivalent) ============ */
@@ -213,10 +225,10 @@ function processAbandoners() {
 }
 
 function buildNudgeMessage(stage, name, resumeUrl) {
-  var hi = name ? (GREET_PRE + name + GREET_WAVE) : GREET_ANON;
-  if (stage === 1) return hi + P1A + resumeUrl + P1B;
-  if (stage === 2) return hi + P2A + resumeUrl;
-  return hi + P3A + resumeUrl;
+  var hi = name ? (msg_("GREET_PRE") + name + msg_("GREET_WAVE")) : msg_("GREET_ANON");
+  if (stage === 1) return hi + msg_("P1A") + resumeUrl + msg_("P1B");
+  if (stage === 2) return hi + msg_("P2A") + resumeUrl;
+  return hi + msg_("P3A") + resumeUrl;
 }
 
 
