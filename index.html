@@ -175,12 +175,9 @@
 
             <div class="field">
               <label for="neighborhood"><span data-i18n="f.neigh">الحي السكني</span> <span class="req">*</span></label>
-              <div class="autocomplete">
-                <input type="text" id="neighborhood" name="neighborhood" required autocomplete="off"
-                       data-i18n-ph="ph.neigh" placeholder="ابدأ الكتابة أو اختر حيّك..." />
-                <ul class="ac-list" id="neighborhood-suggest" role="listbox" hidden></ul>
-              </div>
-              <small class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <span data-i18n="hint.neigh">اختر مدينتك أولاً، ثم ابدأ كتابة اسم الحي وستظهر اقتراحات. إن لم تجد حيّك، اكتبه يدوياً.</span></small>
+              <input type="text" id="neighborhood" name="neighborhood" required
+                     data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
+              <small class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> <span data-i18n="hint.neigh">أدخل اسم الحي بدقة — هذا يساعد في إيجاد الفرص الأقرب إلى مكان سكناك.</span></small>
             </div>
 
             <div class="grid-2">
@@ -579,7 +576,6 @@
   <script src="i18n.js" defer></script>
   <script src="hero-match.js" defer></script>
   <script src="interactions.js" defer></script>
-  <script src="neighborhoods.js" defer></script>
   <script src="form.js" defer></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
