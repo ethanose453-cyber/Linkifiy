@@ -50,8 +50,8 @@
   <main id="top">
     <!-- ============ HERO ============ -->
     <section class="hero schools-hero">
-      <div class="container">
-        <div class="hero-content hero-centered">
+      <div class="container hero-grid">
+        <div class="hero-content">
           <span class="badge" data-i18n="s.hero.badge">للمؤسسات التعليمية الخاصة</span>
           <h1 data-i18n="s.hero.h1">أساتذة مناسبون لمؤسستكم… بدون فرز عشوائي لعشرات السير الذاتية.</h1>
           <p class="lead" data-i18n="s.hero.lead">
@@ -62,6 +62,74 @@
             <a href="#request" class="btn btn-primary btn-lg" data-i18n="s.hero.cta1">اطلبوا مرشحين الآن</a>
             <a href="#how" class="btn btn-ghost btn-lg" data-i18n="s.hero.cta2">كيف تعمل Linkify؟</a>
           </div>
+        </div>
+
+        <!-- matching animation: scan -> discover -> filter -> connect quality teachers -->
+        <div class="hero-visual schools-visual" aria-hidden="true">
+          <svg class="match-svg" viewBox="0 0 420 360" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="schGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#126cb4" /><stop offset="1" stop-color="#6366f1" />
+              </linearGradient>
+            </defs>
+
+            <!-- connection lines (drawn behind) -->
+            <g fill="none">
+              <path class="sv-link l1" pathLength="1" d="M62 64 L210 182" />
+              <path class="sv-link l2" pathLength="1" d="M356 64 L210 182" />
+              <path class="sv-link l3" pathLength="1" d="M48 190 L210 182" />
+              <path class="sv-link l4" pathLength="1" d="M372 196 L210 182" />
+              <path class="sv-link l5" pathLength="1" d="M200 44 L210 182" />
+            </g>
+
+            <!-- central hub = your institution -->
+            <g class="sv-school" transform="translate(210,182)">
+              <circle class="sv-ring" r="30" /><circle class="sv-ring r2" r="30" />
+              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="url(#schGrad)" />
+              <g stroke="#ffffff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M-15 13 v-17 l15 -11 15 11 v17 z" /><path d="M-5 13 v-9 h10 v9" />
+              </g>
+            </g>
+            <text class="sv-hub" x="210" y="238">Linkify</text>
+
+            <!-- quality teacher nodes (get matched) -->
+            <g class="sv-node q n1" transform="translate(62,64)">
+              <text class="sv-label" y="-17">فرنسية</text>
+              <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
+              <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
+            </g>
+            <g class="sv-node q n2" transform="translate(356,64)">
+              <text class="sv-label" y="-17">رياضيات</text>
+              <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
+              <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
+            </g>
+            <g class="sv-node q n3" transform="translate(48,190)">
+              <text class="sv-label" y="-17">إنجليزية</text>
+              <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
+              <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
+            </g>
+            <g class="sv-node q n4" transform="translate(372,196)">
+              <text class="sv-label" y="-17">فيزياء</text>
+              <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
+              <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
+            </g>
+            <g class="sv-node q n5" transform="translate(200,44)">
+              <text class="sv-label" y="-17">علوم</text>
+              <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
+              <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
+            </g>
+
+            <!-- non-matching (filtered out) nodes stay dim -->
+            <g class="sv-node dim" transform="translate(110,300)"><circle class="sv-core" r="9" /></g>
+            <g class="sv-node dim" transform="translate(312,300)"><circle class="sv-core" r="9" /></g>
+
+            <!-- scanning magnifier -->
+            <g class="sv-mag">
+              <circle r="15" fill="rgba(18,108,180,.10)" /><circle class="sv-lens" r="15" />
+              <line class="sv-handle" x1="11" y1="11" x2="25" y2="25" />
+            </g>
+          </svg>
+          <p class="sv-caption" data-i18n="s.match.cap">نمسح المنطقة، نفلتر حسب معاييركم، ونقترح الأنسب.</p>
         </div>
       </div>
     </section>

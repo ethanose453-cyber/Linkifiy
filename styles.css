@@ -634,11 +634,12 @@ section[id] { scroll-margin-top: 84px; }
 
 .container.narrow { max-width: 820px; }
 
-.schools-hero { padding: 60px 0 40px; text-align: center; }
-.hero-centered { max-width: 840px; margin-inline: auto; }
-.schools-hero .lead { margin-inline: auto; }
-.hero-centered .hero-cta { justify-content: center; }
-.lead-fr { color: var(--ink-soft); margin-top: 10px; max-width: 62ch; margin-inline: auto; font-size: 1rem; font-style: italic; opacity: .9; line-height: 1.7; }
+.schools-hero { padding: 64px 0 52px; }
+@media (max-width: 900px) {
+  .schools-hero { text-align: center; }
+  .schools-hero .hero-cta { justify-content: center; }
+  .schools-visual { margin-top: 8px; }
+}
 
 .prose { color: var(--ink-soft); font-size: 1.08rem; line-height: 1.9; margin-top: 14px; }
 .prose strong { color: var(--ink); }
@@ -716,4 +717,88 @@ section[id] { scroll-margin-top: 84px; }
 
 @media (max-width: 720px) {
   .criteria-list li { flex-basis: 100%; }
+}
+
+
+/* ===========================================================
+   Schools hero: matching animation (scan -> filter -> connect)
+   =========================================================== */
+.schools-visual { position: relative; width: 100%; max-width: 480px; margin-inline: auto; }
+.match-svg { width: 100%; height: auto; overflow: visible; display: block; }
+.sv-caption { text-align: center; color: var(--ink-soft); font-size: .92rem; margin-top: 12px; line-height: 1.6; }
+
+/* connection lines */
+.sv-link { stroke: url(#schGrad); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; animation: svLink 8s ease-in-out infinite; }
+.sv-link.l1 { animation-delay: .2s; }
+.sv-link.l2 { animation-delay: .8s; }
+.sv-link.l3 { animation-delay: 1.4s; }
+.sv-link.l4 { animation-delay: 2s; }
+.sv-link.l5 { animation-delay: 2.6s; }
+
+/* teacher node core + dot + label */
+.sv-core { fill: var(--surface); stroke: var(--line); stroke-width: 2; transform-box: fill-box; transform-origin: center; }
+.sv-dot { fill: var(--ink-soft); transform-box: fill-box; transform-origin: center; }
+.sv-label { fill: var(--ink-soft); font: 700 13px var(--font); text-anchor: middle; }
+.sv-node.q .sv-label { fill: var(--teal-dark); }
+
+.sv-node.q .sv-core { animation: svCore 8s ease-in-out infinite; }
+.sv-node.q .sv-dot { fill: var(--teal); animation: svDot 8s ease-in-out infinite; }
+.sv-check { opacity: 0; transform-box: fill-box; transform-origin: center; animation: svCheck 8s ease-in-out infinite; }
+.n1 .sv-core, .n1 .sv-dot, .n1 .sv-check { animation-delay: .2s; }
+.n2 .sv-core, .n2 .sv-dot, .n2 .sv-check { animation-delay: .8s; }
+.n3 .sv-core, .n3 .sv-dot, .n3 .sv-check { animation-delay: 1.4s; }
+.n4 .sv-core, .n4 .sv-dot, .n4 .sv-check { animation-delay: 2s; }
+.n5 .sv-core, .n5 .sv-dot, .n5 .sv-check { animation-delay: 2.6s; }
+
+/* filtered-out (dim) nodes */
+.sv-node.dim .sv-core { fill: var(--bg-alt); stroke: var(--line); opacity: .7; }
+
+/* central hub */
+.sv-hub { fill: var(--ink); font: 800 15px var(--font-accent); text-anchor: middle; }
+.sv-ring { fill: none; stroke: var(--teal); stroke-width: 2; opacity: 0; transform-box: fill-box; transform-origin: center; animation: svRing 2.8s ease-out infinite; }
+.sv-ring.r2 { animation-delay: 1.4s; }
+
+/* magnifier */
+.sv-mag { animation: svMag 8s cubic-bezier(.45,.05,.55,.95) infinite; }
+.sv-lens { fill: none; stroke: var(--teal); stroke-width: 3; }
+.sv-handle { stroke: var(--teal); stroke-width: 4; stroke-linecap: round; }
+
+@keyframes svLink {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  10% { opacity: 1; }
+  40% { stroke-dashoffset: 0; opacity: 1; }
+  86% { stroke-dashoffset: 0; opacity: .9; }
+  96% { opacity: 0; }
+  100% { stroke-dashoffset: 1; opacity: 0; }
+}
+@keyframes svCore {
+  0%, 8% { transform: scale(.55); }
+  40% { transform: scale(1); stroke: var(--teal); }
+  86% { transform: scale(1); stroke: var(--teal); }
+  100% { transform: scale(.55); }
+}
+@keyframes svDot { 0%,8% { opacity: .5; } 40% { opacity: 1; } 100% { opacity: .5; } }
+@keyframes svCheck {
+  0%, 34% { opacity: 0; transform: scale(.3); }
+  46% { opacity: 1; transform: scale(1); }
+  86% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(.3); }
+}
+@keyframes svRing { 0% { transform: scale(.6); opacity: .55; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes svMag {
+  0%   { transform: translate(62px, 64px); }
+  20%  { transform: translate(200px, 44px); }
+  40%  { transform: translate(356px, 64px); }
+  60%  { transform: translate(372px, 196px); }
+  78%  { transform: translate(48px, 190px); }
+  100% { transform: translate(62px, 64px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-link { stroke-dashoffset: 0; opacity: .9; animation: none; }
+  .sv-node.q .sv-core { transform: scale(1); stroke: var(--teal); animation: none; }
+  .sv-node.q .sv-dot { opacity: 1; animation: none; }
+  .sv-check { opacity: 1; transform: scale(1); animation: none; }
+  .sv-ring { display: none; }
+  .sv-mag { animation: none; transform: translate(300px, 300px); }
 }
