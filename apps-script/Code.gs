@@ -45,11 +45,12 @@ var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "p
 /* Columns for the separate "Schools" tab (B2B leads). */
 var SCHOOL_SHEET = "Schools";
 var SCHOOL_HEADERS = [
-  "createdAt", "school_name", "city", "area", "institution_type", "contact_name", "role",
-  "phone", "email", "subject", "level", "need_type", "work_type", "urgent",
-  "when_needed", "min_experience", "prefer_local", "shortlist_interest", "pricing_pref", "notes", "source"
+  "submissionId", "status", "currentStep", "createdAt", "updatedAt",
+  "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
+  "subject", "level", "need_type", "work_type", "when_needed", "min_experience", "prefer_local", "notes",
+  "shortlist_interest", "pricing_pref", "resume_url", "source"
 ];
-var SCHOOL_REQUIRED = ["school_name", "city", "institution_type", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
+var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type", "shortlist_interest"];
 
 /* Arabic WhatsApp message parts, Base64 (UTF-8). Decoded lazily in msg_(). */
 var MSG_B64 = {
@@ -178,6 +179,7 @@ function doGet(e) {
   if (rateLimited("get_" + token, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
     return json({ status: "rate_limited" });
   }
+  if (e.parameter.t === "s") return schoolResume(token);   // schools resume
   try {
     var sheet = getSheet();
     var map = ensureHeaders(sheet);
@@ -468,30 +470,51 @@ function createTrigger() {
 
 
 /* ============ SCHOOLS (B2B leads) ============ */
+/* Same progressive-save engine as teachers: partial saves upsert by
+   submissionId; a resume link (?resume=SID&t=s) reconnects the visitor. */
 function handleSchoolPost(data) {
-  // rate limit per phone (best-effort)
-  var pKey = "school_" + sanitizeToken(normalizePhone(data.phone) || "x").slice(-9);
-  if (rateLimited(pKey, 10, CONFIG.RL_WINDOW_SEC)) return json({ status: "rate_limited" });
+  var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
+  if (rateLimited("school_" + sid, 30, CONFIG.RL_WINDOW_SEC)) return json({ status: "rate_limited" });
 
-  var errors = validateSchool(data);
-  if (errors.length) return json({ status: "invalid", fields: errors });
+  var isPartial = (data.partial === true) || (data.status === "partial");
+  if (!isPartial) {
+    var errors = validateSchool(data);
+    if (errors.length) return json({ status: "invalid", fields: errors });
+  }
 
   var lock = LockService.getScriptLock();
   try { lock.waitLock(30000); } catch (e) {}
   try {
     var sheet = getSchoolSheet();
+    var subCol = SCHOOL_HEADERS.indexOf("submissionId") + 1;
+    var rowIndex = findSchoolRow(sheet, subCol, sid);
+    var now = new Date();
+
+    // start from the existing row (upsert) so partial saves never wipe data
     var record = {};
-    SCHOOL_HEADERS.forEach(function (h) { record[h] = sanitizeCell(data[h]); });
-    record.createdAt = new Date().toISOString();
-    record.source = sanitizeCell(data.source || "schools_lp");
-
-    var row = SCHOOL_HEADERS.map(function (h) {
-      return (record[h] === undefined || record[h] === null) ? "" : record[h];
+    if (rowIndex > 0) {
+      var cur = sheet.getRange(rowIndex, 1, 1, SCHOOL_HEADERS.length).getValues()[0];
+      SCHOOL_HEADERS.forEach(function (h, i) { record[h] = cur[i]; });
+    }
+    SCHOOL_HEADERS.forEach(function (h) {
+      if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
     });
-    sheet.appendRow(row);
+    record.submissionId = sid;
+    record.status = isPartial ? "partial" : "complete";
+    if (data.currentStep !== undefined && data.currentStep !== null && data.currentStep !== "") {
+      record.currentStep = clampInt(data.currentStep, 0, 10, 0);
+    }
+    record.updatedAt = now.toISOString();
+    if (rowIndex < 1) record.createdAt = now.toISOString();
+    record.resume_url = siteUrl() + "?resume=" + encodeURIComponent(sid) + "&t=s";
+    record.source = record.source || "schools_lp";
 
-    try { notifySchool(record); } catch (mailErr) {}
-    return json({ status: "success" });
+    var row = SCHOOL_HEADERS.map(function (h) { return (record[h] === undefined || record[h] === null) ? "" : record[h]; });
+    if (rowIndex > 0) sheet.getRange(rowIndex, 1, 1, SCHOOL_HEADERS.length).setValues([row]);
+    else sheet.appendRow(row);
+
+    if (!isPartial) { try { notifySchool(record); } catch (mailErr) {} }
+    return json({ status: isPartial ? "partial" : "success" });
   } catch (err) {
     return json({ status: "error" });
   } finally {
@@ -511,6 +534,14 @@ function validateSchool(data) {
   return errors;
 }
 
+function findSchoolRow(sheet, subCol, sid) {
+  var last = sheet.getLastRow();
+  if (last < 2) return -1;
+  var ids = sheet.getRange(2, subCol, last - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) { if (String(ids[i][0]) === String(sid)) return i + 2; }
+  return -1;
+}
+
 function getSchoolSheet() {
   var ss = getSpreadsheet();
   var sh = ss.getSheetByName(SCHOOL_SHEET);
@@ -525,13 +556,27 @@ function getSchoolSheet() {
   return sh;
 }
 
+function schoolResume(token) {
+  try {
+    var sheet = getSchoolSheet();
+    var subCol = SCHOOL_HEADERS.indexOf("submissionId") + 1;
+    var rowIndex = findSchoolRow(sheet, subCol, token);
+    if (rowIndex < 1) return json({ status: "notfound" });
+    var vals = sheet.getRange(rowIndex, 1, 1, SCHOOL_HEADERS.length).getValues()[0];
+    var rec = {};
+    SCHOOL_HEADERS.forEach(function (h, i) {
+      if (h === "resume_url" || h === "source") return;
+      if (vals[i] !== "" && vals[i] !== null && vals[i] !== undefined) rec[h] = vals[i];
+    });
+    return json({ status: "found", record: rec });
+  } catch (err) { return json({ status: "error" }); }
+}
+
 function notifySchool(record) {
   var to = prop("NOTIFY_EMAIL");
   if (!to) return;
   var subject = "New Linkify SCHOOL lead: " + (record.school_name || "") + " - " + (record.subject || "");
-  if (String(record.urgent).indexOf("\u0639\u0627\u062c") !== -1 || record.need_type === "urgent") {
-    subject = "[URGENT] " + subject;
-  }
+  if (record.need_type === "\u0641\u0648\u0631\u064a\u0629") subject = "[URGENT] " + subject; // need_type == "immediate"
   var lines = [];
   SCHOOL_HEADERS.forEach(function (h) {
     if (record[h] !== undefined && record[h] !== "") lines.push(h + ": " + record[h]);

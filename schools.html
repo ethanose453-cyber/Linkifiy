@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-title-key="s.meta.title">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script>(function(){try{var t=localStorage.getItem('linkify-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <script>(function(){try{var p=new URLSearchParams(location.search).get('lang');var l=p||localStorage.getItem('linkify-lang');if(l==='fr'||l==='en'){document.documentElement.setAttribute('lang',l);document.documentElement.setAttribute('dir','ltr');}}catch(e){}})();</script>
   <title>Linkify.ma — للمؤسسات التعليمية | أساتذة مناسبون بسرعة</title>
-  <meta name="description" content="Linkify.ma تساعد المؤسسات التعليمية الخاصة بالمغرب على الوصول إلى أساتذة مؤهلين حسب المادة، المدينة، الخبرة، والتوفر — بدل الفرز العشوائي للسير الذاتية. اطلبوا قائمة قصيرة من المرشحين." />
+  <meta name="description" content="Linkify.ma تساعد المؤسسات التعليمية الخاصة بالمغرب على الوصول إلى أساتذة مؤهلين حسب المادة، المدينة، الخبرة، والتوفر — بدل الفرز العشوائي للسير الذاتية." />
 
   <meta property="og:title" content="Linkify.ma — للمؤسسات التعليمية" />
   <meta property="og:description" content="احصلوا على قائمة قصيرة من الأساتذة المناسبين حسب المادة، المستوى، المدينة، والتوفر." />
@@ -33,14 +34,15 @@
         <span class="brand-logo" role="img" aria-label="Linkify"></span>
       </a>
       <ul class="nav-links">
-        <li><a href="#how">آلية العمل</a></li>
-        <li><a href="#why">لماذا Linkify</a></li>
-        <li><a href="#faq">أسئلة</a></li>
-        <li><a href="index.html">للأساتذة</a></li>
+        <li><a href="#how" data-i18n="s.nav.how">آلية العمل</a></li>
+        <li><a href="#why" data-i18n="s.nav.why">لماذا Linkify</a></li>
+        <li><a href="#faq" data-i18n="s.nav.faq">أسئلة</a></li>
+        <li><a href="index.html" data-i18n="s.nav.teachers">للأساتذة</a></li>
       </ul>
       <div class="nav-actions">
+        <button id="langToggle" class="lang-toggle" type="button" aria-label="Language / اللغة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="langLabel">AR</span></button>
         <button id="themeToggle" class="theme-toggle" type="button" aria-label="تبديل الوضع الليلي / النهاري"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
-        <a href="#request" class="btn btn-primary btn-sm">اطلبوا مرشحين</a>
+        <a href="#request" class="btn btn-primary btn-sm" data-i18n="s.nav.cta">اطلبوا مرشحين</a>
       </div>
     </nav>
   </header>
@@ -50,367 +52,338 @@
     <section class="hero schools-hero">
       <div class="container">
         <div class="hero-content hero-centered">
-          <span class="badge">للمؤسسات التعليمية الخاصة</span>
-          <h1>أساتذة مناسبون لمؤسستكم… بدون فرز عشوائي لعشرات السير الذاتية.</h1>
-          <p class="lead">
+          <span class="badge" data-i18n="s.hero.badge">للمؤسسات التعليمية الخاصة</span>
+          <h1 data-i18n="s.hero.h1">أساتذة مناسبون لمؤسستكم… بدون فرز عشوائي لعشرات السير الذاتية.</h1>
+          <p class="lead" data-i18n="s.hero.lead">
             Linkify.ma تساعد المؤسسات التعليمية الخاصة بالمغرب على الوصول إلى مرشحين مناسبين
             حسب المادة، المستوى، المدينة، الخبرة، والتوفر.
           </p>
-          <p class="lead-fr">
-            Linkify.ma aide les établissements privés à accéder à des profils d’enseignants
-            selon la matière, la ville, l’expérience et la disponibilité.
-          </p>
           <div class="hero-cta">
-            <a href="#request" class="btn btn-primary btn-lg">اطلبوا مرشحين الآن</a>
-            <a href="#how" class="btn btn-ghost btn-lg">كيف تعمل Linkify؟</a>
+            <a href="#request" class="btn btn-primary btn-lg" data-i18n="s.hero.cta1">اطلبوا مرشحين الآن</a>
+            <a href="#how" class="btn btn-ghost btn-lg" data-i18n="s.hero.cta2">كيف تعمل Linkify؟</a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ============ PROBLEM ============ -->
-    <section class="section" id="problem">
-      <div class="container narrow">
-        <h2 class="section-title">البحث عن أستاذ مناسب… تحدٍّ حقيقي</h2>
-        <p class="prose">
-          في كثير من المؤسسات التعليمية الخاصة، ما زال البحث عن الأساتذة يعتمد على التوصيات،
-          العلاقات، مجموعات واتساب وفيسبوك، أو السير الذاتية المتراكمة.
-        </p>
-        <p class="prose">
-          لكن عندما يتعلق الأمر بمادة حساسة مثل <strong>الفرنسية</strong> أو <strong>الرياضيات</strong>،
-          أو اللغات والمواد العلمية، يصبح الوصول إلى أستاذ مناسب في الوقت المناسب أمرًا صعبًا —
-          خصوصًا عند الحاجة إلى تعويض عاجل.
-        </p>
-        <div class="pain-row">
-          <div class="pain"><span class="pain-num">1</span><p>صعوبة إيجاد أستاذ مناسب بسرعة</p></div>
-          <div class="pain"><span class="pain-num">2</span><p>وقت ضائع في فرز السير الذاتية</p></div>
-          <div class="pain"><span class="pain-num">3</span><p>خطر توظيف غير مناسب، خصوصًا في الفرنسية والرياضيات</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ SOLUTION ============ -->
-    <section class="section section-alt" id="solution">
-      <div class="container narrow">
-        <h2 class="section-title">Linkify تنظّم عملية البحث عن الأساتذة</h2>
-        <p class="section-sub">لا نرسل لكم عشرات الملفات العشوائية — بل قائمة قصيرة من المرشحين الأقرب إلى حاجتكم.</p>
-        <ul class="criteria-list">
-          <li>المادة أو التخصص</li>
-          <li>المستوى الدراسي</li>
-          <li>المدينة والقرب الجغرافي</li>
-          <li>سنوات الخبرة</li>
-          <li>نوع الدوام</li>
-          <li>التوفر الحالي</li>
-          <li>السيرة الذاتية</li>
-          <li>قابلية التعويض العاجل عند الحاجة</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ============ HOW IT WORKS ============ -->
-    <section class="section" id="how">
-      <div class="container">
-        <h2 class="section-title">كيف تعمل الخدمة؟</h2>
-        <p class="section-sub">عملية بسيطة، بدون تعقيد.</p>
-        <div class="steps">
-          <div class="step"><div class="step-num">1</div><h3>تخبروننا بحاجتكم</h3><p>المادة، المستوى، المدينة، ونوع الدوام — عبر نموذج قصير.</p></div>
-          <div class="step"><div class="step-num">2</div><h3>نراجع المرشحين</h3><p>نحلّل الملفات المتوفرة لدينا حسب معاييركم.</p></div>
-          <div class="step"><div class="step-num">3</div><h3>نقترح قائمة قصيرة</h3><p>من 3 إلى 5 أساتذة مناسبين لحاجتكم.</p></div>
-          <div class="step"><div class="step-num">4</div><h3>تتواصلون مباشرة</h3><p>مع المرشحين الذين يناسبون مؤسستكم.</p></div>
-          <div class="step"><div class="step-num">5</div><h3>نتابع معكم</h3><p>لتحسين جودة الترشيحات القادمة.</p></div>
-        </div>
-        <p class="how-fr">
-          <strong>Comment ça fonctionne&nbsp;?</strong>
-          Vous nous indiquez votre besoin (matière, niveau, ville, disponibilité) →
-          nous analysons les profils disponibles → nous proposons une courte liste de candidats adaptés →
-          vous contactez les profils qui correspondent → nous assurons un suivi.
-        </p>
-      </div>
-    </section>
-
-    <!-- ============ USE CASES ============ -->
-    <section class="section section-alt" id="cases">
-      <div class="container">
-        <h2 class="section-title">متى تحتاج مؤسستكم إلى Linkify؟</h2>
-        <div class="cases-grid">
-          <div class="case-card">بداية السنة الدراسية</div>
-          <div class="case-card">مغادرة أستاذ بشكل مفاجئ</div>
-          <div class="case-card">غياب مؤقت (مرض / ولادة)</div>
-          <div class="case-card">الحاجة إلى أستاذ بديل بسرعة</div>
-          <div class="case-card">فتح مستوى أو مجموعة جديدة</div>
-          <div class="case-card">مادة يصعب إيجاد أستاذها</div>
-          <div class="case-card">أساتذة للدعم أو اللغات أو التكوين</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ PRIORITY SUBJECTS ============ -->
-    <section class="section" id="subjects">
-      <div class="container narrow">
-        <h2 class="section-title">التخصصات ذات الأولوية حاليًا</h2>
-        <p class="section-sub">نركّز في المرحلة الأولى على التخصصات الأكثر طلبًا داخل التعليم الخاص.</p>
-        <div class="chips">
-          <span class="chip chip-hot">اللغة الفرنسية</span>
-          <span class="chip chip-hot">الرياضيات</span>
-          <span class="chip">اللغة الإنجليزية</span>
-          <span class="chip">الفيزياء والكيمياء</span>
-          <span class="chip">علوم الحياة والأرض</span>
-          <span class="chip">أساتذة الابتدائي</span>
-          <span class="chip">أطر الدعم واللغات</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ WHY LINKIFY ============ -->
-    <section class="section section-alt" id="why">
-      <div class="container narrow">
-        <h2 class="section-title">لماذا Linkify؟</h2>
-        <p class="prose">
-          تبقى التوصيات والعلاقات المهنية مهمة في التوظيف، لكنها لا تكفي دائمًا —
-          خصوصًا عند الحاجة العاجلة أو في المواد التي يصعب إيجاد أساتذتها.
-          Linkify تضيف طبقة تنظيمية تكمّل طرقكم الحالية:
-        </p>
-        <ul class="criteria-list">
-          <li>تقليل الوقت الضائع في فرز السير الذاتية</li>
-          <li>الوصول إلى مرشحين حسب معايير واضحة</li>
-          <li>معرفة التوفر والمدينة والخبرة قبل الاتصال</li>
-          <li>تجنّب التواصل مع مرشحين غير مناسبين</li>
-          <li>قاعدة اختيارات أسرع وأكثر تنظيمًا</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ============ REQUEST FORM ============ -->
+    <!-- ============ REQUEST FORM (right after hero) ============ -->
     <section class="section form-section" id="request">
       <div class="container form-wrap">
         <header class="form-head">
-          <h2 class="section-title">أخبرونا بحاجتكم وسنتواصل معكم</h2>
-          <p class="section-sub">املأوا النموذج القصير التالي، وسنراجع طلبكم للتأكد من إمكانية اقتراح مرشحين مناسبين.</p>
+          <h2 class="section-title" data-i18n="s.form.title">أخبرونا بحاجتكم وسنتواصل معكم</h2>
+          <p class="section-sub" data-i18n="s.form.sub">املأوا النموذج القصير التالي، وسنراجع طلبكم للتأكد من إمكانية اقتراح مرشحين مناسبين.</p>
         </header>
 
+        <div class="progress" aria-hidden="true">
+          <div class="progress-bar"><span id="progressFill"></span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">3</span></div>
+        </div>
+
         <form id="schoolForm" novalidate>
-          <!-- honeypot -->
           <div class="hp-field" aria-hidden="true">
             <label for="website">Website</label>
             <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
           </div>
 
-          <h3 class="form-group-title">معلومات المؤسسة</h3>
-          <div class="grid-2">
-            <div class="field">
-              <label for="school_name">اسم المؤسسة <span class="req">*</span></label>
-              <input type="text" id="school_name" name="school_name" required />
+          <!-- STEP 1: institution + contact -->
+          <fieldset class="form-step is-active" data-step="1">
+            <legend class="step-legend"><span data-i18n="s.st1">المؤسسة والمسؤول عن الطلب</span></legend>
+            <div class="grid-2">
+              <div class="field">
+                <label for="school_name"><span data-i18n="s.f.school_name">اسم المؤسسة</span> <span class="req">*</span></label>
+                <input type="text" id="school_name" name="school_name" required />
+              </div>
+              <div class="field">
+                <label for="institution_type"><span data-i18n="s.f.institution_type">نوع المؤسسة</span> <span class="req">*</span></label>
+                <select id="institution_type" name="institution_type" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="مدرسة خاصة" data-i18n="s.it.school">مدرسة خاصة</option>
+                  <option value="مركز دعم وتقوية" data-i18n="s.it.support">مركز دعم وتقوية</option>
+                  <option value="مركز لغات" data-i18n="s.it.lang">مركز لغات</option>
+                  <option value="مؤسسة تكوين مهني" data-i18n="s.it.training">مؤسسة تكوين مهني</option>
+                  <option value="روض / تعليم أولي" data-i18n="s.it.nursery">روض / تعليم أولي</option>
+                  <option value="مؤسسة تعليم عالي خاص" data-i18n="s.it.higher">مؤسسة تعليم عالي خاص</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="city"><span data-i18n="s.f.city">المدينة</span> <span class="req">*</span></label>
+                <select id="city" name="city" required>
+                  <option value="" disabled selected data-i18n="s.ph.city">اختر المدينة</option>
+                  <option value="القنيطرة">القنيطرة</option><option value="سلا">سلا</option><option value="الرباط">الرباط</option><option value="تمارة">تمارة</option>
+                  <option value="الصخيرات">الصخيرات</option><option value="بوزنيقة">بوزنيقة</option><option value="المحمدية">المحمدية</option><option value="الدار البيضاء">الدار البيضاء</option>
+                  <option value="طنجة">طنجة</option><option value="تطوان">تطوان</option><option value="العرائش">العرائش</option><option value="القصر الكبير">القصر الكبير</option>
+                  <option value="سيدي سليمان">سيدي سليمان</option><option value="سيدي قاسم">سيدي قاسم</option><option value="وزان">وزان</option><option value="مكناس">مكناس</option>
+                  <option value="فاس">فاس</option><option value="صفرو">صفرو</option><option value="تازة">تازة</option><option value="وجدة">وجدة</option>
+                  <option value="بركان">بركان</option><option value="الناضور">الناضور</option><option value="خريبكة">خريبكة</option><option value="بني ملال">بني ملال</option>
+                  <option value="الفقيه بن صالح">الفقيه بن صالح</option><option value="سطات">سطات</option><option value="برشيد">برشيد</option><option value="الجديدة">الجديدة</option>
+                  <option value="سيدي بنور">سيدي بنور</option><option value="آسفي">آسفي</option><option value="الصويرة">الصويرة</option><option value="مراكش">مراكش</option>
+                  <option value="قلعة السراغنة">قلعة السراغنة</option><option value="أكادير">أكادير</option><option value="إنزكان">إنزكان</option><option value="آيت ملول">آيت ملول</option>
+                  <option value="تارودانت">تارودانت</option><option value="تيزنيت">تيزنيت</option><option value="مدينة أخرى" data-i18n="s.opt.otherCity">مدينة أخرى</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="area" data-i18n="s.f.area">الحي أو المنطقة</label>
+                <input type="text" id="area" name="area" data-i18n-ph="s.ph.area" placeholder="اختياري — يساعد في القرب الجغرافي" />
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="contact_name"><span data-i18n="s.f.contact_name">اسم المسؤول</span> <span class="req">*</span></label>
+                <input type="text" id="contact_name" name="contact_name" required />
+              </div>
+              <div class="field">
+                <label for="role"><span data-i18n="s.f.role">الصفة داخل المؤسسة</span> <span class="req">*</span></label>
+                <select id="role" name="role" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="مدير(ة)" data-i18n="s.role.director">مدير(ة)</option>
+                  <option value="مسؤول(ة) تربوي(ة)" data-i18n="s.role.pedago">مسؤول(ة) تربوي(ة)</option>
+                  <option value="منسق(ة)" data-i18n="s.role.coord">منسق(ة)</option>
+                  <option value="موارد بشرية" data-i18n="s.role.hr">موارد بشرية</option>
+                  <option value="صاحب(ة) المؤسسة" data-i18n="s.role.owner">صاحب(ة) المؤسسة</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="phone"><span data-i18n="s.f.phone">رقم الهاتف / واتساب</span> <span class="req">*</span></label>
+                <input type="tel" id="phone" name="phone" required inputmode="tel" placeholder="06xxxxxxxx" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="email" data-i18n="s.f.email">البريد الإلكتروني</label>
+                <input type="email" id="email" name="email" autocomplete="email" data-i18n-ph="s.ph.optional" placeholder="اختياري" />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- STEP 2: need details -->
+          <fieldset class="form-step" data-step="2" hidden>
+            <legend class="step-legend"><span data-i18n="s.form.g3">تفاصيل الحاجة</span></legend>
+            <div class="grid-2">
+              <div class="field">
+                <label for="subject"><span data-i18n="s.f.subject">المادة أو التخصص المطلوب</span> <span class="req">*</span></label>
+                <input type="text" id="subject" name="subject" required data-i18n-ph="s.ph.subject" placeholder="مثال: الفرنسية، الرياضيات، الإنجليزية..." />
+              </div>
+              <div class="field">
+                <label for="level"><span data-i18n="s.f.level">المستوى الدراسي</span> <span class="req">*</span></label>
+                <select id="level" name="level" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="ابتدائي" data-i18n="s.lvl.primary">ابتدائي</option>
+                  <option value="إعدادي" data-i18n="s.lvl.college">إعدادي</option>
+                  <option value="ثانوي تأهيلي" data-i18n="s.lvl.high">ثانوي تأهيلي</option>
+                  <option value="لغات" data-i18n="s.lvl.lang">لغات</option>
+                  <option value="دعم" data-i18n="s.lvl.support">دعم</option>
+                  <option value="تكوين" data-i18n="s.lvl.training">تكوين</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="need_type"><span data-i18n="s.f.need_type">نوع الحاجة</span> <span class="req">*</span></label>
+                <select id="need_type" name="need_type" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="فورية" data-i18n="s.need.now">فورية</option>
+                  <option value="خلال هذا الشهر" data-i18n="s.need.month">خلال هذا الشهر</option>
+                  <option value="بداية السنة الدراسية" data-i18n="s.need.year">بداية السنة الدراسية</option>
+                  <option value="أريد تجربة الخدمة" data-i18n="s.need.try">أريد فقط تجربة الخدمة</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="work_type"><span data-i18n="s.f.work_type">نوع الدوام</span> <span class="req">*</span></label>
+                <select id="work_type" name="work_type" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="دوام كامل" data-i18n="s.work.full">دوام كامل</option>
+                  <option value="دوام جزئي" data-i18n="s.work.part">دوام جزئي</option>
+                  <option value="ساعات محددة" data-i18n="s.work.hours">ساعات محددة</option>
+                  <option value="تعويض مؤقت" data-i18n="s.work.temp">تعويض مؤقت</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="when_needed" data-i18n="s.f.when">متى تحتاجون الأستاذ؟</label>
+                <input type="text" id="when_needed" name="when_needed" data-i18n-ph="s.ph.when" placeholder="اختياري — مثال: خلال أسبوعين" />
+              </div>
+              <div class="field">
+                <label for="min_experience" data-i18n="s.f.minexp">سنوات خبرة مطلوبة</label>
+                <select id="min_experience" name="min_experience">
+                  <option value="" selected data-i18n="s.exp.any">لا يهم</option>
+                  <option value="سنة فأكثر" data-i18n="s.exp.1">سنة فأكثر</option>
+                  <option value="3 سنوات فأكثر" data-i18n="s.exp.3">3 سنوات فأكثر</option>
+                  <option value="5 سنوات فأكثر" data-i18n="s.exp.5">5 سنوات فأكثر</option>
+                </select>
+              </div>
             </div>
             <div class="field">
-              <label for="institution_type">نوع المؤسسة <span class="req">*</span></label>
-              <select id="institution_type" name="institution_type" required>
-                <option value="" disabled selected>اختر</option>
-                <option value="مدرسة خاصة">مدرسة خاصة</option>
-                <option value="مركز دعم وتقوية">مركز دعم وتقوية</option>
-                <option value="مركز لغات">مركز لغات</option>
-                <option value="مؤسسة تكوين مهني">مؤسسة تكوين مهني</option>
-                <option value="روض / تعليم أولي">روض / تعليم أولي</option>
-                <option value="مؤسسة تعليم عالي خاص">مؤسسة تعليم عالي خاص</option>
+              <span class="label" data-i18n="s.f.local">هل تفضّلون أستاذًا قريبًا جغرافيًا؟</span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="prefer_local" value="نعم، مفضّل" /> <span data-i18n="s.local.yes">نعم، مفضّل</span></label>
+                <label class="pill"><input type="radio" name="prefer_local" value="لا يهم" /> <span data-i18n="s.local.no">لا يهم</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="notes" data-i18n="s.f.notes">ملاحظات إضافية</label>
+              <textarea id="notes" name="notes" rows="3" data-i18n-ph="s.ph.notes" placeholder="اختياري — أي تفاصيل تساعدنا في اقتراح مرشحين أنسب."></textarea>
+            </div>
+          </fieldset>
+
+          <!-- STEP 3: validation questions -->
+          <fieldset class="form-step" data-step="3" hidden>
+            <legend class="step-legend"><span data-i18n="s.form.g4">سؤالان يساعداننا على خدمتكم أفضل</span></legend>
+            <div class="field">
+              <span class="label"><span data-i18n="s.f.shortlist">هل ترغبون في تجربة قائمة قصيرة من 3 إلى 5 مرشحين؟</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، نحتاجها الآن" required /> <span data-i18n="s.sl.now">نعم، نحتاجها الآن</span></label>
+                <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، لكن لاحقًا" /> <span data-i18n="s.sl.later">نعم، لكن لاحقًا</span></label>
+                <label class="pill"><input type="radio" name="shortlist_interest" value="نريد التفاصيل أولًا" /> <span data-i18n="s.sl.info">نريد التفاصيل أولًا</span></label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="pricing_pref" data-i18n="s.f.pricing">النموذج الأنسب لكم إذا كانت الخدمة مفيدة (اختياري)</label>
+              <select id="pricing_pref" name="pricing_pref">
+                <option value="" selected>—</option>
+                <option value="دفع مقابل كل قائمة مرشحين" data-i18n="s.price.perlist">دفع مقابل كل قائمة مرشحين</option>
+                <option value="دفع فقط عند التوظيف" data-i18n="s.price.perhire">دفع فقط عند التوظيف</option>
+                <option value="اشتراك شهري / موسمي" data-i18n="s.price.sub">اشتراك شهري / موسمي</option>
+                <option value="تجربة مجانية أولًا" data-i18n="s.price.free">تجربة مجانية أولًا</option>
+                <option value="نحتاج مناقشة التفاصيل" data-i18n="s.price.discuss">نحتاج مناقشة التفاصيل</option>
               </select>
             </div>
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label for="city">المدينة <span class="req">*</span></label>
-              <select id="city" name="city" required>
-                <option value="" disabled selected>اختر المدينة</option>
-                <option value="القنيطرة">القنيطرة</option><option value="سلا">سلا</option><option value="الرباط">الرباط</option><option value="تمارة">تمارة</option>
-                <option value="الصخيرات">الصخيرات</option><option value="بوزنيقة">بوزنيقة</option><option value="المحمدية">المحمدية</option><option value="الدار البيضاء">الدار البيضاء</option>
-                <option value="طنجة">طنجة</option><option value="تطوان">تطوان</option><option value="العرائش">العرائش</option><option value="القصر الكبير">القصر الكبير</option>
-                <option value="سيدي سليمان">سيدي سليمان</option><option value="سيدي قاسم">سيدي قاسم</option><option value="وزان">وزان</option><option value="مكناس">مكناس</option>
-                <option value="فاس">فاس</option><option value="صفرو">صفرو</option><option value="تازة">تازة</option><option value="وجدة">وجدة</option>
-                <option value="بركان">بركان</option><option value="الناضور">الناضور</option><option value="خريبكة">خريبكة</option><option value="بني ملال">بني ملال</option>
-                <option value="الفقيه بن صالح">الفقيه بن صالح</option><option value="سطات">سطات</option><option value="برشيد">برشيد</option><option value="الجديدة">الجديدة</option>
-                <option value="سيدي بنور">سيدي بنور</option><option value="آسفي">آسفي</option><option value="الصويرة">الصويرة</option><option value="مراكش">مراكش</option>
-                <option value="قلعة السراغنة">قلعة السراغنة</option><option value="أكادير">أكادير</option><option value="إنزكان">إنزكان</option><option value="آيت ملول">آيت ملول</option>
-                <option value="تارودانت">تارودانت</option><option value="تيزنيت">تيزنيت</option><option value="مدينة أخرى">مدينة أخرى</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="area">الحي أو المنطقة</label>
-              <input type="text" id="area" name="area" placeholder="اختياري — يساعد في القرب الجغرافي" />
-            </div>
-          </div>
+          </fieldset>
 
-          <h3 class="form-group-title">المسؤول عن الطلب</h3>
-          <div class="grid-2">
-            <div class="field">
-              <label for="contact_name">اسم المسؤول <span class="req">*</span></label>
-              <input type="text" id="contact_name" name="contact_name" required />
-            </div>
-            <div class="field">
-              <label for="role">الصفة داخل المؤسسة <span class="req">*</span></label>
-              <select id="role" name="role" required>
-                <option value="" disabled selected>اختر</option>
-                <option value="مدير(ة)">مدير(ة)</option>
-                <option value="مسؤول(ة) تربوي(ة)">مسؤول(ة) تربوي(ة)</option>
-                <option value="منسق(ة)">منسق(ة)</option>
-                <option value="موارد بشرية">موارد بشرية</option>
-                <option value="صاحب(ة) المؤسسة">صاحب(ة) المؤسسة</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label for="phone">رقم الهاتف / واتساب <span class="req">*</span></label>
-              <input type="tel" id="phone" name="phone" required inputmode="tel" placeholder="06xxxxxxxx" autocomplete="tel" />
-            </div>
-            <div class="field">
-              <label for="email">البريد الإلكتروني</label>
-              <input type="email" id="email" name="email" autocomplete="email" placeholder="اختياري" />
-            </div>
-          </div>
-
-          <h3 class="form-group-title">تفاصيل الحاجة</h3>
-          <div class="grid-2">
-            <div class="field">
-              <label for="subject">المادة أو التخصص المطلوب <span class="req">*</span></label>
-              <input type="text" id="subject" name="subject" required placeholder="مثال: الفرنسية، الرياضيات، الإنجليزية..." />
-            </div>
-            <div class="field">
-              <label for="level">المستوى الدراسي <span class="req">*</span></label>
-              <select id="level" name="level" required>
-                <option value="" disabled selected>اختر</option>
-                <option value="ابتدائي">ابتدائي</option>
-                <option value="إعدادي">إعدادي</option>
-                <option value="ثانوي تأهيلي">ثانوي تأهيلي</option>
-                <option value="لغات">لغات</option>
-                <option value="دعم">دعم</option>
-                <option value="تكوين">تكوين</option>
-              </select>
-            </div>
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label for="need_type">نوع الحاجة <span class="req">*</span></label>
-              <select id="need_type" name="need_type" required>
-                <option value="" disabled selected>اختر</option>
-                <option value="فورية">فورية</option>
-                <option value="خلال هذا الشهر">خلال هذا الشهر</option>
-                <option value="بداية السنة الدراسية">بداية السنة الدراسية</option>
-                <option value="أريد تجربة الخدمة">أريد فقط تجربة الخدمة</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="work_type">نوع الدوام <span class="req">*</span></label>
-              <select id="work_type" name="work_type" required>
-                <option value="" disabled selected>اختر</option>
-                <option value="دوام كامل">دوام كامل</option>
-                <option value="دوام جزئي">دوام جزئي</option>
-                <option value="ساعات محددة">ساعات محددة</option>
-                <option value="تعويض مؤقت">تعويض مؤقت</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field">
-            <span class="label">هل الحاجة عاجلة؟ <span class="req">*</span></span>
-            <div class="radio-row">
-              <label class="pill"><input type="radio" name="urgent" value="نعم، عاجلة" required /> نعم، عاجلة</label>
-              <label class="pill"><input type="radio" name="urgent" value="لا، غير مستعجلة" /> لا، غير مستعجلة</label>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div class="field">
-              <label for="when_needed">متى تحتاجون الأستاذ؟</label>
-              <input type="text" id="when_needed" name="when_needed" placeholder="اختياري — مثال: خلال أسبوعين" />
-            </div>
-            <div class="field">
-              <label for="min_experience">سنوات خبرة مطلوبة</label>
-              <select id="min_experience" name="min_experience">
-                <option value="" selected>لا يهم</option>
-                <option value="سنة فأكثر">سنة فأكثر</option>
-                <option value="3 سنوات فأكثر">3 سنوات فأكثر</option>
-                <option value="5 سنوات فأكثر">5 سنوات فأكثر</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="field">
-            <span class="label">هل تفضّلون أستاذًا قريبًا جغرافيًا؟</span>
-            <div class="radio-row">
-              <label class="pill"><input type="radio" name="prefer_local" value="نعم، مفضّل" /> نعم، مفضّل</label>
-              <label class="pill"><input type="radio" name="prefer_local" value="لا يهم" /> لا يهم</label>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="notes">ملاحظات إضافية</label>
-            <textarea id="notes" name="notes" rows="3" placeholder="اختياري — أي تفاصيل تساعدنا في اقتراح مرشحين أنسب."></textarea>
-          </div>
-
-          <h3 class="form-group-title">سؤالان يساعداننا على خدمتكم أفضل</h3>
-          <div class="field">
-            <span class="label">هل ترغبون في تجربة قائمة قصيرة من 3 إلى 5 مرشحين؟ <span class="req">*</span></span>
-            <div class="radio-row">
-              <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، نحتاجها الآن" required /> نعم، نحتاجها الآن</label>
-              <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، لكن لاحقًا" /> نعم، لكن لاحقًا</label>
-              <label class="pill"><input type="radio" name="shortlist_interest" value="نريد التفاصيل أولًا" /> نريد التفاصيل أولًا</label>
-            </div>
-          </div>
-          <div class="field">
-            <label for="pricing_pref">النموذج الأنسب لكم إذا كانت الخدمة مفيدة (اختياري)</label>
-            <select id="pricing_pref" name="pricing_pref">
-              <option value="" selected>—</option>
-              <option value="دفع مقابل كل قائمة مرشحين">دفع مقابل كل قائمة مرشحين</option>
-              <option value="دفع فقط عند التوظيف">دفع فقط عند التوظيف</option>
-              <option value="اشتراك شهري / موسمي">اشتراك شهري / موسمي</option>
-              <option value="تجربة مجانية أولًا">تجربة مجانية أولًا</option>
-              <option value="نحتاج مناقشة التفاصيل">نحتاج مناقشة التفاصيل</option>
-            </select>
-          </div>
-
-          <div class="form-nav form-nav-single">
-            <button type="submit" class="btn btn-primary btn-lg" id="schoolSubmit">
-              <span>إرسال الطلب</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            </button>
+          <div class="form-nav">
+            <button type="button" class="btn btn-ghost" id="prevBtn" hidden data-i18n="btn.prev">السابق</button>
+            <button type="button" class="btn btn-primary" id="nextBtn" data-i18n="btn.next">التالي</button>
+            <button type="submit" class="btn btn-primary" id="schoolSubmit" hidden><span data-i18n="s.form.submit">إرسال الطلب</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
           </div>
           <div id="schoolStatus" class="form-status" hidden></div>
         </form>
 
-        <!-- success -->
         <div id="schoolSuccess" class="success-screen" hidden>
           <div class="success-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
-          <h3>تم استلام طلبكم بنجاح.</h3>
-          <p>سنراجع حاجتكم ونتواصل معكم عبر الهاتف أو واتساب في أقرب وقت لاقتراح مرشحين مناسبين.</p>
+          <h3 data-i18n="s.ok.title">تم استلام طلبكم بنجاح.</h3>
+          <p data-i18n="s.ok.body">سنراجع حاجتكم ونتواصل معكم عبر الهاتف أو واتساب في أقرب وقت لاقتراح مرشحين مناسبين.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROBLEM ============ -->
+    <section class="section section-alt" id="problem">
+      <div class="container narrow">
+        <h2 class="section-title" data-i18n="s.problem.title">البحث عن أستاذ مناسب… تحدٍّ حقيقي</h2>
+        <p class="prose" data-i18n="s.problem.p1">في كثير من المؤسسات التعليمية الخاصة، ما زال البحث عن الأساتذة يعتمد على التوصيات، العلاقات، مجموعات واتساب وفيسبوك، أو السير الذاتية المتراكمة.</p>
+        <p class="prose" data-i18n="s.problem.p2">ويصبح الأمر أصعب عندما يتعلق بمادة حساسة مثل الفرنسية أو الرياضيات، أو اللغات والمواد العلمية، أو عند الحاجة إلى تعويض عاجل.</p>
+        <div class="pain-row">
+          <div class="pain"><span class="pain-num">1</span><p data-i18n="s.pain1">صعوبة إيجاد أستاذ مناسب بسرعة</p></div>
+          <div class="pain"><span class="pain-num">2</span><p data-i18n="s.pain2">وقت ضائع في فرز السير الذاتية</p></div>
+          <div class="pain"><span class="pain-num">3</span><p data-i18n="s.pain3">خطر توظيف غير مناسب، خصوصًا في الفرنسية والرياضيات</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SOLUTION ============ -->
+    <section class="section" id="solution">
+      <div class="container narrow">
+        <h2 class="section-title" data-i18n="s.solution.title">Linkify تنظّم عملية البحث عن الأساتذة</h2>
+        <p class="section-sub" data-i18n="s.solution.sub">لا نرسل لكم عشرات الملفات العشوائية — بل قائمة قصيرة من المرشحين الأقرب إلى حاجتكم.</p>
+        <ul class="criteria-list">
+          <li data-i18n="s.crit1">المادة أو التخصص</li>
+          <li data-i18n="s.crit2">المستوى الدراسي</li>
+          <li data-i18n="s.crit3">المدينة والقرب الجغرافي</li>
+          <li data-i18n="s.crit4">سنوات الخبرة</li>
+          <li data-i18n="s.crit5">نوع الدوام</li>
+          <li data-i18n="s.crit6">التوفر الحالي</li>
+          <li data-i18n="s.crit7">السيرة الذاتية</li>
+          <li data-i18n="s.crit8">قابلية التعويض العاجل</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="section section-alt" id="how">
+      <div class="container">
+        <h2 class="section-title" data-i18n="s.how.title">كيف تعمل الخدمة؟</h2>
+        <p class="section-sub" data-i18n="s.how.sub">عملية بسيطة، بدون تعقيد.</p>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><h3 data-i18n="s.step1t">تخبروننا بحاجتكم</h3><p data-i18n="s.step1b">المادة، المستوى، المدينة، ونوع الدوام — عبر نموذج قصير.</p></div>
+          <div class="step"><div class="step-num">2</div><h3 data-i18n="s.step2t">نراجع المرشحين</h3><p data-i18n="s.step2b">نحلّل الملفات المتوفرة لدينا حسب معاييركم.</p></div>
+          <div class="step"><div class="step-num">3</div><h3 data-i18n="s.step3t">نقترح قائمة قصيرة</h3><p data-i18n="s.step3b">من 3 إلى 5 أساتذة مناسبين لحاجتكم.</p></div>
+          <div class="step"><div class="step-num">4</div><h3 data-i18n="s.step4t">تتواصلون مباشرة</h3><p data-i18n="s.step4b">مع المرشحين الذين يناسبون مؤسستكم.</p></div>
+          <div class="step"><div class="step-num">5</div><h3 data-i18n="s.step5t">نتابع معكم</h3><p data-i18n="s.step5b">لتحسين جودة الترشيحات القادمة.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ USE CASES ============ -->
+    <section class="section" id="cases">
+      <div class="container">
+        <h2 class="section-title" data-i18n="s.cases.title">متى تحتاج مؤسستكم إلى Linkify؟</h2>
+        <div class="cases-grid">
+          <div class="case-card" data-i18n="s.case1">بداية السنة الدراسية</div>
+          <div class="case-card" data-i18n="s.case2">مغادرة أستاذ بشكل مفاجئ</div>
+          <div class="case-card" data-i18n="s.case3">غياب مؤقت (مرض / ولادة)</div>
+          <div class="case-card" data-i18n="s.case4">الحاجة إلى أستاذ بديل بسرعة</div>
+          <div class="case-card" data-i18n="s.case5">فتح مستوى أو مجموعة جديدة</div>
+          <div class="case-card" data-i18n="s.case6">مادة يصعب إيجاد أستاذها</div>
+          <div class="case-card" data-i18n="s.case7">أساتذة للدعم أو اللغات أو التكوين</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PRIORITY SUBJECTS ============ -->
+    <section class="section section-alt" id="subjects">
+      <div class="container narrow">
+        <h2 class="section-title" data-i18n="s.subj.title">التخصصات ذات الأولوية حاليًا</h2>
+        <p class="section-sub" data-i18n="s.subj.sub">نركّز في المرحلة الأولى على التخصصات الأكثر طلبًا داخل التعليم الخاص.</p>
+        <div class="chips">
+          <span class="chip chip-hot" data-i18n="s.chip.fr">اللغة الفرنسية</span>
+          <span class="chip chip-hot" data-i18n="s.chip.math">الرياضيات</span>
+          <span class="chip" data-i18n="s.chip.en">اللغة الإنجليزية</span>
+          <span class="chip" data-i18n="s.chip.pc">الفيزياء والكيمياء</span>
+          <span class="chip" data-i18n="s.chip.svt">علوم الحياة والأرض</span>
+          <span class="chip" data-i18n="s.chip.primary">أساتذة الابتدائي</span>
+          <span class="chip" data-i18n="s.chip.support">أطر الدعم واللغات</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY LINKIFY ============ -->
+    <section class="section" id="why">
+      <div class="container narrow">
+        <h2 class="section-title" data-i18n="s.why.title">لماذا Linkify؟</h2>
+        <p class="prose" data-i18n="s.why.p">تبقى التوصيات والعلاقات المهنية مهمة، لكنها لا تكفي دائمًا — خصوصًا عند الحاجة العاجلة أو في المواد التي يصعب إيجاد أساتذتها. Linkify تضيف طبقة تنظيمية تكمّل طرقكم الحالية:</p>
+        <ul class="criteria-list">
+          <li data-i18n="s.wl1">تقليل الوقت الضائع في فرز السير الذاتية</li>
+          <li data-i18n="s.wl2">الوصول إلى مرشحين حسب معايير واضحة</li>
+          <li data-i18n="s.wl3">معرفة التوفر والمدينة والخبرة قبل الاتصال</li>
+          <li data-i18n="s.wl4">تجنّب التواصل مع مرشحين غير مناسبين</li>
+          <li data-i18n="s.wl5">قاعدة اختيارات أسرع وأكثر تنظيمًا</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section section-alt" id="faq">
+      <div class="container narrow">
+        <h2 class="section-title" data-i18n="s.faq.title">أسئلة شائعة</h2>
+        <div class="faq">
+          <details class="faq-item"><summary data-i18n="s.faq.q1">هل Linkify.ma وكالة توظيف؟</summary><p data-i18n="s.faq.a1">لا. Linkify.ma خدمة رقمية تساعد على تنظيم الربط بين المؤسسات التعليمية الخاصة والأساتذة المرشحين. القرار النهائي في التوظيف يبقى دائمًا للمؤسسة.</p></details>
+          <details class="faq-item"><summary data-i18n="s.faq.q2">هل الأساتذة موظفون عند Linkify؟</summary><p data-i18n="s.faq.a2">لا. نساعد على اقتراح مرشحين مناسبين، والمؤسسة تتواصل معهم وتقرر حسب معاييرها.</p></details>
+          <details class="faq-item"><summary data-i18n="s.faq.q3">هل تضمنون جودة الأستاذ؟</summary><p data-i18n="s.faq.a3">نقوم بفلترة أولية للملفات حسب المعلومات المتوفرة. لكن المقابلة والتجربة داخل القسم والقرار النهائي تبقى من مسؤولية المؤسسة.</p></details>
+          <details class="faq-item"><summary data-i18n="s.faq.q4">هل الخدمة مجانية؟</summary><p data-i18n="s.faq.a4">في المرحلة التجريبية يمكن للمؤسسات طلب تجربة أولية. لاحقًا سيتم تحديد نموذج واضح حسب طبيعة الخدمة.</p></details>
+          <details class="faq-item"><summary data-i18n="s.faq.q5">هل يمكن طلب أستاذ بشكل عاجل؟</summary><p data-i18n="s.faq.a5">نعم، يمكنكم تحديد أن الحاجة عاجلة، وسنحاول اقتراح مرشحين مناسبين حسب المتوفر.</p></details>
+          <details class="faq-item"><summary data-i18n="s.faq.q6">ما المواد التي تركزون عليها؟</summary><p data-i18n="s.faq.a6">نركز أولًا على الفرنسية، الرياضيات، اللغات، والمواد العلمية، مع إمكانية إضافة تخصصات أخرى تدريجيًا.</p></details>
         </div>
       </div>
     </section>
 
     <!-- ============ TRUST ============ -->
-    <section class="section section-alt" id="trust">
+    <section class="section" id="trust">
       <div class="container narrow">
-        <h2 class="section-title">معطياتكم المهنية في أمان</h2>
-        <p class="prose">
-          المعلومات التي تشاركونها تُستعمل فقط لفهم حاجتكم واقتراح مرشحين مناسبين.
-          لا ننشر طلباتكم بشكل علني، ولا نشارك بيانات مؤسستكم مع أي طرف غير معني دون موافقتكم.
-        </p>
-        <p class="prose muted">
-          Linkify.ma مشروع مغربي خاص في مرحلة تجريبية مع عدد محدود من المؤسسات التعليمية الخاصة.
-          القرار النهائي في الاستدعاء والمقابلة والتوظيف يبقى دائمًا للمؤسسة.
-        </p>
-      </div>
-    </section>
-
-    <!-- ============ FAQ ============ -->
-    <section class="section" id="faq">
-      <div class="container narrow">
-        <h2 class="section-title">أسئلة شائعة</h2>
-        <div class="faq">
-          <details class="faq-item"><summary>هل Linkify.ma وكالة توظيف؟</summary><p>لا. Linkify.ma خدمة رقمية تساعد على تنظيم الربط بين المؤسسات التعليمية الخاصة والأساتذة المرشحين. القرار النهائي في التوظيف يبقى دائمًا للمؤسسة.</p></details>
-          <details class="faq-item"><summary>هل الأساتذة موظفون عند Linkify؟</summary><p>لا. نساعد على اقتراح مرشحين مناسبين، والمؤسسة تتواصل معهم وتقرر حسب معاييرها.</p></details>
-          <details class="faq-item"><summary>هل تضمنون جودة الأستاذ؟</summary><p>نقوم بفلترة أولية للملفات حسب المعلومات المتوفرة (التخصص، الخبرة، المدينة، التوفر، السيرة الذاتية). لكن المقابلة والتجربة داخل القسم والقرار النهائي تبقى من مسؤولية المؤسسة.</p></details>
-          <details class="faq-item"><summary>هل الخدمة مجانية؟</summary><p>في المرحلة التجريبية يمكن للمؤسسات طلب تجربة أولية. لاحقًا سيتم تحديد نموذج واضح حسب طبيعة الخدمة.</p></details>
-          <details class="faq-item"><summary>هل يمكن طلب أستاذ بشكل عاجل؟</summary><p>نعم، يمكنكم تحديد أن الحاجة عاجلة، وسنحاول اقتراح مرشحين مناسبين حسب المتوفر في قاعدة البيانات.</p></details>
-          <details class="faq-item"><summary>ما المواد التي تركزون عليها؟</summary><p>نركز أولًا على الفرنسية، الرياضيات، اللغات، والمواد العلمية، مع إمكانية إضافة تخصصات أخرى تدريجيًا.</p></details>
-        </div>
+        <h2 class="section-title" data-i18n="s.trust.title">معطياتكم المهنية في أمان</h2>
+        <p class="prose" data-i18n="s.trust.p1">المعلومات التي تشاركونها تُستعمل فقط لفهم حاجتكم واقتراح مرشحين مناسبين. لا ننشر طلباتكم بشكل علني، ولا نشارك بيانات مؤسستكم مع أي طرف غير معني دون موافقتكم.</p>
+        <p class="prose muted" data-i18n="s.trust.p2">Linkify.ma مشروع مغربي خاص في مرحلة تجريبية مع عدد محدود من المؤسسات التعليمية الخاصة. القرار النهائي في الاستدعاء والمقابلة والتوظيف يبقى دائمًا للمؤسسة.</p>
       </div>
     </section>
   </main>
@@ -420,21 +393,22 @@
     <div class="container footer-grid">
       <div>
         <a href="index.html" class="brand"><img src="logo-dark.png" alt="Linkify" class="footer-logo" /></a>
-        <p class="footer-tag">نربط المؤسسات التعليمية بالكفاءات المناسبة.</p>
+        <p class="footer-tag" data-i18n="s.foot.tag">نربط المؤسسات التعليمية بالكفاءات المناسبة.</p>
       </div>
       <div class="footer-contact">
         <a href="mailto:contact@linkify.ma">contact@linkify.ma</a>
-        <a href="index.html">صفحة الأساتذة</a>
-        <span>صُنع بالمغرب 🇲🇦</span>
+        <a href="index.html" data-i18n="s.foot.teachers">صفحة الأساتذة</a>
+        <span data-i18n="s.foot.made">صُنع بالمغرب 🇲🇦</span>
       </div>
     </div>
     <div class="container footer-bottom">
-      <span>© <span id="year"></span> Linkify.ma — جميع الحقوق محفوظة.</span>
+      <span>© <span id="year"></span> Linkify.ma — <span data-i18n="s.foot.rights">جميع الحقوق محفوظة.</span></span>
     </div>
   </footer>
 
   <button id="toTop" class="to-top" type="button" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
 
+  <script src="i18n.js" defer></script>
   <script src="schools.js" defer></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -451,7 +425,6 @@
         try { localStorage.setItem(KEY, next); } catch (e) {}
         setIcon();
       });
-      // back to top
       var toTop = document.getElementById('toTop');
       window.addEventListener('scroll', function () { if (toTop) toTop.classList.toggle('show', window.pageYOffset > 500); });
       if (toTop) toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
