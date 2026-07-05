@@ -749,6 +749,15 @@ section[id] { scroll-margin-top: 84px; }
 .sv-node.dim.rejected .sv-reject { opacity: 1; transform: scale(1); }
 .sv-node.dim.gone { opacity: .12; }
 
+/* weak candidates drift around ("trying to fool the matcher") until caught */
+.sv-float.f1 { animation: svFloat1 6s ease-in-out infinite; }
+.sv-float.f2 { animation: svFloat2 7.5s ease-in-out infinite; }
+.sv-float.f3 { animation: svFloat3 5.5s ease-in-out infinite; }
+.sv-node.dim.rejected .sv-float { animation-play-state: paused; }   /* freeze when caught */
+@keyframes svFloat1 { 0%,100% { transform: translate(0,0); } 25% { transform: translate(8px,-7px); } 50% { transform: translate(-7px,6px); } 75% { transform: translate(6px,8px); } }
+@keyframes svFloat2 { 0%,100% { transform: translate(0,0); } 30% { transform: translate(-9px,-5px); } 60% { transform: translate(7px,7px); } }
+@keyframes svFloat3 { 0%,100% { transform: translate(0,0); } 20% { transform: translate(6px,7px); } 55% { transform: translate(-8px,-6px); } 80% { transform: translate(5px,-7px); } }
+
 /* central glowing hub */
 .sv-hub-bg { fill: var(--surface); stroke: var(--teal); stroke-width: 2.5; }
 .sv-aura { fill: var(--teal); opacity: .2; transform-box: fill-box; transform-origin: center; filter: blur(9px); animation: svAura 2.8s ease-in-out infinite; }
@@ -769,6 +778,6 @@ section[id] { scroll-margin-top: 84px; }
   .sv-node.q .sv-dot { fill: var(--teal); }
   .sv-node.q .sv-label { fill: var(--teal-dark); }
   .sv-check { opacity: 1; transform: scale(1); }
-  .sv-ring, .sv-aura { animation: none; }
+  .sv-ring, .sv-aura, .sv-float { animation: none; }
   .sv-mag { transform: translate(300px, 300px); transition: none; }
 }

@@ -24,7 +24,11 @@
     ];
     var dims = [
       { sel: ".d1", x: 110, y: 300, dim: true },
-      { sel: ".d2", x: 312, y: 300, dim: true }
+      { sel: ".d2", x: 312, y: 300, dim: true },
+      { sel: ".d3", x: 140, y: 116, dim: true },
+      { sel: ".d4", x: 284, y: 114, dim: true },
+      { sel: ".d5", x: 70, y: 252, dim: true },
+      { sel: ".d6", x: 350, y: 252, dim: true }
     ];
 
     function rand(a, b) { return a + Math.random() * (b - a); }
