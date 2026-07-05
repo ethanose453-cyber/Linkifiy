@@ -43,6 +43,7 @@
         <button id="langToggle" class="lang-toggle" type="button" aria-label="Language / اللغة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="langLabel">AR</span></button>
         <button id="themeToggle" class="theme-toggle" type="button" aria-label="تبديل الوضع الليلي / النهاري"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
         <a href="#request" class="btn btn-primary btn-sm" data-i18n="s.nav.cta">اطلبوا مرشحين</a>
+        <button id="navToggle" class="nav-toggle" type="button" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       </div>
     </nav>
   </header>
@@ -501,6 +502,13 @@
   <script src="schools.js" defer></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      var t = document.getElementById('navToggle'), h = document.querySelector('.site-header');
+      if (t && h) {
+        t.addEventListener('click', function () { h.classList.toggle('menu-open'); });
+        h.querySelectorAll('.nav-links a').forEach(function (a) { a.addEventListener('click', function () { h.classList.remove('menu-open'); }); });
+      }
+    })();
     (function () {
       var KEY = 'linkify-theme', root = document.documentElement, btn = document.getElementById('themeToggle');
       function effective() { var t = root.getAttribute('data-theme'); return t ? t : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
