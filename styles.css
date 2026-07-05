@@ -741,8 +741,13 @@ section[id] { scroll-margin-top: 84px; }
 .sv-check { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.3); transition: opacity .35s ease, transform .35s cubic-bezier(.2,.8,.2,1); }
 .sv-node.q.active .sv-check { opacity: 1; transform: scale(1); }
 
-/* filtered-out (dim) nodes stay gray */
-.sv-node.dim .sv-core { fill: var(--bg-alt); stroke: var(--line); opacity: .7; transform: scale(1); }
+/* lower-quality (dim) nodes: gray by default -> inspected (red X) -> faded out */
+.sv-node.dim { transition: opacity .6s ease; }
+.sv-node.dim .sv-core { fill: var(--bg-alt); stroke: var(--line); opacity: .7; transform: scale(1); transition: fill .3s ease, stroke .3s ease; }
+.sv-node.dim.rejected .sv-core { fill: #fde2e2; stroke: #dc2626; }
+.sv-reject { opacity: 0; transform-box: fill-box; transform-origin: center; transform: scale(.3); transition: opacity .3s ease, transform .3s cubic-bezier(.2,.8,.2,1); }
+.sv-node.dim.rejected .sv-reject { opacity: 1; transform: scale(1); }
+.sv-node.dim.gone { opacity: .12; }
 
 /* central glowing hub */
 .sv-hub-bg { fill: var(--surface); stroke: var(--teal); stroke-width: 2.5; }
