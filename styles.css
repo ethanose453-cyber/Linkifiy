@@ -699,3 +699,21 @@ section[id] { scroll-margin-top: 84px; }
 .schools-cta-text p { color: var(--ink-soft); margin-top: 8px; max-width: 60ch; line-height: 1.7; }
 .schools-cta-box .btn { flex: none; }
 @media (max-width: 640px) { .schools-cta-box { padding: 24px; } }
+
+
+/* ===== Schools page balance fixes (center incomplete rows) ===== */
+/* how-it-works: 5 steps -> flex + centered so last row isn't stuck to one side */
+.schools-page .steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.schools-page .step { flex: 1 1 180px; max-width: 220px; margin: 0; }
+
+/* use cases: 7 cards -> centered rows */
+.cases-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
+.case-card { flex: 1 1 200px; max-width: 260px; display: flex; align-items: center; justify-content: center; min-height: 64px; }
+
+/* criteria checklist: center items so an odd last item stays balanced */
+.criteria-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px; }
+.criteria-list li { flex: 0 1 300px; }
+
+@media (max-width: 720px) {
+  .criteria-list li { flex-basis: 100%; }
+}
