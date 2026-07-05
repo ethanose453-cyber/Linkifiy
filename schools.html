@@ -82,39 +82,37 @@
               <path class="sv-link l5" pathLength="1" d="M200 44 L210 182" />
             </g>
 
-            <!-- central hub = your institution -->
+            <!-- central glowing hub (simple circle + aura, like the teachers page) -->
             <g class="sv-school" transform="translate(210,182)">
-              <circle class="sv-ring" r="30" /><circle class="sv-ring r2" r="30" />
-              <rect x="-32" y="-32" width="64" height="64" rx="16" fill="url(#schGrad)" />
-              <g stroke="#ffffff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M-15 13 v-17 l15 -11 15 11 v17 z" /><path d="M-5 13 v-9 h10 v9" />
-              </g>
+              <circle class="sv-aura" r="34" />
+              <circle class="sv-ring" r="28" /><circle class="sv-ring r2" r="28" />
+              <circle class="sv-hub-bg" r="28" />
+              <image href="icon.png" x="-18" y="-18" width="36" height="36" />
             </g>
-            <text class="sv-hub" x="210" y="238">Linkify</text>
 
             <!-- quality teacher nodes (get matched) -->
             <g class="sv-node q n1" transform="translate(62,64)">
-              <text class="sv-label" y="-17">فرنسية</text>
+              <text class="sv-label" y="-17" data-i18n="s.mn.fr">فرنسية</text>
               <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
               <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
             </g>
             <g class="sv-node q n2" transform="translate(356,64)">
-              <text class="sv-label" y="-17">رياضيات</text>
+              <text class="sv-label" y="-17" data-i18n="s.mn.math">رياضيات</text>
               <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
               <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
             </g>
             <g class="sv-node q n3" transform="translate(48,190)">
-              <text class="sv-label" y="-17">إنجليزية</text>
+              <text class="sv-label" y="-17" data-i18n="s.mn.en">إنجليزية</text>
               <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
               <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
             </g>
             <g class="sv-node q n4" transform="translate(372,196)">
-              <text class="sv-label" y="-17">فيزياء</text>
+              <text class="sv-label" y="-17" data-i18n="s.mn.pc">فيزياء</text>
               <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
               <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
             </g>
             <g class="sv-node q n5" transform="translate(200,44)">
-              <text class="sv-label" y="-17">علوم</text>
+              <text class="sv-label" y="-17" data-i18n="s.mn.sci">علوم</text>
               <circle class="sv-core" r="11" /><circle class="sv-dot" r="4" />
               <g class="sv-check" transform="translate(13,-13)"><circle r="7" fill="#16a34a" /><path d="M-3 0 l2 2 4 -4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round" /></g>
             </g>
@@ -477,6 +475,7 @@
   <button id="toTop" class="to-top" type="button" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
 
   <script src="i18n.js" defer></script>
+  <script src="schools-match.js" defer></script>
   <script src="schools.js" defer></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
