@@ -69,10 +69,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function scrollToForm() {
-    const el = document.querySelector(".progress") || form;
-    if (window.lenis) { window.lenis.scrollTo(el, { offset: -100 }); return; }
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
-    window.scrollTo({ top: y, behavior: "smooth" });
+    const target = document.querySelector(".progress") || document.getElementById("register") || form;
+    if (!target) return;
+    const HEADER = 80; // sticky header height + small gap
+    function go() {
+      if (window.lenis && typeof window.lenis.scrollTo === "function") {
+        // force:true so it scrolls even if lenis thinks the target is already visible
+        window.lenis.scrollTo(target, { offset: -HEADER, force: true, duration: 0.6 });
+      } else {
+        const y = target.getBoundingClientRect().top + window.pageYOffset - HEADER;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }
+    // wait for the new (shorter/longer) step to render before measuring & scrolling
+    requestAnimationFrame(function () { requestAnimationFrame(go); });
   }
 
   /* ---------- conditional logic (same as old form) ---------- */
