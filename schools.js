@@ -237,3 +237,22 @@ document.addEventListener("DOMContentLoaded", function () {
   showStep(0, false);
   if (RESUME_TOKEN) loadResume(RESUME_TOKEN);
 });
+
+
+/* ---------- FAQ accordion: smooth, single-open ---------- */
+document.addEventListener("DOMContentLoaded", function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
+  items.forEach(function (item) {
+    var btn = item.querySelector(".faq-q");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var willOpen = !item.classList.contains("open");
+      items.forEach(function (o) {
+        o.classList.remove("open");
+        var b = o.querySelector(".faq-q");
+        if (b) b.setAttribute("aria-expanded", "false");
+      });
+      if (willOpen) { item.classList.add("open"); btn.setAttribute("aria-expanded", "true"); }
+    });
+  });
+});

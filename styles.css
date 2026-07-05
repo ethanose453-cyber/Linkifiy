@@ -674,14 +674,23 @@ section[id] { scroll-margin-top: 84px; }
 .form-group-title:first-of-type { border-top: none; padding-top: 0; margin-top: 8px; }
 .form-nav-single { justify-content: center; margin-top: 28px; }
 
-/* FAQ accordion */
+/* step icons (replace numbers) */
+.schools-page .step-num { display: inline-flex; align-items: center; justify-content: center; }
+.step-num svg { width: 22px; height: 22px; stroke: #fff; fill: none; }
+
+/* centered intro paragraph in the "why" section */
+#why .prose { text-align: center; }
+
+/* FAQ accordion (smooth open/close, single open at a time) */
 .faq { margin-top: 24px; display: grid; gap: 12px; }
-.faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 2px 18px; }
-.faq-item summary { cursor: pointer; padding: 15px 0; font-weight: 700; color: var(--ink); list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.faq-item summary::-webkit-details-marker { display: none; }
-.faq-item summary::after { content: "+"; color: var(--teal); font-weight: 800; font-size: 1.35rem; line-height: 1; }
-.faq-item[open] summary::after { content: "\2212"; }
-.faq-item p { color: var(--ink-soft); line-height: 1.8; padding: 0 0 16px; margin: 0; }
+.faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.faq-q { width: 100%; background: none; border: 0; cursor: pointer; padding: 16px 18px; font: 700 1rem var(--font); color: var(--ink); display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: start; }
+.faq-ic { width: 20px; height: 20px; flex: none; color: var(--teal); transition: transform .35s ease; }
+.faq-item.open .faq-ic { transform: rotate(180deg); }
+.faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s ease; }
+.faq-item.open .faq-a { grid-template-rows: 1fr; }
+.faq-a-inner { overflow: hidden; min-height: 0; }
+.faq-a p { color: var(--ink-soft); line-height: 1.8; padding: 0 18px 16px; margin: 0; }
 
 @media (max-width: 720px) {
   .pain-row { grid-template-columns: 1fr; }
