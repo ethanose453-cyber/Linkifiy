@@ -42,6 +42,15 @@ var HEADERS = [
 var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL" };
 var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
 
+/* Columns for the separate "Schools" tab (B2B leads). */
+var SCHOOL_SHEET = "Schools";
+var SCHOOL_HEADERS = [
+  "createdAt", "school_name", "city", "area", "institution_type", "contact_name", "role",
+  "phone", "email", "subject", "level", "need_type", "work_type", "urgent",
+  "when_needed", "min_experience", "prefer_local", "shortlist_interest", "pricing_pref", "notes", "source"
+];
+var SCHOOL_REQUIRED = ["school_name", "city", "institution_type", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
+
 /* Arabic WhatsApp message parts, Base64 (UTF-8). Decoded lazily in msg_(). */
 var MSG_B64 = {
   GREET_PRE: "2LPZhNin2YUg",
@@ -98,6 +107,7 @@ function doPost(e) {
     if (data.website && String(data.website).trim() !== "") {
       return json({ status: "ignored" });
     }
+    if (data.formType === "school") { return handleSchoolPost(data); }
     var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
     if (rateLimited("sid_" + sid, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
       return json({ status: "rate_limited" });
@@ -454,4 +464,77 @@ function createTrigger() {
     if (t.getHandlerFunction() === "processAbandoners") ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger("processAbandoners").timeBased().everyHours(1).create();
+}
+
+
+/* ============ SCHOOLS (B2B leads) ============ */
+function handleSchoolPost(data) {
+  // rate limit per phone (best-effort)
+  var pKey = "school_" + sanitizeToken(normalizePhone(data.phone) || "x").slice(-9);
+  if (rateLimited(pKey, 10, CONFIG.RL_WINDOW_SEC)) return json({ status: "rate_limited" });
+
+  var errors = validateSchool(data);
+  if (errors.length) return json({ status: "invalid", fields: errors });
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(30000); } catch (e) {}
+  try {
+    var sheet = getSchoolSheet();
+    var record = {};
+    SCHOOL_HEADERS.forEach(function (h) { record[h] = sanitizeCell(data[h]); });
+    record.createdAt = new Date().toISOString();
+    record.source = sanitizeCell(data.source || "schools_lp");
+
+    var row = SCHOOL_HEADERS.map(function (h) {
+      return (record[h] === undefined || record[h] === null) ? "" : record[h];
+    });
+    sheet.appendRow(row);
+
+    try { notifySchool(record); } catch (mailErr) {}
+    return json({ status: "success" });
+  } catch (err) {
+    return json({ status: "error" });
+  } finally {
+    try { lock.releaseLock(); } catch (e2) {}
+  }
+}
+
+function validateSchool(data) {
+  var errors = [];
+  var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var phoneRe = /^(?:\+212|212|0)[567]\d{8}$/;
+  SCHOOL_REQUIRED.forEach(function (f) {
+    if (!data[f] || String(data[f]).trim() === "") errors.push("missing:" + f);
+  });
+  if (data.phone && !phoneRe.test(String(data.phone).replace(/[\s\-().]/g, ""))) errors.push("phone");
+  if (data.email && !emailRe.test(String(data.email))) errors.push("email");
+  return errors;
+}
+
+function getSchoolSheet() {
+  var ss = getSpreadsheet();
+  var sh = ss.getSheetByName(SCHOOL_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(SCHOOL_SHEET);
+    sh.getRange(1, 1, 1, SCHOOL_HEADERS.length).setValues([SCHOOL_HEADERS]);
+    sh.setFrozenRows(1);
+  } else if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, SCHOOL_HEADERS.length).setValues([SCHOOL_HEADERS]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+function notifySchool(record) {
+  var to = prop("NOTIFY_EMAIL");
+  if (!to) return;
+  var subject = "New Linkify SCHOOL lead: " + (record.school_name || "") + " - " + (record.subject || "");
+  if (String(record.urgent).indexOf("\u0639\u0627\u062c") !== -1 || record.need_type === "urgent") {
+    subject = "[URGENT] " + subject;
+  }
+  var lines = [];
+  SCHOOL_HEADERS.forEach(function (h) {
+    if (record[h] !== undefined && record[h] !== "") lines.push(h + ": " + record[h]);
+  });
+  MailApp.sendEmail(to, subject, lines.join("\n"));
 }

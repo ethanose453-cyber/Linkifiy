@@ -12,6 +12,8 @@
     ar: {
       "meta.title": "Linkify.ma — منصة ربط الأطر التربوية بالمؤسسات التعليمية بالمغرب",
       "nav.register": "سجّل", "nav.how": "آلية العمل", "nav.why": "لماذا Linkify", "nav.cta": "سجّل مجاناً",
+      "nav.schools": "للمؤسسات",
+      "sc.title": "هل أنت مؤسسة تعليمية؟", "sc.body": "مدرسة خاصة، مركز دعم، مركز لغات أو مؤسسة تكوين تبحث عن أساتذة مناسبين؟ احصل على قائمة قصيرة من المرشحين حسب المادة والمدينة والتوفر.", "sc.cta": "مساحة المؤسسات ←",
       "hero.badge": "مجاني تماماً للأساتذة",
       "hero.h1": "المؤسسة التعليمية التي تبحث عنك… قد تكون على بُعد بضعة كيلومترات.",
       "hero.lead": "تربط Linkify الأطر التربوية والإدارية بالمؤسسات التعليمية الخاصة القريبة منهم. أنشئ ملفك المهني مرة واحدة، ودع صنّاع القرار يصلون إليك.",
@@ -119,6 +121,8 @@
     fr: {
       "meta.title": "Linkify.ma — La plateforme qui relie les enseignants aux établissements au Maroc",
       "nav.register": "S'inscrire", "nav.how": "Comment ça marche", "nav.why": "Pourquoi Linkify", "nav.cta": "Inscription gratuite",
+      "nav.schools": "Établissements",
+      "sc.title": "Vous êtes un établissement ?", "sc.body": "École privée, centre de soutien, centre de langues ou organisme de formation à la recherche d'enseignants ? Obtenez une courte liste de candidats selon la matière, la ville et la disponibilité.", "sc.cta": "Espace établissements ←",
       "hero.badge": "100% gratuit pour les enseignants",
       "hero.h1": "L'établissement qui vous cherche… est peut-être à quelques kilomètres.",
       "hero.lead": "Linkify relie les cadres pédagogiques et administratifs aux établissements privés proches d'eux. Créez votre profil professionnel une seule fois, et laissez les décideurs vous trouver.",
@@ -226,6 +230,8 @@
     en: {
       "meta.title": "Linkify.ma — Connecting teachers with schools across Morocco",
       "nav.register": "Sign up", "nav.how": "How it works", "nav.why": "Why Linkify", "nav.cta": "Sign up free",
+      "nav.schools": "Institutions",
+      "sc.title": "Are you an institution?", "sc.body": "A private school, tutoring center, language center or training institute looking for the right teachers? Get a short list of candidates by subject, city and availability.", "sc.cta": "Institutions area \u2190",
       "hero.badge": "100% free for teachers",
       "hero.h1": "The school looking for you… might be just a few kilometers away.",
       "hero.lead": "Linkify connects teaching and administrative staff with nearby private institutions. Build your professional profile once, and let decision-makers reach you.",
