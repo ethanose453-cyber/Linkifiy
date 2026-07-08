@@ -234,10 +234,26 @@
             <div class="grid-2">
               <div class="field">
                 <label for="subject"><span data-i18n="s.f.subject">المادة أو التخصص المطلوب</span> <span class="req">*</span></label>
-                <input type="text" id="subject" name="subject" required data-i18n-ph="s.ph.subject" placeholder="مثال: الفرنسية، الرياضيات، الإنجليزية..." />
+                <select id="subject" name="subject" required>
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="الفرنسية" data-i18n="s.subo.fr">الفرنسية</option>
+                  <option value="الرياضيات" data-i18n="s.subo.math">الرياضيات</option>
+                  <option value="اللغة الإنجليزية" data-i18n="s.subo.en">اللغة الإنجليزية</option>
+                  <option value="الفيزياء والكيمياء" data-i18n="s.subo.pc">الفيزياء والكيمياء</option>
+                  <option value="علوم الحياة والأرض" data-i18n="s.subo.svt">علوم الحياة والأرض</option>
+                  <option value="اللغة العربية" data-i18n="s.subo.ar">اللغة العربية</option>
+                  <option value="الاجتماعيات" data-i18n="s.subo.soc">الاجتماعيات</option>
+                  <option value="المعلوميات" data-i18n="s.subo.it">المعلوميات</option>
+                  <option value="التربية الإسلامية" data-i18n="s.subo.isl">التربية الإسلامية</option>
+                  <option value="الفلسفة" data-i18n="s.subo.philo">الفلسفة</option>
+                  <option value="الإسبانية" data-i18n="s.subo.es">الإسبانية</option>
+                  <option value="التعليم الأولي" data-i18n="s.subo.pre">التعليم الأولي</option>
+                  <option value="الدعم واللغات" data-i18n="s.subo.sup">الدعم واللغات</option>
+                  <option value="مادة أخرى" data-i18n="s.subo.other">مادة أخرى</option>
+                </select>
               </div>
               <div class="field">
-                <label for="level"><span data-i18n="s.f.level">المستوى الدراسي</span> <span class="req">*</span></label>
+                <label for="level"><span data-i18n="s.f.level">السلك / المستوى المُدرَّس</span> <span class="req">*</span></label>
                 <select id="level" name="level" required>
                   <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
                   <option value="ابتدائي" data-i18n="s.lvl.primary">ابتدائي</option>
@@ -249,7 +265,25 @@
                 </select>
               </div>
             </div>
+
+            <div class="field conditional" id="subject-other-wrap" hidden>
+              <label for="subject_other"><span data-i18n="s.f.subjectOther">اذكر المادة المطلوبة</span> <span class="req">*</span></label>
+              <input type="text" id="subject_other" name="subject_other" />
+            </div>
+
             <div class="grid-2">
+              <div class="field">
+                <label for="degree"><span data-i18n="s.f.degree">المستوى الدراسي المطلوب في الأستاذ</span></label>
+                <select id="degree" name="degree">
+                  <option value="لا يهم" selected data-i18n="s.deg.any">لا يهم</option>
+                  <option value="باكالوريا" data-i18n="s.deg.bac">باكالوريا</option>
+                  <option value="دبلوم (سنتان)" data-i18n="s.deg.dut">دبلوم (سنتان)</option>
+                  <option value="إجازة" data-i18n="s.deg.lic">إجازة</option>
+                  <option value="ماستر" data-i18n="s.deg.mas">ماستر</option>
+                  <option value="دكتوراه" data-i18n="s.deg.phd">دكتوراه</option>
+                  <option value="مهندس" data-i18n="s.deg.eng">مهندس</option>
+                </select>
+              </div>
               <div class="field">
                 <label for="need_type"><span data-i18n="s.f.need_type">نوع الحاجة</span> <span class="req">*</span></label>
                 <select id="need_type" name="need_type" required>
@@ -260,6 +294,8 @@
                   <option value="أريد تجربة الخدمة" data-i18n="s.need.try">أريد فقط تجربة الخدمة</option>
                 </select>
               </div>
+            </div>
+            <div class="grid-2">
               <div class="field">
                 <label for="work_type"><span data-i18n="s.f.work_type">نوع الدوام</span> <span class="req">*</span></label>
                 <select id="work_type" name="work_type" required>
@@ -269,12 +305,6 @@
                   <option value="ساعات محددة" data-i18n="s.work.hours">ساعات محددة</option>
                   <option value="تعويض مؤقت" data-i18n="s.work.temp">تعويض مؤقت</option>
                 </select>
-              </div>
-            </div>
-            <div class="grid-2">
-              <div class="field">
-                <label for="when_needed" data-i18n="s.f.when">متى تحتاجون الأستاذ؟</label>
-                <input type="text" id="when_needed" name="when_needed" data-i18n-ph="s.ph.when" placeholder="اختياري — مثال: خلال أسبوعين" />
               </div>
               <div class="field">
                 <label for="min_experience" data-i18n="s.f.minexp">سنوات خبرة مطلوبة</label>
@@ -299,26 +329,15 @@
             </div>
           </fieldset>
 
-          <!-- STEP 3: validation questions -->
+          <!-- STEP 3: preferred model -->
           <fieldset class="form-step" data-step="3" hidden>
-            <legend class="step-legend"><span data-i18n="s.form.g4">سؤالان يساعداننا على خدمتكم أفضل</span></legend>
-            <div class="field">
-              <span class="label"><span data-i18n="s.f.shortlist">هل ترغبون في تجربة قائمة قصيرة من 3 إلى 5 مرشحين؟</span> <span class="req">*</span></span>
-              <div class="radio-row">
-                <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، نحتاجها الآن" required /> <span data-i18n="s.sl.now">نعم، نحتاجها الآن</span></label>
-                <label class="pill"><input type="radio" name="shortlist_interest" value="نعم، لكن لاحقًا" /> <span data-i18n="s.sl.later">نعم، لكن لاحقًا</span></label>
-                <label class="pill"><input type="radio" name="shortlist_interest" value="نريد التفاصيل أولًا" /> <span data-i18n="s.sl.info">نريد التفاصيل أولًا</span></label>
-              </div>
-            </div>
+            <legend class="step-legend"><span data-i18n="s.st3">النموذج المفضّل (اختياري)</span></legend>
             <div class="field">
               <label for="pricing_pref" data-i18n="s.f.pricing">النموذج الأنسب لكم إذا كانت الخدمة مفيدة (اختياري)</label>
               <select id="pricing_pref" name="pricing_pref">
                 <option value="" selected>—</option>
-                <option value="دفع مقابل كل قائمة مرشحين" data-i18n="s.price.perlist">دفع مقابل كل قائمة مرشحين</option>
-                <option value="دفع فقط عند التوظيف" data-i18n="s.price.perhire">دفع فقط عند التوظيف</option>
-                <option value="اشتراك شهري / موسمي" data-i18n="s.price.sub">اشتراك شهري / موسمي</option>
-                <option value="تجربة مجانية أولًا" data-i18n="s.price.free">تجربة مجانية أولًا</option>
-                <option value="نحتاج مناقشة التفاصيل" data-i18n="s.price.discuss">نحتاج مناقشة التفاصيل</option>
+                <option value="اشتراك سنوي" data-i18n="s.price.sub">اشتراك سنوي</option>
+                <option value="الدفع عند التوظيف" data-i18n="s.price.perhire">الدفع عند التوظيف (لكل خدمة)</option>
               </select>
             </div>
           </fieldset>

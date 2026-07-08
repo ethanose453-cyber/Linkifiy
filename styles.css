@@ -71,7 +71,10 @@ a { color: inherit; text-decoration: none; }
 
 /* -------- buttons -------- */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font-weight: 700;
   font-size: 1rem;
   padding: 12px 26px;
@@ -81,6 +84,7 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
   transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
 }
+.btn svg { width: 18px; height: 18px; flex: none; }
 .btn:hover { transform: translateY(-2px); }
 .btn-primary { background: var(--teal); color: #fff; box-shadow: 0 8px 20px rgba(18,108,180,.28); }
 .btn-primary:hover { background: var(--teal-dark); }

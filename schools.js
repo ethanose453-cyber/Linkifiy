@@ -56,6 +56,18 @@ document.addEventListener("DOMContentLoaded", function () {
   track("SchoolLPView");
   form.addEventListener("focusin", function () { if (!startedFired) { startedFired = true; track("SchoolFormStart"); } });
 
+  // subject = "other" -> reveal a free-text field
+  var subjectSel = document.getElementById("subject");
+  var subjectOtherWrap = document.getElementById("subject-other-wrap");
+  var subjectOther = document.getElementById("subject_other");
+  if (subjectSel && subjectOtherWrap) {
+    subjectSel.addEventListener("change", function () {
+      var show = subjectSel.value === "مادة أخرى";
+      subjectOtherWrap.hidden = !show;
+      if (subjectOther) { subjectOther.required = show; if (!show) subjectOther.value = ""; }
+    });
+  }
+
   function clearStatus() { statusBox.hidden = true; statusBox.className = "form-status"; statusBox.textContent = ""; }
   function setStatus(type, msg) { statusBox.hidden = false; statusBox.className = "form-status " + type; statusBox.textContent = msg; }
 
@@ -97,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     stepEl.querySelectorAll("input, select, textarea").forEach(function (inp) {
       if (inp.type === "radio" || inp.type === "checkbox") return;
+      if (inp.closest("[hidden]")) return;              // skip hidden conditionals
       if (inp.required && !inp.value.trim()) { ok = false; markError(inp.closest(".field"), "هذا الحقل مطلوب"); if (!firstBad) firstBad = inp; }
       else if (inp.type === "email" && inp.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inp.value)) { ok = false; markError(inp.closest(".field"), "بريد إلكتروني غير صحيح"); if (!firstBad) firstBad = inp; }
       else if (inp.id === "phone" && inp.value && !isValidMaPhone(inp.value)) { ok = false; markError(inp.closest(".field"), "رقم هاتف مغربي غير صحيح"); if (!firstBad) firstBad = inp; }

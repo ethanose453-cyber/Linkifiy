@@ -47,10 +47,10 @@ var SCHOOL_SHEET = "Schools";
 var SCHOOL_HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt",
   "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
-  "subject", "level", "need_type", "work_type", "when_needed", "min_experience", "prefer_local", "notes",
-  "shortlist_interest", "pricing_pref", "resume_url", "source"
+  "subject", "subject_other", "level", "degree", "need_type", "work_type", "min_experience", "prefer_local", "notes",
+  "pricing_pref", "resume_url", "source"
 ];
-var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type", "shortlist_interest"];
+var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
 
 /* Arabic WhatsApp message parts, Base64 (UTF-8). Decoded lazily in msg_(). */
 var MSG_B64 = {
