@@ -317,6 +317,38 @@
                 </select>
               </div>
             </div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="budget" data-i18n="s.f.budget">الأجر الشهري الذي أنتم مستعدون لدفعه (درهم)</label>
+                <select id="budget" name="budget">
+                  <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="2000-3500" data-i18n="sal.r1">2000 – 3500 درهم</option>
+                  <option value="4000-6000" data-i18n="sal.r2">4000 – 6000 درهم</option>
+                  <option value="7000-9000" data-i18n="sal.r3">7000 – 9000 درهم</option>
+                  <option value="لا يهم" data-i18n="sal.any">لا يهم</option>
+                  <option value="مبلغ آخر" data-i18n="sal.other">مبلغ آخر (حدّده)</option>
+                </select>
+              </div>
+              <div class="field conditional" id="budget-custom-wrap" hidden>
+                <label for="budget_custom" data-i18n="f.salaryCustom">حدّد المبلغ (درهم/الشهر)</label>
+                <input type="number" id="budget_custom" name="budget_custom" min="0" step="100" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="s.f.contracts">أنواع العقود التي تقترحونها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="contract_types" value="CDI (غير محدد المدة)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="CDD (محدد المدة)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="عقد تجريبي" /> <span data-i18n="ct.essai">عقد تجريبي</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="بالتوقيت / بالساعة" /> <span data-i18n="ct.vac">بالتوقيت / بالساعة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="دوام جزئي" /> <span data-i18n="ct.part">دوام جزئي</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تعويض مؤقت" /> <span data-i18n="ct.repl">تعويض مؤقت</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="مقاول ذاتي / Freelance" /> <span data-i18n="ct.free">مقاول ذاتي / Freelance</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تدريب / إدماج" /> <span data-i18n="ct.stage">تدريب / إدماج</span></label>
+              </div>
+            </div>
+
             <div class="field">
               <span class="label" data-i18n="s.f.local">هل تفضّلون أستاذًا قريبًا جغرافيًا؟</span>
               <div class="radio-row">

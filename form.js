@@ -126,6 +126,11 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle(skillOther, e.target.checked);
   });
 
+  // salary -> "مبلغ آخر" reveals the custom amount field
+  const salaryCustomWrap = document.getElementById("salary-custom-wrap");
+  const salarySel = document.getElementById("salary_expectation");
+  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "مبلغ آخر"));
+
   // filter subjects by selected track (علمي / أدبي / أولي)
   const TRACK_GROUP = {
     "علمي / تقني": "علمي",
@@ -361,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = collectData();
       const files = {};
-      for (const id of ["cv", "certs", "photo"]) {
+      for (const id of ["cv", "certs", "photo", "work_cert"]) {
         const el = document.getElementById(id);
         if (el && el.files.length) files[id] = await fileToBase64(el.files[0]);
       }

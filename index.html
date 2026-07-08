@@ -392,6 +392,38 @@
               </div>
               <small class="hint" data-i18n="hint.substitute">تبحث المؤسسات كثيراً عن أساتذة مستعدين للتعويض الطارئ خلال الموسم — هذا الاستعداد يرفع من فرصك.</small>
             </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="salary_expectation" data-i18n="f.salary">الأجر الشهري المتوقّع (درهم)</label>
+                <select id="salary_expectation" name="salary_expectation">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="2000-3500" data-i18n="sal.r1">2000 – 3500 درهم</option>
+                  <option value="4000-6000" data-i18n="sal.r2">4000 – 6000 درهم</option>
+                  <option value="7000-9000" data-i18n="sal.r3">7000 – 9000 درهم</option>
+                  <option value="لا يهم" data-i18n="sal.any">لا يهم</option>
+                  <option value="مبلغ آخر" data-i18n="sal.other">مبلغ آخر (حدّده)</option>
+                </select>
+              </div>
+              <div class="field conditional" id="salary-custom-wrap" hidden>
+                <label for="salary_custom" data-i18n="f.salaryCustom">حدّد المبلغ (درهم/الشهر)</label>
+                <input type="number" id="salary_custom" name="salary_custom" min="0" step="100" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="f.contracts">أنواع العقود التي تقبلها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="contract_types" value="CDI (غير محدد المدة)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="CDD (محدد المدة)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="عقد تجريبي" /> <span data-i18n="ct.essai">عقد تجريبي</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="بالتوقيت / بالساعة" /> <span data-i18n="ct.vac">بالتوقيت / بالساعة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="دوام جزئي" /> <span data-i18n="ct.part">دوام جزئي</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تعويض مؤقت" /> <span data-i18n="ct.repl">تعويض مؤقت</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="مقاول ذاتي / Freelance" /> <span data-i18n="ct.free">مقاول ذاتي / Freelance</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تدريب / إدماج" /> <span data-i18n="ct.stage">تدريب / إدماج</span></label>
+              </div>
+            </div>
           </fieldset>
 
           <!-- ===== STEP 5: الخبرة المهنية (conditional) ===== -->
@@ -429,6 +461,16 @@
                 <label for="schools" data-i18n="f.schools">أبرز المدارس والمراكز التي عملت بها</label>
                 <textarea id="schools" name="schools" rows="3"
                   data-i18n-ph="ph.schools" placeholder="قدّم أكبر قدر من التفاصيل لنجد لك أفضل المناصب المناسبة."></textarea>
+              </div>
+              <div class="field file-field">
+                <label for="work_cert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg><span data-i18n="f.workCert">شهادة العمل (إثبات الخبرة)</span></label>
+                <input type="file" id="work_cert" name="work_cert" accept=".pdf,.jpg,.jpeg,.png" />
+                <small class="hint" data-i18n="hint.workCert">ارفع شهادة عمل تُثبت خبرتك — ملف موثّق يرفع مصداقية ملفك لدى المؤسسات (اختياري).</small>
+              </div>
+              <div class="field">
+                <label for="prev_employer_contact" data-i18n="f.prevContact">جهة اتصال للتأكيد (المؤسسة السابقة)</label>
+                <input type="text" id="prev_employer_contact" name="prev_employer_contact" data-i18n-ph="ph.prevContact" placeholder="اسم المسؤول + رقم هاتف المؤسسة" />
+                <small class="hint" data-i18n="hint.prevContact">تُستعمل فقط للتأكد من خبرتك عند الحاجة — تقوّي مصداقية ملفك (اختياري).</small>
               </div>
             </div>
           </fieldset>

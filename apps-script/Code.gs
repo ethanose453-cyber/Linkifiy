@@ -34,20 +34,21 @@ var HEADERS = [
   "submittedAt", "first_name", "last_name", "age", "gender", "city", "city_other",
   "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "track", "diploma",
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
-  "subjects", "levels", "institution_types", "schedule", "substitute", "has_experience", "exp_years", "last_inst",
-  "last_role", "schools", "skills", "skill_other_text", "consent", "CV_URL", "CERTS_URL", "PHOTO_URL",
+  "subjects", "levels", "institution_types", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
+  "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_contact",
+  "skills", "skill_other_text", "consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
 ];
 
-var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL" };
-var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"] };
+var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL", work_cert: "WORKCERT_URL" };
+var ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], certs: ["pdf", "jpg", "jpeg", "png"], photo: ["jpg", "jpeg", "png"], work_cert: ["pdf", "jpg", "jpeg", "png"] };
 
 /* Columns for the separate "Schools" tab (B2B leads). */
 var SCHOOL_SHEET = "Schools";
 var SCHOOL_HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt",
   "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
-  "subject", "subject_other", "level", "degree", "need_type", "work_type", "min_experience", "prefer_local", "notes",
+  "subject", "subject_other", "level", "degree", "need_type", "work_type", "budget", "budget_custom", "contract_types", "min_experience", "prefer_local", "notes",
   "pricing_pref", "resume_url", "source"
 ];
 var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
@@ -150,6 +151,11 @@ function doPost(e) {
           }
         });
       }
+
+      // verification tier: self -> refs -> docs -> docs+refs (Linkify-verified is set manually)
+      var hasCert = record.WORKCERT_URL && String(record.WORKCERT_URL).indexOf("http") === 0;
+      var hasRef = record.prev_employer_contact && String(record.prev_employer_contact).trim() !== "";
+      record.verification = (hasCert && hasRef) ? "docs+refs" : hasCert ? "docs" : hasRef ? "refs" : "self";
 
       if (rowIndex > 0) {
         updateRow(sheet, map, rowIndex, record);

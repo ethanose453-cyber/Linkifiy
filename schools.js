@@ -68,6 +68,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // budget = "other" -> reveal custom amount field
+  var budgetSel = document.getElementById("budget");
+  var budgetCustomWrap = document.getElementById("budget-custom-wrap");
+  if (budgetSel && budgetCustomWrap) {
+    budgetSel.addEventListener("change", function () {
+      budgetCustomWrap.hidden = budgetSel.value !== "مبلغ آخر";
+    });
+  }
+
   function clearStatus() { statusBox.hidden = true; statusBox.className = "form-status"; statusBox.textContent = ""; }
   function setStatus(type, msg) { statusBox.hidden = false; statusBox.className = "form-status " + type; statusBox.textContent = msg; }
 
