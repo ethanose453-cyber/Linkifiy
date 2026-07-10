@@ -209,7 +209,7 @@ function doGet(e) {
     var values = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
     var record = {};
     Object.keys(map).forEach(function (h) {
-      if (h === "CV_URL" || h === "CERTS_URL" || h === "PHOTO_URL") return;
+      if (/_URL$/.test(h)) return; // never expose any stored file link via the public resume endpoint
       var v = values[map[h] - 1];
       if (v !== "" && v !== null && v !== undefined) record[h] = v;
     });

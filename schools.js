@@ -10,7 +10,17 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh2xUP0OzYuVNTURxdK8-G7uOABnaOmM9W5lym8oShRUUZhkQjZoMeXF9YOIFemS4u1g/exec";
 
 const SID_KEY = "linkify-school-sid";
-function makeSid() { return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10); }
+// Cryptographically strong, unguessable token (the resume link's only guard on PII).
+function makeSid() {
+  try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+  try {
+    if (window.crypto && crypto.getRandomValues) {
+      const a = new Uint8Array(16); crypto.getRandomValues(a);
+      return Array.from(a, b => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) {}
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
 function getResumeToken() { try { return new URLSearchParams(location.search).get("resume"); } catch (e) { return null; } }
 const RESUME_TOKEN = getResumeToken();
 let SUBMISSION_ID = (function () {

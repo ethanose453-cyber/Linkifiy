@@ -14,7 +14,17 @@ const SHARE_URL = "https://jocular-crepe-643d75.netlify.app"; // TEMP (Netlify).
    Reusing the same id means every partial save updates the SAME row (upsert),
    and a WhatsApp resume link (?resume=...) reconnects the visitor to their record. */
 const SID_KEY = "linkify-sid";
-function makeSid() { return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10); }
+// Cryptographically strong, unguessable token (the resume link's only guard on PII).
+function makeSid() {
+  try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+  try {
+    if (window.crypto && crypto.getRandomValues) {
+      const a = new Uint8Array(16); crypto.getRandomValues(a);
+      return Array.from(a, b => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) {}
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
 function getResumeToken() { try { return new URLSearchParams(location.search).get("resume"); } catch (e) { return null; } }
 const RESUME_TOKEN = getResumeToken();
 let SUBMISSION_ID = (function () {
