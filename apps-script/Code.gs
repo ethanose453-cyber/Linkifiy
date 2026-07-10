@@ -476,6 +476,33 @@ function testAlert() {
   adminAlert("Linkify test alert - if you received this on WhatsApp, Green API works. Sample: https://wa.me/212600000000?text=hello");
 }
 
+// One-click test of the WHOLE retargeting pipeline (run from the editor).
+// Takes the most recent "partial" registration and immediately queues a
+// Nudge-1 into the "To Contact" tab + sends you the admin alert, ignoring the
+// normal 1-hour wait. It does NOT touch the real nudge columns, so live
+// scheduling stays intact. Fill the form partially first (click "Next" once).
+function testRetarget() {
+  var sheet = getSheet();
+  var map = ensureHeaders(sheet);
+  var last = sheet.getLastRow();
+  if (last < 2) { Logger.log("No rows yet - fill the form partially first (click Next once)."); return; }
+  var rows = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
+  for (var i = rows.length - 1; i >= 0; i--) {            // newest first
+    if (String(cell(rows[i], map, "status")) !== "partial") continue;
+    var name = cell(rows[i], map, "first_name") || "";
+    var phone = normalizePhone(cell(rows[i], map, "whatsapp"));
+    var sid = cell(rows[i], map, "submissionId");
+    var resumeUrl = cell(rows[i], map, "resume_url") || (siteUrl() + "?resume=" + encodeURIComponent(sid));
+    var msg = buildNudgeMessage(1, name, resumeUrl);
+    var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
+    getContactSheet().appendRow([new Date(), sanitizeCell(name), phone, "TEST Nudge 1", resumeUrl, waLink, sanitizeCell(msg)]);
+    adminAlert("Linkify TEST retarget:\n" + name + " (" + phone + ")\n" + waLink);
+    Logger.log("Test nudge queued -> " + name + " / " + phone + "\nResume: " + resumeUrl + "\nwa.me: " + waLink);
+    return;
+  }
+  Logger.log("No 'partial' rows found. Open the form, fill step 1 with a real WhatsApp number, click Next (do NOT finish), then run testRetarget again.");
+}
+
 
 /* ============ RESPONSE + ONE-TIME SETUP ============ */
 function json(obj) {
