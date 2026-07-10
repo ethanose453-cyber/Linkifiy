@@ -21,7 +21,11 @@
 /* ============ NON-SECRET CONFIG ============ */
 var CONFIG = {
   SHEET_NAME: "",                        // "" = use the FIRST sheet (your existing data sheet)
-  SITE_URL_DEFAULT: "https://linkify.ma",
+  // Live site domain used to build resume + retargeting links.
+  // TEMP: hosted on Netlify while linkify.ma awaits ANRT approval.
+  // When linkify.ma goes live, either change this to "https://linkify.ma"
+  // OR set a Script Property named SITE_URL (that overrides this default).
+  SITE_URL_DEFAULT: "https://jocular-crepe-643d75.netlify.app",
   NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
   MAX_FIELD_LEN: 5000,
   MAX_FILE_BYTES: 6 * 1024 * 1024,
@@ -523,7 +527,7 @@ function handleSchoolPost(data) {
     }
     record.updatedAt = now.toISOString();
     if (rowIndex < 1) record.createdAt = now.toISOString();
-    record.resume_url = siteUrl() + "?resume=" + encodeURIComponent(sid) + "&t=s";
+    record.resume_url = siteUrl().replace(/\/+$/, "") + "/schools.html?resume=" + encodeURIComponent(sid) + "&t=s";
     record.source = record.source || "schools_lp";
 
     var row = SCHOOL_HEADERS.map(function (h) { return (record[h] === undefined || record[h] === null) ? "" : record[h]; });

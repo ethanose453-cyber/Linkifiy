@@ -7,7 +7,7 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh2xUP0OzYuVNTURxdK8-G7uOABnaOmM9W5lym8oShRUUZhkQjZoMeXF9YOIFemS4u1g/exec";
 
 const MAX_FILE_MB = 5;
-const SHARE_URL = "https://linkify.ma"; // بدّل بالرابط النهائي ديال الموقع ملي يكون جاهز
+const SHARE_URL = "https://jocular-crepe-643d75.netlify.app"; // TEMP (Netlify). بدّل بـ https://linkify.ma ملي يتفعّل الدومين
 
 /* ---------- stable submission id + resume token ----------
    Priority: ?resume=TOKEN in URL  →  saved id in localStorage  →  brand new id.
