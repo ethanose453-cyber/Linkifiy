@@ -181,6 +181,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // required checkbox GROUP: at least one contract type must be chosen
+    const ctFirst = stepEl.querySelector('input[name="contract_types"]');
+    if (ctFirst && ![...stepEl.querySelectorAll('input[name="contract_types"]')].some(c => c.checked)) {
+      ok = false;
+      markError(ctFirst.closest(".field"), T("v.choose"));
+    }
+
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
       if (f.closest("[hidden]")) return;
