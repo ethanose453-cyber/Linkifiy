@@ -147,7 +147,7 @@
 
         <div class="progress" aria-hidden="true">
           <div class="progress-bar"><span id="progressFill"></span></div>
-          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">3</span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">2</span></div>
         </div>
 
         <form id="schoolForm" novalidate>
@@ -201,7 +201,7 @@
             </div>
             <div class="grid-2">
               <div class="field">
-                <label for="contact_name"><span data-i18n="s.f.contact_name">اسم المسؤول</span> <span class="req">*</span></label>
+                <label for="contact_name"><span data-i18n="s.f.contact_name">اسم المسؤول(ة)</span> <span class="req">*</span></label>
                 <input type="text" id="contact_name" name="contact_name" required />
               </div>
               <div class="field">
@@ -257,6 +257,9 @@
                 <label for="level"><span data-i18n="s.f.level">السلك / المستوى المُدرَّس</span> <span class="req">*</span></label>
                 <select id="level" name="level" required>
                   <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
+                  <option value="حضانة" data-i18n="s.lvl.nursery">حضانة</option>
+                  <option value="روض" data-i18n="s.lvl.kg">روض</option>
+                  <option value="تعليم أولي" data-i18n="s.lvl.pre">تعليم أولي</option>
                   <option value="ابتدائي" data-i18n="s.lvl.primary">ابتدائي</option>
                   <option value="إعدادي" data-i18n="s.lvl.college">إعدادي</option>
                   <option value="ثانوي تأهيلي" data-i18n="s.lvl.high">ثانوي تأهيلي</option>
@@ -336,7 +339,7 @@
             </div>
 
             <div class="field">
-              <span class="label" data-i18n="s.f.contracts">أنواع العقود التي تقترحونها</span>
+              <span class="label"><span data-i18n="s.f.contracts">أنواع العقود التي تقترحونها</span> <span class="req">*</span></span>
               <div class="check-grid">
                 <label class="check"><input type="checkbox" name="contract_types" value="CDI (غير محدد المدة)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="CDD (محدد المدة)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
@@ -360,18 +363,12 @@
               <label for="notes" data-i18n="s.f.notes">ملاحظات إضافية</label>
               <textarea id="notes" name="notes" rows="3" data-i18n-ph="s.ph.notes" placeholder="اختياري — أي تفاصيل تساعدنا في اقتراح مرشحين أنسب."></textarea>
             </div>
-          </fieldset>
 
-          <!-- STEP 3: preferred model -->
-          <fieldset class="form-step" data-step="3" hidden>
-            <legend class="step-legend"><span data-i18n="s.st3">النموذج المفضّل (اختياري)</span></legend>
-            <div class="field">
-              <label for="pricing_pref" data-i18n="s.f.pricing">النموذج الأنسب لكم إذا كانت الخدمة مفيدة (اختياري)</label>
-              <select id="pricing_pref" name="pricing_pref">
-                <option value="" selected>—</option>
-                <option value="اشتراك سنوي" data-i18n="s.price.sub">اشتراك سنوي</option>
-                <option value="الدفع عند التوظيف" data-i18n="s.price.perhire">الدفع عند التوظيف (لكل خدمة)</option>
-              </select>
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="usage_consent" name="usage_consent" value="موافق" required />
+                <span><span data-i18n="s.f.usageConsent">أتعهّد باستعمال معلومات الأساتذة لأغراض التوظيف والأغراض المهنية فقط. تكتفي Linkify بتنظيم وعرض المعلومات، ولا تتحمّل أي مسؤولية عن أي استعمال لها خارج هذا الإطار.</span><span class="req"> *</span></span>
+              </label>
             </div>
           </fieldset>
 

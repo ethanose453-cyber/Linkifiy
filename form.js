@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (inp.required && !inp.value.trim()) ok = fail(inp, T("v.required")) && false;
       else if (inp.type === "email" && inp.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inp.value))
         ok = fail(inp, T("v.email")) && false;
-      else if (inp.id === "whatsapp" && inp.value && !isValidMaPhone(inp.value))
+      else if ((inp.id === "whatsapp" || inp.id === "prev_employer_phone") && inp.value && !isValidMaPhone(inp.value))
         ok = fail(inp, T("v.phone")) && false;
     });
 
@@ -189,11 +189,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ok = markError(f.closest(".field"), T("v.fileSize")) && false;
     });
 
-    // consent (last step)
+    // consent (last step) — both the data-sharing consent AND the truthfulness pledge are required
     const consent = stepEl.querySelector("#consent");
     if (consent && !consent.checked) {
       ok = false;
       markError(consent.closest(".field"), T("v.consent"));
+    }
+    const truthConsent = stepEl.querySelector("#truth_consent");
+    if (truthConsent && !truthConsent.checked) {
+      ok = false;
+      markError(truthConsent.closest(".field"), T("v.consent"));
     }
     return ok;
   }
@@ -366,9 +371,18 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = collectData();
       const files = {};
-      for (const id of ["cv", "certs", "photo", "work_cert"]) {
+      for (const id of ["cv", "certs", "photo"]) {
         const el = document.getElementById(id);
         if (el && el.files.length) files[id] = await fileToBase64(el.files[0]);
+      }
+      // work_cert: teacher can attach MULTIPLE proof documents (cap at 5)
+      const wc = document.getElementById("work_cert");
+      if (wc && wc.files.length) {
+        const arr = [];
+        for (let i = 0; i < wc.files.length && i < 5; i++) {
+          if (wc.files[i].size <= MAX_FILE_MB * 1024 * 1024) arr.push(await fileToBase64(wc.files[i]));
+        }
+        if (arr.length) files.work_cert = arr;
       }
       payload.files = files;
       payload.submittedAt = new Date().toISOString();

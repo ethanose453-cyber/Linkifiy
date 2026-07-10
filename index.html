@@ -463,15 +463,21 @@
                   data-i18n-ph="ph.schools" placeholder="قدّم أكبر قدر من التفاصيل لنجد لك أفضل المناصب المناسبة."></textarea>
               </div>
               <div class="field file-field">
-                <label for="work_cert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg><span data-i18n="f.workCert">شهادة العمل (إثبات الخبرة)</span></label>
-                <input type="file" id="work_cert" name="work_cert" accept=".pdf,.jpg,.jpeg,.png" />
-                <small class="hint" data-i18n="hint.workCert">ارفع شهادة عمل تُثبت خبرتك — ملف موثّق يرفع مصداقية ملفك لدى المؤسسات (اختياري).</small>
+                <label for="work_cert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg><span data-i18n="f.workCert">شهادات العمل (إثبات الخبرة)</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
+                <input type="file" id="work_cert" name="work_cert" accept=".pdf,.jpg,.jpeg,.png" multiple />
+                <small class="hint" data-i18n="hint.workCert">اختياري، لكنه مهم جداً — رفع شهادة أو أكثر تُثبت خبرتك يمكن أن يضاعف فرصك في الاختيار بشكل كبير، لأنه يمنح المؤسسات ثقة في معلوماتك. يمكنك رفع أكثر من ملف (PDF أو صور).</small>
               </div>
-              <div class="field">
-                <label for="prev_employer_contact" data-i18n="f.prevContact">جهة اتصال للتأكيد (المؤسسة السابقة)</label>
-                <input type="text" id="prev_employer_contact" name="prev_employer_contact" data-i18n-ph="ph.prevContact" placeholder="اسم المسؤول + رقم هاتف المؤسسة" />
-                <small class="hint" data-i18n="hint.prevContact">تُستعمل فقط للتأكد من خبرتك عند الحاجة — تقوّي مصداقية ملفك (اختياري).</small>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="prev_employer_name" data-i18n="f.prevName">اسم المسؤول (المؤسسة السابقة)</label>
+                  <input type="text" id="prev_employer_name" name="prev_employer_name" data-i18n-ph="ph.prevName" placeholder="مثال: السيد أحمد (المدير)" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="prev_employer_phone" data-i18n="f.prevPhone">هاتف المؤسسة السابقة</label>
+                  <input type="tel" id="prev_employer_phone" name="prev_employer_phone" inputmode="tel" placeholder="06xxxxxxxx" autocomplete="off" />
+                </div>
               </div>
+              <small class="hint" data-i18n="hint.prevContact">تُستعمل فقط للتأكد من خبرتك عند الحاجة — تقوّي مصداقية ملفك (اختياري).</small>
             </div>
           </fieldset>
 
@@ -500,13 +506,20 @@
             <div class="field file-field">
               <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="f.photo">الصورة الشخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
               <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
-              <small class="hint" data-i18n="hint.photo">يمكنك تجاوزها الآن وإضافتها لاحقاً إلى ملفك. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
+              <small class="hint" data-i18n="hint.photo">اختيارية، لكنها مهمة جداً — فهي أول ما تراه المؤسسة في ملفك وتعكس صورتك المهنية. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
             </div>
 
             <div class="field consent">
               <label class="check check-consent">
                 <input type="checkbox" id="consent" name="consent" required />
                 <span><span data-i18n="f.consent">أوافق على مشاركة بياناتي مع المؤسسات التعليمية الشريكة لغرض التوظيف، وأقرّ بأنني اطّلعت على</span> <a href="privacy.html" target="_blank" rel="noopener" data-i18n="f.privacyLink">سياسة الخصوصية</a><span class="req"> *</span></span>
+              </label>
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="truth_consent" name="truth_consent" value="موافق" required />
+                <span><span data-i18n="f.truthConsent">أُقرّ بأن جميع المعلومات والوثائق التي قدّمتها صحيحة ودقيقة، وأتحمّل وحدي المسؤولية الكاملة عن صحتها. تكتفي Linkify بتنظيم وعرض هذه المعلومات دون تعديلها، ولا تتحمّل أي مسؤولية عن أي معلومة غير صحيحة.</span><span class="req"> *</span></span>
               </label>
             </div>
           </fieldset>

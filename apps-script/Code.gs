@@ -35,8 +35,8 @@ var HEADERS = [
   "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "track", "diploma",
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
   "subjects", "levels", "institution_types", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
-  "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_contact",
-  "skills", "skill_other_text", "consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
+  "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
+  "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
 ];
 
@@ -49,7 +49,7 @@ var SCHOOL_HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt",
   "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
   "subject", "subject_other", "level", "degree", "need_type", "work_type", "budget", "budget_custom", "contract_types", "min_experience", "prefer_local", "notes",
-  "pricing_pref", "resume_url", "source"
+  "pricing_pref", "resume_url", "source", "usage_consent"
 ];
 var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
 
@@ -143,10 +143,20 @@ function doPost(e) {
         var folder = getFolder();
         Object.keys(FILE_FIELDS).forEach(function (field) {
           var f = data.files[field];
-          if (f && f.data) {
-            var check = validateFile(field, f);
-            if (check.ok) {
-              try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr) {}
+          if (!f) return;
+          if (Object.prototype.toString.call(f) === "[object Array]") {
+            // multiple files (e.g. several work certificates) -> save each, join URLs
+            var urls = [];
+            for (var j = 0; j < f.length && j < 5; j++) {
+              var item = f[j];
+              if (item && item.data && validateFile(field, item).ok) {
+                try { urls.push(saveFile(folder, item, sid + "_" + field + "_" + j)); } catch (upErr) {}
+              }
+            }
+            if (urls.length) record[FILE_FIELDS[field]] = urls.join(", ");
+          } else if (f.data) {
+            if (validateFile(field, f).ok) {
+              try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr2) {}
             }
           }
         });
@@ -154,7 +164,8 @@ function doPost(e) {
 
       // verification tier: self -> refs -> docs -> docs+refs (Linkify-verified is set manually)
       var hasCert = record.WORKCERT_URL && String(record.WORKCERT_URL).indexOf("http") === 0;
-      var hasRef = record.prev_employer_contact && String(record.prev_employer_contact).trim() !== "";
+      var hasRef = (record.prev_employer_name && String(record.prev_employer_name).trim() !== "") ||
+                   (record.prev_employer_phone && String(record.prev_employer_phone).trim() !== "");
       record.verification = (hasCert && hasRef) ? "docs+refs" : hasCert ? "docs" : hasRef ? "refs" : "self";
 
       if (rowIndex > 0) {
@@ -551,11 +562,20 @@ function findSchoolRow(sheet, subCol, sid) {
 function getSchoolSheet() {
   var ss = getSpreadsheet();
   var sh = ss.getSheetByName(SCHOOL_SHEET);
-  if (!sh) {
-    sh = ss.insertSheet(SCHOOL_SHEET);
-    sh.getRange(1, 1, 1, SCHOOL_HEADERS.length).setValues([SCHOOL_HEADERS]);
-    sh.setFrozenRows(1);
-  } else if (sh.getLastRow() === 0) {
+  if (!sh) sh = ss.insertSheet(SCHOOL_SHEET);
+  // Schools rows are written positionally, so keep the header row in sync with
+  // SCHOOL_HEADERS. New columns are only ever appended at the end, so existing
+  // data stays aligned; this just (re)labels row 1 and adds any new headers.
+  var curCols = sh.getLastColumn();
+  var needsHeader = sh.getLastRow() === 0;
+  if (!needsHeader && curCols < SCHOOL_HEADERS.length) needsHeader = true;
+  if (!needsHeader) {
+    var hdr = sh.getRange(1, 1, 1, SCHOOL_HEADERS.length).getValues()[0];
+    for (var i = 0; i < SCHOOL_HEADERS.length; i++) {
+      if (String(hdr[i]) !== SCHOOL_HEADERS[i]) { needsHeader = true; break; }
+    }
+  }
+  if (needsHeader) {
     sh.getRange(1, 1, 1, SCHOOL_HEADERS.length).setValues([SCHOOL_HEADERS]);
     sh.setFrozenRows(1);
   }

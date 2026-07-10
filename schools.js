@@ -129,6 +129,16 @@ document.addEventListener("DOMContentLoaded", function () {
       var grp = stepEl.querySelectorAll('input[name="' + name + '"]');
       if (![].some.call(grp, function (r) { return r.checked; })) { ok = false; markError(grp[0].closest(".field"), "يرجى الاختيار"); if (!firstBad) firstBad = grp[0]; }
     });
+    // required checkbox GROUP: at least one contract type must be chosen
+    var ctFirst = stepEl.querySelector('input[name="contract_types"]');
+    if (ctFirst && !stepEl.querySelector('input[name="contract_types"]:checked')) {
+      ok = false; markError(ctFirst.closest(".field"), "يرجى اختيار نوع عقد واحد على الأقل"); if (!firstBad) firstBad = ctFirst;
+    }
+    // required consent checkbox
+    var usageConsent = stepEl.querySelector("#usage_consent");
+    if (usageConsent && !usageConsent.checked) {
+      ok = false; markError(usageConsent.closest(".field"), "يجب الموافقة لإتمام الطلب"); if (!firstBad) firstBad = usageConsent;
+    }
     if (!ok && firstBad) { var y = firstBad.getBoundingClientRect().top + window.pageYOffset - 100; window.scrollTo({ top: y, behavior: "smooth" }); }
     return ok;
   }
@@ -236,7 +246,6 @@ document.addEventListener("DOMContentLoaded", function () {
       track("SchoolLead", { subject: payload.subject, city: payload.city, need_type: payload.need_type });
       if (typeof window.fbq === "function") window.fbq("track", "Lead", { content_category: "school" });
       if (payload.need_type === "فورية") track("UrgentTeacherRequest", { subject: payload.subject });
-      if (payload.pricing_pref) track("PricingInterest", { pref: payload.pricing_pref });
 
       showSuccess();
     } catch (err) {
