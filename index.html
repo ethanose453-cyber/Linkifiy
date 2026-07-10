@@ -316,8 +316,8 @@
 
             <div class="field file-field">
               <label for="certs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="f.certs">شواهد إضافية (اختياري)</span></label>
-              <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" />
-              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... (ملف واحد، أقصى حجم 5MB)</small>
+              <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" multiple />
+              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... يمكنك اختيار أكثر من ملف (أقصى حجم 5MB لكل ملف).</small>
             </div>
           </fieldset>
 
@@ -414,6 +414,7 @@
             <div class="field">
               <span class="label"><span data-i18n="f.contracts">أنواع العقود التي تقبلها</span> <span class="req">*</span></span>
               <div class="check-grid">
+                <label class="check"><input type="checkbox" name="contract_types" value="لا يهم (أي نوع عقد)" data-ct-any /> <span data-i18n="ct.any">لا يهم — أي نوع عقد</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="CDI (غير محدد المدة)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="CDD (محدد المدة)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="عقد تجريبي" /> <span data-i18n="ct.essai">عقد تجريبي (Période d'essai)</span></label>

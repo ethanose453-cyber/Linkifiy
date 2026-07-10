@@ -77,6 +77,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // contract "لا يهم" -> selecting it clears + disables the specific contract types
+  var anyCt = document.querySelector('input[name="contract_types"][data-ct-any]');
+  if (anyCt) {
+    var otherCt = [].slice.call(document.querySelectorAll('input[name="contract_types"]:not([data-ct-any])'));
+    var syncCt = function () { otherCt.forEach(function (c) { c.disabled = anyCt.checked; if (anyCt.checked) c.checked = false; }); };
+    anyCt.addEventListener("change", syncCt);
+    syncCt();
+  }
+
   function clearStatus() { statusBox.hidden = true; statusBox.className = "form-status"; statusBox.textContent = ""; }
   function setStatus(type, msg) { statusBox.hidden = false; statusBox.className = "form-status " + type; statusBox.textContent = msg; }
 

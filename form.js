@@ -131,6 +131,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const salarySel = document.getElementById("salary_expectation");
   if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "مبلغ آخر"));
 
+  // contract "لا يهم" -> selecting it clears + disables the specific contract types
+  (function () {
+    const anyCt = form.querySelector('input[name="contract_types"][data-ct-any]');
+    if (!anyCt) return;
+    const others = [...form.querySelectorAll('input[name="contract_types"]:not([data-ct-any])')];
+    const sync = () => others.forEach(c => { c.disabled = anyCt.checked; if (anyCt.checked) c.checked = false; });
+    anyCt.addEventListener("change", sync);
+    sync();
+  })();
+
   // filter subjects by selected track (علمي / أدبي / أولي)
   const TRACK_GROUP = {
     "علمي / تقني": "علمي",
@@ -378,18 +388,21 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = collectData();
       const files = {};
-      for (const id of ["cv", "certs", "photo"]) {
+      // single-file fields
+      for (const id of ["cv", "photo"]) {
         const el = document.getElementById(id);
         if (el && el.files.length) files[id] = await fileToBase64(el.files[0]);
       }
-      // work_cert: teacher can attach MULTIPLE proof documents (cap at 5)
-      const wc = document.getElementById("work_cert");
-      if (wc && wc.files.length) {
-        const arr = [];
-        for (let i = 0; i < wc.files.length && i < 5; i++) {
-          if (wc.files[i].size <= MAX_FILE_MB * 1024 * 1024) arr.push(await fileToBase64(wc.files[i]));
+      // multi-file fields: extra certificates + experience proofs (cap at 5 each)
+      for (const id of ["certs", "work_cert"]) {
+        const el = document.getElementById(id);
+        if (el && el.files.length) {
+          const arr = [];
+          for (let i = 0; i < el.files.length && i < 5; i++) {
+            if (el.files[i].size <= MAX_FILE_MB * 1024 * 1024) arr.push(await fileToBase64(el.files[i]));
+          }
+          if (arr.length) files[id] = arr;
         }
-        if (arr.length) files.work_cert = arr;
       }
       payload.files = files;
       payload.submittedAt = new Date().toISOString();
