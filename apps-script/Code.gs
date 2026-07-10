@@ -471,6 +471,40 @@ function adminAlert(text) {
   } catch (e) {}
 }
 
+// DIAGNOSTIC: run from the editor, then open Execution log to see EXACTLY why
+// Green API is (or isn't) sending. It prints which properties are set, the
+// instance state, and the real HTTP response from the send call.
+function diagnoseAlert() {
+  var id = prop("GREENAPI_ID");
+  var token = prop("GREENAPI_TOKEN");
+  var raw = prop("ADMIN_PHONE");
+  var to = normalizePhone(raw);
+  var apiUrl = prop("GREENAPI_URL") || "https://api.green-api.com";
+  Logger.log("GREENAPI_ID  : " + (id ? ("set (" + id + ")") : "!! MISSING"));
+  Logger.log("GREENAPI_TOKEN: " + (token ? ("set (length " + token.length + ")") : "!! MISSING"));
+  Logger.log("ADMIN_PHONE  : raw='" + raw + "' -> normalized='" + to + "'");
+  Logger.log("API base URL : " + apiUrl);
+  if (!id || !token || !to) { Logger.log(">> STOP: a required Script Property is missing above. Fix it and re-run."); return; }
+
+  try {
+    var stateUrl = apiUrl + "/waInstance" + id + "/getStateInstance/" + token;
+    var r1 = UrlFetchApp.fetch(stateUrl, { muteHttpExceptions: true });
+    Logger.log("getStateInstance -> HTTP " + r1.getResponseCode() + " : " + r1.getContentText());
+  } catch (e) { Logger.log("getStateInstance ERROR: " + e); }
+
+  try {
+    var url = apiUrl + "/waInstance" + id + "/sendMessage/" + token;
+    var r2 = UrlFetchApp.fetch(url, {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify({ chatId: to + "@c.us", message: "Linkify diagnose test" }),
+      muteHttpExceptions: true
+    });
+    Logger.log("sendMessage -> HTTP " + r2.getResponseCode() + " : " + r2.getContentText());
+    Logger.log(">> HTTP 200 + an idMessage = success. Any other code = read the message above for the reason.");
+  } catch (e) { Logger.log("sendMessage ERROR: " + e); }
+}
+
 // Run this from the editor to test that Green API alerts reach your WhatsApp.
 function testAlert() {
   adminAlert("Linkify test alert - if you received this on WhatsApp, Green API works. Sample: https://wa.me/212600000000?text=hello");
