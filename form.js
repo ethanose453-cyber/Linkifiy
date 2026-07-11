@@ -7,8 +7,38 @@
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh2xUP0OzYuVNTURxdK8-G7uOABnaOmM9W5lym8oShRUUZhkQjZoMeXF9YOIFemS4u1g/exec";
 
 const MAX_FILE_MB = 5;
-const SHARE_URL = "https://linkify.ma"; // بدّل بالرابط النهائي ديال الموقع ملي يكون جاهز
-const SUBMISSION_ID = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+const SHARE_URL = "https://jocular-crepe-643d75.netlify.app"; // TEMP (Netlify). بدّل بـ https://linkify.ma ملي يتفعّل الدومين
+
+/* ---------- stable submission id + resume token ----------
+   Priority: ?resume=TOKEN in URL  →  saved id in localStorage  →  brand new id.
+   Reusing the same id means every partial save updates the SAME row (upsert),
+   and a WhatsApp resume link (?resume=...) reconnects the visitor to their record. */
+const SID_KEY = "linkify-sid";
+// Cryptographically strong, unguessable token (the resume link's only guard on PII).
+function makeSid() {
+  try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+  try {
+    if (window.crypto && crypto.getRandomValues) {
+      const a = new Uint8Array(16); crypto.getRandomValues(a);
+      return Array.from(a, b => b.toString(16).padStart(2, "0")).join("");
+    }
+  } catch (e) {}
+  return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
+}
+function getResumeToken() { try { return new URLSearchParams(location.search).get("resume"); } catch (e) { return null; } }
+const RESUME_TOKEN = getResumeToken();
+let SUBMISSION_ID = (function () {
+  if (RESUME_TOKEN) { try { localStorage.setItem(SID_KEY, RESUME_TOKEN); } catch (e) {} return RESUME_TOKEN; }
+  try { const s = localStorage.getItem(SID_KEY); if (s) return s; } catch (e) {}
+  const n = makeSid();
+  try { localStorage.setItem(SID_KEY, n); } catch (e) {}
+  return n;
+})();
+
+function buildResumeUrl() {
+  const base = (location.protocol.indexOf("http") === 0) ? (location.origin + location.pathname) : SHARE_URL;
+  return base + "?resume=" + encodeURIComponent(SUBMISSION_ID);
+}
 
 // translation helper (i18n.js defines window.t; fall back to key)
 function T(k) { return (typeof window.t === "function") ? window.t(k) : k; }
@@ -49,10 +79,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function scrollToForm() {
-    const el = document.querySelector(".progress") || form;
-    if (window.lenis) { window.lenis.scrollTo(el, { offset: -100 }); return; }
-    const y = el.getBoundingClientRect().top + window.pageYOffset - 100;
-    window.scrollTo({ top: y, behavior: "smooth" });
+    const target = document.querySelector(".progress") || document.getElementById("register") || form;
+    if (!target) return;
+    const HEADER = 80; // sticky header height + small gap
+    function go() {
+      if (window.lenis && typeof window.lenis.scrollTo === "function") {
+        // force:true so it scrolls even if lenis thinks the target is already visible
+        window.lenis.scrollTo(target, { offset: -HEADER, force: true, duration: 0.6 });
+      } else {
+        const y = target.getBoundingClientRect().top + window.pageYOffset - HEADER;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }
+    // wait for the new (shorter/longer) step to render before measuring & scrolling
+    requestAnimationFrame(function () { requestAnimationFrame(go); });
   }
 
   /* ---------- conditional logic (same as old form) ---------- */
@@ -96,6 +136,21 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle(skillOther, e.target.checked);
   });
 
+  // salary -> "مبلغ آخر" reveals the custom amount field
+  const salaryCustomWrap = document.getElementById("salary-custom-wrap");
+  const salarySel = document.getElementById("salary_expectation");
+  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "مبلغ آخر"));
+
+  // contract "لا يهم" -> selecting it clears + disables the specific contract types
+  (function () {
+    const anyCt = form.querySelector('input[name="contract_types"][data-ct-any]');
+    if (!anyCt) return;
+    const others = [...form.querySelectorAll('input[name="contract_types"]:not([data-ct-any])')];
+    const sync = () => others.forEach(c => { c.disabled = anyCt.checked; if (anyCt.checked) c.checked = false; });
+    anyCt.addEventListener("change", sync);
+    sync();
+  })();
+
   // filter subjects by selected track (علمي / أدبي / أولي)
   const TRACK_GROUP = {
     "علمي / تقني": "علمي",
@@ -130,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (inp.required && !inp.value.trim()) ok = fail(inp, T("v.required")) && false;
       else if (inp.type === "email" && inp.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inp.value))
         ok = fail(inp, T("v.email")) && false;
-      else if (inp.id === "whatsapp" && inp.value && !isValidMaPhone(inp.value))
+      else if ((inp.id === "whatsapp" || inp.id === "prev_employer_phone") && inp.value && !isValidMaPhone(inp.value))
         ok = fail(inp, T("v.phone")) && false;
     });
 
@@ -146,6 +201,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // required checkbox GROUP: at least one contract type must be chosen
+    const ctFirst = stepEl.querySelector('input[name="contract_types"]');
+    if (ctFirst && ![...stepEl.querySelectorAll('input[name="contract_types"]')].some(c => c.checked)) {
+      ok = false;
+      markError(ctFirst.closest(".field"), T("v.choose"));
+    }
+
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
       if (f.closest("[hidden]")) return;
@@ -154,11 +216,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ok = markError(f.closest(".field"), T("v.fileSize")) && false;
     });
 
-    // consent (last step)
+    // consent (last step) — both the data-sharing consent AND the truthfulness pledge are required
     const consent = stepEl.querySelector("#consent");
     if (consent && !consent.checked) {
       ok = false;
       markError(consent.closest(".field"), T("v.consent"));
+    }
+    const truthConsent = stepEl.querySelector("#truth_consent");
+    if (truthConsent && !truthConsent.checked) {
+      ok = false;
+      markError(truthConsent.closest(".field"), T("v.consent"));
     }
     return ok;
   }
@@ -183,7 +250,11 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- navigation ---------- */
   nextBtn.addEventListener("click", () => {
     if (!validateStep(current)) return;
-    if (current < total - 1) showStep(++current);
+    if (current < total - 1) {
+      current++;
+      savePartial(current);   // save progress the moment they advance (upsert, non-blocking)
+      showStep(current);
+    }
   });
   prevBtn.addEventListener("click", () => { if (current > 0) showStep(--current); });
 
@@ -212,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showSuccess() {
+    try { localStorage.removeItem(SID_KEY); } catch (e) {}   // completed -> reset id
     var shareUrl = location.protocol.indexOf("http") === 0 ? location.origin + location.pathname : SHARE_URL;
     var waMsg = T("wa.msg") + " " + shareUrl;
     var wa = document.getElementById("waShare");
@@ -223,6 +295,82 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.linkifyConfetti) window.linkifyConfetti();
     if (window.lenis) window.lenis.scrollTo(successScreen, { offset: -120 });
     else successScreen.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  /* ---------- progressive partial save (retargeting engine) ----------
+     Fires on every "next". Sends TEXT fields only (fast, no files) so we
+     capture the lead even if they never finish. Non-blocking + silent. */
+  function savePartial(reachedIndex) {
+    try {
+      const hp = document.getElementById("website");
+      if (hp && hp.value.trim()) return;                 // bot -> ignore
+      if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return; // backend not wired yet
+
+      const payload = collectData();
+      payload.submissionId = SUBMISSION_ID;
+      payload.currentStep = reachedIndex;                 // 0-based step to resume at
+      payload.partial = true;
+      payload.status = "partial";
+      payload.updatedAt = new Date().toISOString();
+      payload.resumeUrl = buildResumeUrl();
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        keepalive: true                                   // survives page unload
+      }).catch(function () { /* silent: never block the user */ });
+    } catch (e) { /* silent */ }
+  }
+
+  /* ---------- resume where you stopped ----------
+     Opened from a WhatsApp/email link like ...?resume=TOKEN
+     Fetches saved fields, prefills them, and jumps to the saved step. */
+  async function loadResume(token) {
+    // defense in depth: only accept safe token characters
+    if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(token))) return;
+    try {
+      setStatus("loading", "جاري استرجاع بياناتك المحفوظة…");
+      const res = await fetch(GOOGLE_SCRIPT_URL + "?resume=" + encodeURIComponent(token), { method: "GET" });
+      const data = await res.json();
+      clearStatus();
+      if (!data || data.status !== "found" || !data.record) return;
+      prefill(data.record);
+      const idx = parseInt(data.record.currentStep, 10);
+      if (!isNaN(idx) && idx >= 0 && idx < total) { current = idx; showStep(current); }
+    } catch (e) { clearStatus(); /* fall back to a fresh form */ }
+  }
+
+  function prefill(rec) {
+    Object.keys(rec).forEach(function (key) {
+      const val = rec[key];
+      if (val === "" || val === null || val === undefined) return;
+      let els;
+      try { els = form.querySelectorAll('[name="' + (window.CSS && CSS.escape ? CSS.escape(key) : key) + '"]'); }
+      catch (e) { return; }
+      if (!els || !els.length) return;
+      const first = els[0];
+      if (first.type === "radio") {
+        els.forEach(function (r) { if (r.value === String(val)) r.checked = true; });
+      } else if (first.type === "checkbox") {
+        const vals = String(val).split(",").map(function (s) { return s.trim(); });
+        els.forEach(function (c) { if (vals.indexOf(c.value) !== -1) c.checked = true; });
+      } else if (first.type === "file") {
+        /* files can't be prefilled for security reasons — user re-attaches */
+      } else {
+        first.value = val;
+      }
+    });
+    // re-run conditional logic so restored values reveal the right fields
+    ["city", "diploma"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (el) el.dispatchEvent(new Event("change"));
+    });
+    form.querySelectorAll('input[name="has_experience"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
+    form.querySelectorAll('input[name="track"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
+    const so = document.getElementById("skill_other");
+    if (so && so.checked) so.dispatchEvent(new Event("change"));
+    filterSubjects();
   }
 
   /* ---------- submit ---------- */
@@ -250,13 +398,29 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = collectData();
       const files = {};
-      for (const id of ["cv", "certs", "photo"]) {
+      // single-file fields
+      for (const id of ["cv", "photo"]) {
         const el = document.getElementById(id);
         if (el && el.files.length) files[id] = await fileToBase64(el.files[0]);
+      }
+      // multi-file fields: extra certificates + experience proofs (cap at 5 each)
+      for (const id of ["certs", "work_cert"]) {
+        const el = document.getElementById(id);
+        if (el && el.files.length) {
+          const arr = [];
+          for (let i = 0; i < el.files.length && i < 5; i++) {
+            if (el.files[i].size <= MAX_FILE_MB * 1024 * 1024) arr.push(await fileToBase64(el.files[i]));
+          }
+          if (arr.length) files[id] = arr;
+        }
       }
       payload.files = files;
       payload.submittedAt = new Date().toISOString();
       payload.submissionId = SUBMISSION_ID;
+      payload.status = "complete";
+      payload.partial = false;
+      payload.currentStep = total - 1;
+      payload.resumeUrl = buildResumeUrl();
 
       // text/plain = "simple request" => no CORS preflight; Apps Script returns a
       // readable JSON response with Access-Control-Allow-Origin: *
@@ -285,4 +449,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* init */
   showStep(0, false);
+  if (RESUME_TOKEN) loadResume(RESUME_TOKEN);
 });

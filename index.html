@@ -50,11 +50,13 @@
         <li><a href="#register" data-i18n="nav.register">سجّل</a></li>
         <li><a href="#how" data-i18n="nav.how">آلية العمل</a></li>
         <li><a href="#why" data-i18n="nav.why">لماذا Linkify</a></li>
+        <li><a href="schools.html" data-i18n="nav.schools">للمؤسسات</a></li>
       </ul>
       <div class="nav-actions">
         <button id="langToggle" class="lang-toggle" type="button" aria-label="Language / اللغة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="langLabel">AR</span></button>
         <button id="themeToggle" class="theme-toggle" type="button" aria-label="تبديل الوضع الليلي / النهاري"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
         <a href="#register" class="btn btn-primary btn-sm" data-i18n="nav.cta">سجّل مجاناً</a>
+        <button id="navToggle" class="nav-toggle" type="button" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
       </div>
     </nav>
   </header>
@@ -192,6 +194,11 @@
                        placeholder="example@email.com" />
               </div>
             </div>
+
+            <p class="step-consent-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+              <span><span data-i18n="s1.consentNote">بمواصلتك، أنت توافق على حفظ معلوماتك وعلى تواصلنا معك عبر واتساب أو البريد الإلكتروني لمساعدتك في إتمام تسجيلك. اطّلع على</span> <a href="privacy.html" target="_blank" rel="noopener" data-i18n="f.privacyLink">سياسة الخصوصية</a>.</span>
+            </p>
           </fieldset>
 
           <!-- ===== STEP 2: معلومات عامة + التعليم ===== -->
@@ -309,8 +316,8 @@
 
             <div class="field file-field">
               <label for="certs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="f.certs">شواهد إضافية (اختياري)</span></label>
-              <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" />
-              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... (ملف واحد، أقصى حجم 5MB)</small>
+              <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" multiple />
+              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... يمكنك اختيار أكثر من ملف (أقصى حجم 5MB لكل ملف).</small>
             </div>
           </fieldset>
 
@@ -385,6 +392,39 @@
               </div>
               <small class="hint" data-i18n="hint.substitute">تبحث المؤسسات كثيراً عن أساتذة مستعدين للتعويض الطارئ خلال الموسم — هذا الاستعداد يرفع من فرصك.</small>
             </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="salary_expectation" data-i18n="f.salary">الأجر الشهري المتوقّع (درهم)</label>
+                <select id="salary_expectation" name="salary_expectation">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="2000-3500" data-i18n="sal.r1">2000 – 3500 درهم</option>
+                  <option value="4000-6000" data-i18n="sal.r2">4000 – 6000 درهم</option>
+                  <option value="7000-9000" data-i18n="sal.r3">7000 – 9000 درهم</option>
+                  <option value="لا يهم" data-i18n="sal.any">لا يهم</option>
+                  <option value="مبلغ آخر" data-i18n="sal.other">مبلغ آخر (حدّده)</option>
+                </select>
+              </div>
+              <div class="field conditional" id="salary-custom-wrap" hidden>
+                <label for="salary_custom" data-i18n="f.salaryCustom">حدّد المبلغ (درهم/الشهر)</label>
+                <input type="number" id="salary_custom" name="salary_custom" min="0" step="100" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.contracts">أنواع العقود التي تقبلها</span> <span class="req">*</span></span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="contract_types" value="لا يهم (أي نوع عقد)" data-ct-any /> <span data-i18n="ct.any">لا يهم — أي نوع عقد</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="CDI (غير محدد المدة)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="CDD (محدد المدة)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="عقد تجريبي" /> <span data-i18n="ct.essai">عقد تجريبي (Période d'essai)</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="بالتوقيت / بالساعة" /> <span data-i18n="ct.vac">بالتوقيت / بالساعة (Vacataire)</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="دوام جزئي" /> <span data-i18n="ct.part">دوام جزئي (Temps partiel)</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تعويض مؤقت" /> <span data-i18n="ct.repl">تعويض مؤقت (Remplacement)</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="مقاول ذاتي / Freelance" /> <span data-i18n="ct.free">مقاول ذاتي (Auto-entrepreneur / Freelance)</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="تدريب / إدماج" /> <span data-i18n="ct.stage">تدريب / إدماج (Stage)</span></label>
+              </div>
+            </div>
           </fieldset>
 
           <!-- ===== STEP 5: الخبرة المهنية (conditional) ===== -->
@@ -423,6 +463,22 @@
                 <textarea id="schools" name="schools" rows="3"
                   data-i18n-ph="ph.schools" placeholder="قدّم أكبر قدر من التفاصيل لنجد لك أفضل المناصب المناسبة."></textarea>
               </div>
+              <div class="field file-field">
+                <label for="work_cert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg><span data-i18n="f.workCert">شهادات العمل (إثبات الخبرة)</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
+                <input type="file" id="work_cert" name="work_cert" accept=".pdf,.jpg,.jpeg,.png" multiple />
+                <small class="hint" data-i18n="hint.workCert">اختياري، لكنه مهم جداً — رفع شهادة أو أكثر تُثبت خبرتك يمكن أن يضاعف فرصك في الاختيار بشكل كبير، لأنه يمنح المؤسسات ثقة في معلوماتك. يمكنك رفع أكثر من ملف (PDF أو صور).</small>
+              </div>
+              <div class="grid-2">
+                <div class="field">
+                  <label for="prev_employer_name" data-i18n="f.prevName">اسم المسؤول (المؤسسة السابقة)</label>
+                  <input type="text" id="prev_employer_name" name="prev_employer_name" data-i18n-ph="ph.prevName" placeholder="مثال: السيد أحمد (المدير)" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="prev_employer_phone" data-i18n="f.prevPhone">هاتف المؤسسة السابقة</label>
+                  <input type="tel" id="prev_employer_phone" name="prev_employer_phone" inputmode="tel" placeholder="06xxxxxxxx" autocomplete="off" />
+                </div>
+              </div>
+              <small class="hint" data-i18n="hint.prevContact">تُستعمل فقط للتأكد من خبرتك عند الحاجة — تقوّي مصداقية ملفك (اختياري).</small>
             </div>
           </fieldset>
 
@@ -451,13 +507,20 @@
             <div class="field file-field">
               <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="f.photo">الصورة الشخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
               <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
-              <small class="hint" data-i18n="hint.photo">يمكنك تجاوزها الآن وإضافتها لاحقاً إلى ملفك. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
+              <small class="hint" data-i18n="hint.photo">اختيارية، لكنها مهمة جداً — فهي أول ما تراه المؤسسة في ملفك وتعكس صورتك المهنية. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
             </div>
 
             <div class="field consent">
               <label class="check check-consent">
                 <input type="checkbox" id="consent" name="consent" required />
                 <span><span data-i18n="f.consent">أوافق على مشاركة بياناتي مع المؤسسات التعليمية الشريكة لغرض التوظيف، وأقرّ بأنني اطّلعت على</span> <a href="privacy.html" target="_blank" rel="noopener" data-i18n="f.privacyLink">سياسة الخصوصية</a><span class="req"> *</span></span>
+              </label>
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="truth_consent" name="truth_consent" value="موافق" required />
+                <span><span data-i18n="f.truthConsent">أُقرّ بأن جميع المعلومات والوثائق التي قدّمتها صحيحة ودقيقة، وأتحمّل وحدي المسؤولية الكاملة عن صحتها. تكتفي Linkify بتنظيم وعرض هذه المعلومات دون تعديلها، ولا تتحمّل أي مسؤولية عن أي معلومة غير صحيحة.</span><span class="req"> *</span></span>
               </label>
             </div>
           </fieldset>
@@ -518,7 +581,18 @@
       </div>
     </section>
 
-    <!-- ============ FOR INSTITUTIONS — hidden for now (teacher data-collection phase only) ============ -->
+    <!-- ============ SCHOOLS CTA ============ -->
+    <section class="section schools-cta">
+      <div class="container">
+        <div class="schools-cta-box">
+          <div class="schools-cta-text">
+            <h2 data-i18n="sc.title">هل أنت مؤسسة تعليمية؟</h2>
+            <p data-i18n="sc.body">مدرسة خاصة، مركز دعم، مركز لغات أو مؤسسة تكوين تبحث عن أساتذة مناسبين؟ احصل على قائمة قصيرة من المرشحين حسب المادة والمدينة والتوفر.</p>
+          </div>
+          <a href="schools.html" class="btn btn-primary btn-lg" data-i18n="sc.cta">مساحة المؤسسات ←</a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ============ FOOTER ============ -->
@@ -574,6 +648,13 @@
   <script src="form.js" defer></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      var t = document.getElementById('navToggle'), h = document.querySelector('.site-header');
+      if (t && h) {
+        t.addEventListener('click', function () { h.classList.toggle('menu-open'); });
+        h.querySelectorAll('.nav-links a').forEach(function (a) { a.addEventListener('click', function () { h.classList.remove('menu-open'); }); });
+      }
+    })();
     (function () {
       var KEY = 'linkify-theme', root = document.documentElement, btn = document.getElementById('themeToggle');
       function effective() {
