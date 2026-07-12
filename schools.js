@@ -35,9 +35,10 @@ function buildResumeUrl() {
   return base + "?resume=" + encodeURIComponent(SUBMISSION_ID) + "&t=s";
 }
 
+var FB_STD = { PageView: 1, ViewContent: 1, Lead: 1, CompleteRegistration: 1, Contact: 1, SubmitApplication: 1, Schedule: 1, Search: 1, InitiateCheckout: 1 };
 function track(name, params) {
   try {
-    if (typeof window.fbq === "function") window.fbq("trackCustom", name, params || {});
+    if (typeof window.fbq === "function") window.fbq(FB_STD[name] ? "track" : "trackCustom", name, params || {});
     if (typeof window.gtag === "function") window.gtag("event", name, params || {});
     if (window.dataLayer && typeof window.dataLayer.push === "function") window.dataLayer.push(Object.assign({ event: name }, params || {}));
   } catch (e) {}
@@ -60,11 +61,14 @@ document.addEventListener("DOMContentLoaded", function () {
   var successBox = document.getElementById("schoolSuccess");
   var current = 0;
   var startedFired = false;
+  var _trkMaxStep = 0, _trkSubmitted = false, _trkAbandonFired = false;
   var FORM_LOADED_AT = Date.now();
   if (stepTotal) stepTotal.textContent = total;
 
+  track("ViewContent", { content_name: "school_lp", content_category: "school" });
   track("SchoolLPView");
-  form.addEventListener("focusin", function () { if (!startedFired) { startedFired = true; track("SchoolFormStart"); } });
+  if (RESUME_TOKEN) track("ResumeLinkOpened", { form_type: "school" });
+  form.addEventListener("focusin", function () { if (!startedFired) { startedFired = true; track("SchoolFormStart"); track("FormStart", { form_type: "school" }); } });
 
   // subject = "other" -> reveal a free-text field
   var subjectSel = document.getElementById("subject");
@@ -106,6 +110,8 @@ document.addEventListener("DOMContentLoaded", function () {
     prevBtn.hidden = i === 0;
     nextBtn.hidden = i === total - 1;
     submitBtn.hidden = i !== total - 1;
+    if (i > _trkMaxStep) _trkMaxStep = i;
+    track("FormStepView", { step: i + 1, form_type: "school" });
     clearStatus();
     if (scroll !== false) scrollToForm();
   }
@@ -225,10 +231,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* ---------- navigation ---------- */
   nextBtn.addEventListener("click", function () {
-    if (!validateStep(current)) return;
-    if (current < total - 1) { current++; savePartial(current); showStep(current); }
+    if (!validateStep(current)) { track("FormValidationError", { step: current + 1, form_type: "school" }); return; }
+    if (current < total - 1) { track("FormStepComplete", { step: current + 1, form_type: "school" }); current++; savePartial(current); showStep(current); }
   });
-  prevBtn.addEventListener("click", function () { if (current > 0) showStep(--current); });
+  prevBtn.addEventListener("click", function () { if (current > 0) { track("FormStepBack", { step: current + 1, form_type: "school" }); showStep(--current); } });
 
   /* ---------- submit ---------- */
   form.addEventListener("submit", async function (e) {
@@ -262,8 +268,9 @@ document.addEventListener("DOMContentLoaded", function () {
       try { result = await res.json(); } catch (e2) {}
       if (result && result.status && result.status !== "success") throw new Error(result.status);
 
+      _trkSubmitted = true;
       track("SchoolLead", { subject: payload.subject, city: payload.city, need_type: payload.need_type });
-      if (typeof window.fbq === "function") window.fbq("track", "Lead", { content_category: "school" });
+      track("Lead", { content_category: "school" });
       if (payload.need_type === "فورية") track("UrgentTeacherRequest", { subject: payload.subject });
 
       showSuccess();
@@ -282,6 +289,35 @@ document.addEventListener("DOMContentLoaded", function () {
     successBox.hidden = false;
     successBox.scrollIntoView({ behavior: "smooth", block: "center" });
   }
+
+  /* ---------- analytics event wiring (CTAs, scroll, time, abandon) ---------- */
+  document.querySelectorAll('[data-i18n="s.hero.cta1"], [data-i18n="s.nav.cta"]').forEach(function (a) {
+    a.addEventListener("click", function () { track("HeroCTAClick", { form_type: "school" }); });
+  });
+  document.querySelectorAll('[data-i18n="s.nav.teachers"], [data-i18n="s.foot.teachers"]').forEach(function (a) {
+    a.addEventListener("click", function () { track("CrossNav", { to: "teachers" }); });
+  });
+  (function () {
+    var fired = {};
+    function onScroll() {
+      var h = document.documentElement;
+      var top = h.scrollTop || document.body.scrollTop || (window.pageYOffset || 0);
+      var height = (h.scrollHeight - h.clientHeight) || 1;
+      var pct = Math.round(top / height * 100);
+      [25, 50, 75, 100].forEach(function (m) { if (pct >= m && !fired[m]) { fired[m] = 1; track("ScrollDepth", { percent: m, form_type: "school" }); } });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (window.lenis && typeof window.lenis.on === "function") { try { window.lenis.on("scroll", onScroll); } catch (e) {} }
+  })();
+  [30, 60, 120, 300].forEach(function (sec) { setTimeout(function () { track("TimeOnPage", { seconds: sec, form_type: "school" }); }, sec * 1000); });
+  function _trkAbandon() {
+    if (startedFired && !_trkSubmitted && !_trkAbandonFired) {
+      _trkAbandonFired = true;
+      track("FormAbandoned", { last_step: _trkMaxStep + 1, form_type: "school" });
+    }
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") _trkAbandon(); });
+  window.addEventListener("pagehide", _trkAbandon);
 
   /* init */
   showStep(0, false);
@@ -302,7 +338,13 @@ document.addEventListener("DOMContentLoaded", function () {
         var b = o.querySelector(".faq-q");
         if (b) b.setAttribute("aria-expanded", "false");
       });
-      if (willOpen) { item.classList.add("open"); btn.setAttribute("aria-expanded", "true"); }
+      if (willOpen) {
+        item.classList.add("open"); btn.setAttribute("aria-expanded", "true");
+        try {
+          var qk = btn.querySelector("[data-i18n]");
+          if (typeof track === "function") track("FAQOpen", { q: qk ? qk.getAttribute("data-i18n") : (btn.textContent || "").trim().slice(0, 40) });
+        } catch (e) {}
+      }
     });
   });
 });
