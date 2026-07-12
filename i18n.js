@@ -123,6 +123,7 @@
       "pp.retentionT":"مدة الاحتفاظ","pp.retentionB":"نحتفظ بمعطياتك ما دام ملفك نشطاً على المنصة. يمكنك طلب حذفها نهائياً في أي وقت.",
       "pp.rightsT":"حقوقك","pp.rightsB":"وفقاً للقانون 09-08، لك الحق في الولوج إلى معطياتك وتصحيحها أو حذفها أو الاعتراض على معالجتها. لممارسة هذه الحقوق، راسلنا على البريد أدناه.",
       "pp.securityT":"أمن المعطيات","pp.securityB":"نتخذ تدابير معقولة لحماية معطياتك من الوصول غير المصرَّح به أو الفقدان أو الإفشاء.",
+      "pp.analyticsT":"القياس والإعلانات","pp.analyticsB":"نستعمل Meta Pixel (فيسبوك/إنستغرام) لقياس أداء حملاتنا الإعلانية وتحسين وصولنا للأساتذة والمؤسسات. يجمع معلومات مجمّعة عن تصفّحك للموقع (الصفحات، خطوات النموذج، التفاعل)، ولا نشارك معه معطياتك الشخصية الحساسة مثل الاسم أو الهاتف أو البريد الإلكتروني. يمكنك التحكم في تتبّع الإعلانات من إعدادات حسابك على فيسبوك/إنستغرام أو من إعدادات متصفحك.",
       "pp.contactT":"تواصل معنا","pp.contactB":"لأي سؤال حول هذه السياسة أو معطياتك الشخصية، تواصل معنا عبر:",
       "pp.changesT":"تحديثات السياسة","pp.changesB":"قد نحدّث هذه السياسة من حين لآخر، وسيُنشر أي تغيير على هذه الصفحة مع تحديث التاريخ أعلاه.",
       "pp.back":"العودة إلى الصفحة الرئيسية",
@@ -263,6 +264,7 @@
       "pp.retentionT":"Durée de conservation","pp.retentionB":"Nous conservons vos données tant que votre profil est actif sur la plateforme. Vous pouvez demander leur suppression définitive à tout moment.",
       "pp.rightsT":"Vos droits","pp.rightsB":"Conformément à la loi 09-08, vous disposez d'un droit d'accès, de rectification, de suppression et d'opposition au traitement de vos données. Pour les exercer, écrivez-nous à l'adresse ci-dessous.",
       "pp.securityT":"Sécurité des données","pp.securityB":"Nous prenons des mesures raisonnables pour protéger vos données contre tout accès non autorisé, perte ou divulgation.",
+      "pp.analyticsT":"Mesure et publicité","pp.analyticsB":"Nous utilisons le Meta Pixel (Facebook/Instagram) pour mesurer la performance de nos campagnes et améliorer notre portée. Il collecte des informations agrégées sur votre navigation (pages, étapes du formulaire, interactions), et nous ne lui transmettons pas vos données personnelles sensibles telles que le nom, le téléphone ou l'e-mail. Vous pouvez gérer le suivi publicitaire dans les paramètres de votre compte Facebook/Instagram ou de votre navigateur.",
       "pp.contactT":"Nous contacter","pp.contactB":"Pour toute question concernant cette politique ou vos données personnelles, contactez-nous à :",
       "pp.changesT":"Mises à jour","pp.changesB":"Nous pouvons mettre à jour cette politique de temps à autre ; tout changement sera publié sur cette page avec la date mise à jour ci-dessus.",
       "pp.back":"Retour à l'accueil",
@@ -403,6 +405,7 @@
       "pp.retentionT":"Retention period","pp.retentionB":"We keep your data as long as your profile is active on the platform. You can request its permanent deletion at any time.",
       "pp.rightsT":"Your rights","pp.rightsB":"Under Law 09-08, you have the right to access, rectify, delete, and object to the processing of your data. To exercise these rights, write to us at the address below.",
       "pp.securityT":"Data security","pp.securityB":"We take reasonable measures to protect your data against unauthorized access, loss, or disclosure.",
+      "pp.analyticsT":"Measurement and advertising","pp.analyticsB":"We use the Meta Pixel (Facebook/Instagram) to measure our campaign performance and improve our reach to teachers and institutions. It collects aggregated information about your browsing (pages, form steps, interactions), and we do not send it your sensitive personal data such as name, phone, or email. You can manage ad tracking in your Facebook/Instagram account settings or your browser settings.",
       "pp.contactT":"Contact us","pp.contactB":"For any question about this policy or your personal data, contact us at:",
       "pp.changesT":"Policy updates","pp.changesB":"We may update this policy from time to time; any change will be published on this page with the updated date above.",
       "pp.back":"Back to home",
@@ -480,6 +483,7 @@
       var i = ORDER.indexOf(current());
       var next = ORDER[(i + 1) % ORDER.length];
       try { localStorage.setItem(KEY, next); } catch (e) {}
+      try { if (typeof window.fbq === "function") window.fbq("trackCustom", "LangSwitch", { lang: next }); } catch (e) {}
       setUrlLang(next);
       // smooth: fade content out, swap text + direction, fade back in
       var root = document.documentElement;

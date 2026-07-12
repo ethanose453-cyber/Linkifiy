@@ -43,6 +43,16 @@ function buildResumeUrl() {
 // translation helper (i18n.js defines window.t; fall back to key)
 function T(k) { return (typeof window.t === "function") ? window.t(k) : k; }
 
+/* ---------- analytics (Meta Pixel / GA / GTM) — safe no-op if none loaded ---------- */
+var FB_STD = { PageView: 1, ViewContent: 1, Lead: 1, CompleteRegistration: 1, Contact: 1, SubmitApplication: 1, Schedule: 1, Search: 1, InitiateCheckout: 1 };
+function track(name, params) {
+  try {
+    if (typeof window.fbq === "function") window.fbq(FB_STD[name] ? "track" : "trackCustom", name, params || {});
+    if (typeof window.gtag === "function") window.gtag("event", name, params || {});
+    if (window.dataLayer && typeof window.dataLayer.push === "function") window.dataLayer.push(Object.assign({ event: name }, params || {}));
+  } catch (e) {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const form        = document.getElementById("registerForm");
   if (!form) return;
@@ -61,6 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const FORM_LOADED_AT = Date.now();
   document.getElementById("stepTotal").textContent = total;
 
+  /* ---------- analytics state + page/start events ---------- */
+  let _trkStarted = false, _trkMaxStep = 0, _trkSubmitted = false, _trkAbandonFired = false;
+  track("ViewContent", { content_name: "teacher_lp", content_category: "teacher" });
+  track("TeacherLPView");
+  if (RESUME_TOKEN) track("ResumeLinkOpened", { form_type: "teacher" });
+  form.addEventListener("focusin", function () { if (!_trkStarted) { _trkStarted = true; track("FormStart", { form_type: "teacher" }); } });
+
   /* ---------- step display ---------- */
   function showStep(i, scroll) {
     steps.forEach((s, idx) => {
@@ -73,6 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
     prevBtn.hidden   = i === 0;
     nextBtn.hidden   = i === total - 1;
     submitBtn.hidden = i !== total - 1;
+    if (i > _trkMaxStep) _trkMaxStep = i;
+    track("FormStepView", { step: i + 1, form_type: "teacher" });
     filterSubjects();
     clearStatus();
     if (scroll !== false) scrollToForm();
@@ -249,14 +268,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- navigation ---------- */
   nextBtn.addEventListener("click", () => {
-    if (!validateStep(current)) return;
+    if (!validateStep(current)) { track("FormValidationError", { step: current + 1, form_type: "teacher" }); return; }
     if (current < total - 1) {
+      track("FormStepComplete", { step: current + 1, form_type: "teacher" });
       current++;
       savePartial(current);   // save progress the moment they advance (upsert, non-blocking)
       showStep(current);
     }
   });
-  prevBtn.addEventListener("click", () => { if (current > 0) showStep(--current); });
+  prevBtn.addEventListener("click", () => { if (current > 0) { track("FormStepBack", { step: current + 1, form_type: "teacher" }); showStep(--current); } });
 
   /* ---------- helpers ---------- */
   function clearStatus() { statusBox.hidden = true; statusBox.className = "form-status"; statusBox.textContent = ""; }
@@ -394,6 +414,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitLabel = submitBtn.textContent;
     submitBtn.textContent = T("st.sending");
     setStatus("loading", T("st.uploading"));
+    track("FormSubmitAttempt", { form_type: "teacher" });
 
     try {
       const payload = collectData();
@@ -439,13 +460,54 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error(result.message || "server error");
       }
 
+      var _m = collectData();
+      _trkSubmitted = true;
+      track("CompleteRegistration", { content_name: "teacher" });
+      track("Lead", { content_category: "teacher" });
+      track("TeacherRegistered", { city: _m.city || "", track_field: _m.track || "", diploma: _m.diploma || "", has_experience: _m.has_experience || "" });
       showSuccess();
     } catch (err) {
+      track("FormSubmitError", { form_type: "teacher" });
       setStatus("error", T("st.error"));
       submitBtn.disabled = false; prevBtn.disabled = false;
       submitBtn.textContent = submitLabel;
     }
   });
+
+  /* ---------- analytics event wiring (files, CTAs, scroll, time, abandon) ---------- */
+  ["cv", "certs", "photo", "work_cert"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener("change", function () {
+      if (el.files && el.files.length) track("FileAttached", { field: id, count: el.files.length, form_type: "teacher" });
+    });
+  });
+  document.querySelectorAll('[data-i18n="hero.cta"], [data-i18n="nav.cta"], [data-i18n="nav.register"]').forEach(function (a) {
+    a.addEventListener("click", function () { track("HeroCTAClick", { form_type: "teacher" }); });
+  });
+  document.querySelectorAll('[data-i18n="nav.schools"], [data-i18n="sc.cta"]').forEach(function (a) {
+    a.addEventListener("click", function () { track("CrossNav", { to: "schools" }); });
+  });
+  (function () {
+    var fired = {};
+    function onScroll() {
+      var h = document.documentElement;
+      var top = h.scrollTop || document.body.scrollTop || (window.pageYOffset || 0);
+      var height = (h.scrollHeight - h.clientHeight) || 1;
+      var pct = Math.round(top / height * 100);
+      [25, 50, 75, 100].forEach(function (m) { if (pct >= m && !fired[m]) { fired[m] = 1; track("ScrollDepth", { percent: m, form_type: "teacher" }); } });
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    if (window.lenis && typeof window.lenis.on === "function") { try { window.lenis.on("scroll", onScroll); } catch (e) {} }
+  })();
+  [30, 60, 120, 300].forEach(function (sec) { setTimeout(function () { track("TimeOnPage", { seconds: sec, form_type: "teacher" }); }, sec * 1000); });
+  function _trkAbandon() {
+    if (_trkStarted && !_trkSubmitted && !_trkAbandonFired) {
+      _trkAbandonFired = true;
+      track("FormAbandoned", { last_step: _trkMaxStep + 1, form_type: "teacher" });
+    }
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") _trkAbandon(); });
+  window.addEventListener("pagehide", _trkAbandon);
 
   /* init */
   showStep(0, false);
