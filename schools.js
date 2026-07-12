@@ -299,11 +299,16 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   (function () {
     var fired = {};
-    function onScroll() {
-      var h = document.documentElement;
-      var top = h.scrollTop || document.body.scrollTop || (window.pageYOffset || 0);
-      var height = (h.scrollHeight - h.clientHeight) || 1;
-      var pct = Math.round(top / height * 100);
+    function onScroll(e) {
+      var pct;
+      if (e && typeof e.progress === "number") pct = Math.round(e.progress * 100);           // Lenis instance
+      else if (e && typeof e.scroll === "number" && e.limit) pct = Math.round(e.scroll / e.limit * 100);
+      else {
+        var h = document.documentElement;
+        var top = h.scrollTop || document.body.scrollTop || (window.pageYOffset || 0);
+        var height = (h.scrollHeight - h.clientHeight) || 1;
+        pct = Math.round(top / height * 100);
+      }
       [25, 50, 75, 100].forEach(function (m) { if (pct >= m && !fired[m]) { fired[m] = 1; track("ScrollDepth", { percent: m, form_type: "school" }); } });
     }
     window.addEventListener("scroll", onScroll, { passive: true });
