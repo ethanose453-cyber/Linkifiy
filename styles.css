@@ -395,11 +395,11 @@ textarea { resize: vertical; }
 .check input { accent-color: var(--teal); width: 18px; height: 18px; flex: none; }
 .check:has(input:checked) { border-color: var(--teal); background: var(--tint); }
 
-/* languages */
-.lang-grid { display: grid; gap: 10px; margin-bottom: 22px; }
+/* languages — 2 columns side by side (auto-collapses to 1 on narrow screens) so the block looks short & quick */
+.lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 22px; }
 .lang-row {
-  display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 12px;
-  background: var(--bg-alt); border-radius: 12px; padding: 8px 14px;
+  display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 10px;
+  background: var(--bg-alt); border-radius: 12px; padding: 8px 12px;
 }
 .lang-row span { font-weight: 700; }
 .lang-row select { background: var(--surface); }
