@@ -64,12 +64,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitBtn   = document.getElementById("submitBtn");
   const progressFill= document.getElementById("progressFill");
   const stepNow     = document.getElementById("stepNow");
+  const stepPct     = document.getElementById("stepPct");
+  const stepDots    = document.getElementById("stepDots");
+  const stepHint    = document.getElementById("stepHint");
   const statusBox   = document.getElementById("formStatus");
   const successScreen = document.getElementById("successScreen");
 
   let current = 0;
   const FORM_LOADED_AT = Date.now();
   document.getElementById("stepTotal").textContent = total;
+  if (stepDots) { stepDots.innerHTML = ""; for (var _d = 0; _d < total; _d++) { var _li = document.createElement("li"); _li.textContent = _d + 1; stepDots.appendChild(_li); } }
 
   /* ---------- analytics state + page/start events ---------- */
   let _trkStarted = false, _trkMaxStep = 0, _trkSubmitted = false, _trkAbandonFired = false;
@@ -87,6 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     progressFill.style.width = ((i + 1) / total) * 100 + "%";
     stepNow.textContent = i + 1;
+    if (stepPct) stepPct.textContent = Math.round(((i + 1) / total) * 100) + "%";
+    if (stepDots) { var _k = stepDots.children; for (var _j = 0; _j < _k.length; _j++) { _k[_j].classList.toggle("done", _j < i); _k[_j].classList.toggle("active", _j === i); } }
+    if (stepHint) stepHint.textContent = (i === total - 1) ? T("form.almostThere") : "";
     prevBtn.hidden   = i === 0;
     nextBtn.hidden   = i === total - 1;
     submitBtn.hidden = i !== total - 1;
