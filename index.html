@@ -127,9 +127,11 @@
         </header>
 
         <!-- progress -->
-        <div class="progress" aria-hidden="true">
+        <div class="progress">
+          <ol class="step-dots" id="stepDots" aria-hidden="true"></ol>
           <div class="progress-bar"><span id="progressFill"></span></div>
-          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span> · <span id="stepPct">17%</span></div>
+          <p class="step-hint" id="stepHint"></p>
         </div>
 
         <form id="registerForm" novalidate enctype="multipart/form-data">
