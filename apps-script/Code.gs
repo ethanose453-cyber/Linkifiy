@@ -262,7 +262,7 @@ function processAbandoners() {
       if (!row[col - 1] && hours >= CONFIG.NUDGE_HOURS[n]) {
         var msg = buildNudgeMessage(stage, name, resumeUrl);
         var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
-        contact.appendRow([now, sanitizeCell(name), phone, "Nudge " + stage, resumeUrl, waLink, sanitizeCell(msg)]);
+        contact.appendRow([now, sanitizeCell(name), phone, "Nudge " + stage, resumeUrl, waCell(waLink), sanitizeCell(msg)]);
         sheet.getRange(rowNum, col).setValue(now);
         adminAlert("Linkify - nudge " + stage + " ready:\n" + name + " (" + phone + ")\n" + waLink);
         break;
@@ -277,7 +277,36 @@ function processAbandoners() {
 function queueWelcome(name, phone) {
   var msg = buildWelcomeMessage(name);
   var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
-  getWelcomeSheet().appendRow([new Date(), sanitizeCell(name), phone, waLink, sanitizeCell(msg)]);
+  getWelcomeSheet().appendRow([new Date(), sanitizeCell(name), phone, waCell(waLink), sanitizeCell(msg)]);
+}
+
+// Plain URLs written by Apps Script are NOT clickable in Sheets; wrap them in a
+// HYPERLINK formula so the team can just click "Send message".
+function waCell(url) {
+  return url ? ('=HYPERLINK("' + url + '","\ud83d\udcf2 Send message")') : "";
+}
+
+// ONE-TIME FIX: make already-written wa.me links clickable in the Welcome and
+// "To Contact" tabs. Safe to run repeatedly (skips ones already converted).
+function makeLinksClickable() {
+  var ss = getSpreadsheet();
+  var targets = [["Welcome", 4], ["To Contact", 6]];
+  var total = 0;
+  for (var t = 0; t < targets.length; t++) {
+    var sh = ss.getSheetByName(targets[t][0]);
+    if (!sh) continue;
+    var col = targets[t][1];
+    var last = sh.getLastRow();
+    if (last < 2) continue;
+    var rng = sh.getRange(2, col, last - 1, 1);
+    var vals = rng.getValues();
+    for (var i = 0; i < vals.length; i++) {
+      var v = String(vals[i][0] || "");
+      if (v.indexOf("https://wa.me/") === 0) { vals[i][0] = '=HYPERLINK("' + v + '","\ud83d\udcf2 Send message")'; total++; }
+    }
+    rng.setValues(vals);
+  }
+  Logger.log("Made " + total + " wa.me link(s) clickable across Welcome + To Contact.");
 }
 
 function buildWelcomeMessage(name) {
@@ -617,7 +646,7 @@ function testRetarget() {
     var resumeUrl = cell(rows[i], map, "resume_url") || (siteUrl() + "?resume=" + encodeURIComponent(sid));
     var msg = buildNudgeMessage(1, name, resumeUrl);
     var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
-    getContactSheet().appendRow([new Date(), sanitizeCell(name), phone, "TEST Nudge 1", resumeUrl, waLink, sanitizeCell(msg)]);
+    getContactSheet().appendRow([new Date(), sanitizeCell(name), phone, "TEST Nudge 1", resumeUrl, waCell(waLink), sanitizeCell(msg)]);
     adminAlert("Linkify TEST retarget:\n" + name + " (" + phone + ")\n" + waLink);
     Logger.log("Test nudge queued -> " + name + " / " + phone + "\nResume: " + resumeUrl + "\nwa.me: " + waLink);
     return;
