@@ -285,6 +285,27 @@ function buildWelcomeMessage(name) {
   return hi + msg_("WELCOME_BODY");
 }
 
+// ONE-TIME BACKFILL: run this from the editor to queue a welcome for every
+// teacher who ALREADY completed the form but wasn't welcomed yet. Safe to run
+// again anytime (it skips anyone already welcomed, so no duplicates).
+function welcomeExisting() {
+  var sheet = getSheet();
+  var map = ensureHeaders(sheet);
+  var last = sheet.getLastRow();
+  if (last < 2) { Logger.log("No rows yet."); return; }
+  var rows = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
+  var wCol = map["welcomed"];
+  var count = 0;
+  for (var i = 0; i < rows.length; i++) {
+    if (String(cell(rows[i], map, "status")) !== "complete") continue;   // completed only
+    if (wCol && rows[i][wCol - 1]) continue;                              // already welcomed
+    queueWelcome(cell(rows[i], map, "first_name") || "", normalizePhone(cell(rows[i], map, "whatsapp")));
+    if (wCol) sheet.getRange(i + 2, wCol).setValue(new Date());
+    count++;
+  }
+  Logger.log("Queued welcome for " + count + " existing teacher(s). Open the 'Welcome' tab to send them.");
+}
+
 function getWelcomeSheet() {
   var ss = getSpreadsheet();
   var sh = ss.getSheetByName("Welcome");
