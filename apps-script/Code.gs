@@ -285,6 +285,32 @@ function buildWelcomeMessage(name) {
   return hi + msg_("WELCOME_BODY");
 }
 
+// DIAGNOSTIC: run from the editor, then open Execution log. Shows the exact
+// header row, the whatsapp column index, and for the first rows the raw phone
+// value + normalized phone + built link. Reveals why links come out empty.
+function diagnoseWelcome() {
+  var sheet = getSheet();
+  var map = ensureHeaders(sheet);
+  Logger.log("Sheet name: " + sheet.getName());
+  Logger.log("Header row: " + JSON.stringify(sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]));
+  Logger.log("whatsapp column index (1-based): " + map["whatsapp"]);
+  Logger.log("first_name column index: " + map["first_name"]);
+  var last = sheet.getLastRow();
+  if (last < 2) { Logger.log("No data rows."); return; }
+  var n = Math.min(6, last - 1);
+  var rows = sheet.getRange(2, 1, n, sheet.getLastColumn()).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var raw = cell(rows[i], map, "whatsapp");
+    var norm = normalizePhone(raw);
+    Logger.log("row " + (i + 2)
+      + " | status=" + cell(rows[i], map, "status")
+      + " | name=" + cell(rows[i], map, "first_name")
+      + " | whatsapp raw='" + raw + "' (type " + (typeof raw) + ")"
+      + " | normalized='" + norm + "'"
+      + " | link=" + (norm ? ("https://wa.me/" + norm) : "(EMPTY - no phone)"));
+  }
+}
+
 // ONE-TIME BACKFILL: run this from the editor to queue a welcome for every
 // teacher who ALREADY completed the form but wasn't welcomed yet. Safe to run
 // again anytime (it skips anyone already welcomed, so no duplicates).
