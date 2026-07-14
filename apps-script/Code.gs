@@ -39,7 +39,7 @@ var HEADERS = [
   "subjects", "levels", "institution_types", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
   "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
   "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
-  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at"
+  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at", "welcomed"
 ];
 
 var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL", work_cert: "WORKCERT_URL" };
@@ -63,7 +63,8 @@ var MSG_B64 = {
   P1A: "CgrZhNin2K3YuNmG2Kcg2KPZhtmDINio2K/Zitiq2Yog2KfZhNiq2LPYrNmK2YQg2YHZgCBMaW5raWZ5INmI2YXYpyDZg9mF2ZHZhNiq2YrZh9i0LiDYqtmC2K/YsSDYqtmD2YXZkdmEINmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipINin2YTZhNmKINmI2YLZgdiq2Yog2YHZitmH2Kcg2YXZhiDZh9mG2Kc6Cg==",
   P1B: "CgrYp9mE2KrYs9is2YrZhCDZhdis2KfZhtmKINiq2YXYp9mF2KfZiyDinIUg2YjZg9mK2KfYrtivINi62YrYsSDYr9mC2KfYptmCLg==",
   P2A: "CgrZhdmE2YHZgyDZgdmAIExpbmtpZnkg2YXYp9iy2KfZhCDZhdinINmD2YXZkdmE2LQuINin2YTZhdik2LPYs9in2Kog2KfZhNiq2LnZhNmK2YXZitipINin2YTZgtix2YrYqNipINmF2YbZgyDZg9iq2YLZhNioINi52YTZiSDYo9iz2KfYqtiw2Kkg2KjYrdin2YTZgyDwn46vCtmD2YXZkdmEINiq2LPYrNmK2YTZgyAo2KjYp9mC2Yog2LrZitixINiu2LfZiNin2Kog2YLZhNin2YQpOgo=",
-  P3A: "CgrYotiu2LEg2KrYsNmD2YrYsSDwn5mPINmD2YXZkdmEINmF2YTZgdmDINmB2YAgTGlua2lmeSDYqNin2LQg2KfZhNmF2K/Yp9ix2LMg2KfZhNmC2LHZitio2Kkg2YXZhtmDINmK2YLYr9ix2Ygg2YrZiNi12YTZiCDZhNmK2YMuINmF2KzYp9mG2KfZiyDZiNmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipOgo="
+  P3A: "CgrYotiu2LEg2KrYsNmD2YrYsSDwn5mPINmD2YXZkdmEINmF2YTZgdmDINmB2YAgTGlua2lmeSDYqNin2LQg2KfZhNmF2K/Yp9ix2LMg2KfZhNmC2LHZitio2Kkg2YXZhtmDINmK2YLYr9ix2Ygg2YrZiNi12YTZiCDZhNmK2YMuINmF2KzYp9mG2KfZiyDZiNmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipOgo=",
+  WELCOME_BODY: "CgrYqtmI2LXZkdmE2YbYpyDYqNmF2LnZhNmI2YXYp9iq2YMg2YHZgCBMaW5raWZ5INmI2LPYrNmR2YTZhtin2YfYpyDYqNmG2KzYp9itIOKchQrYtNmD2LHYp9mLINio2LLYp9mBINi52YTZiSDYp9mE2YjZgtiqINmI2KfZhNmF2KzZh9mI2K8g2KfZhNmE2Yog2K7YtdmR2LXYqtmKINio2KfYtCDYqti52YXZkdixINmF2YTZgdmD2Iwg2YjYudmE2Ykg2KfZhNir2YLYqSDYp9mE2YTZiiDZhdmG2K3YqtmK2YbYpyDwn5mPCti62KfYr9mKINmG2KrZiNin2LXZhNmIINmF2LnYp9mDINmF2KjYp9i02LHYqSDYpdmE2Kcg2YTZgtmK2YbYpyDYtNmKINmB2LHYtdipINiq2YbYp9iz2Kgg2YXZhNmB2YPYjCDZiNmE2Kcg2KXZhNinINin2K3Yqtin2KzZitmG2Kcg2LTZiiDYqtmI2LbZititLgrZhdix2K3YqNin2Ysg2KjZitmDINmF2LnYp9mG2Kcg2YHZgCBMaW5raWZ52Iwg2YjZhtiq2YXZhtin2Ygg2YTZitmDINmD2YQg2KfZhNiq2YjZgdmK2YIhIPCfmoA="
 };
 var _MSG = null;
 function msg_(k) {
@@ -177,7 +178,21 @@ function doPost(e) {
         appendRow(sheet, map, record);
       }
 
-      if (!isPartial) { try { notifyEmail(record); } catch (mailErr) {} }
+      if (!isPartial) {
+        try { notifyEmail(record); } catch (mailErr) {}
+        // human thank-you: queue a warm welcome message once per completed teacher
+        try {
+          var savedRow = findRow(sheet, map, sid);
+          if (savedRow > 0 && map["welcomed"]) {
+            var already = sheet.getRange(savedRow, map["welcomed"]).getValue();
+            if (!already) {
+              var rv = sheet.getRange(savedRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+              queueWelcome(cell(rv, map, "first_name") || "", normalizePhone(cell(rv, map, "whatsapp")));
+              sheet.getRange(savedRow, map["welcomed"]).setValue(now);
+            }
+          }
+        } catch (welErr) {}
+      }
       return json({ status: isPartial ? "partial" : "success" });
     } finally {
       try { lock.releaseLock(); } catch (e2) {}
@@ -254,6 +269,34 @@ function processAbandoners() {
       }
     }
   }
+}
+
+/* Warm confirmation/thank-you sent (semi-automatically) to a teacher who
+   COMPLETED registration. Queued into the "Welcome" tab with a ready wa.me link
+   so the team can tap and send it personally. */
+function queueWelcome(name, phone) {
+  var msg = buildWelcomeMessage(name);
+  var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
+  getWelcomeSheet().appendRow([new Date(), sanitizeCell(name), phone, waLink, sanitizeCell(msg)]);
+}
+
+function buildWelcomeMessage(name) {
+  var hi = name ? (msg_("GREET_PRE") + name + msg_("GREET_WAVE")) : msg_("GREET_ANON");
+  return hi + msg_("WELCOME_BODY");
+}
+
+function getWelcomeSheet() {
+  var ss = getSpreadsheet();
+  var sh = ss.getSheetByName("Welcome");
+  if (!sh) {
+    sh = ss.insertSheet("Welcome");
+    sh.getRange(1, 1, 1, 5).setValues([["registeredAt", "name", "phone", "whatsappLink", "message"]]);
+    sh.setFrozenRows(1);
+  } else if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, 5).setValues([["registeredAt", "name", "phone", "whatsappLink", "message"]]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
 }
 
 function buildNudgeMessage(stage, name, resumeUrl) {
