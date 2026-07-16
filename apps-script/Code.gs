@@ -64,7 +64,9 @@ var MSG_B64 = {
   P1B: "CgrYp9mE2KrYs9is2YrZhCDZhdis2KfZhtmKINiq2YXYp9mF2KfZiyDinIUg2YjZg9mK2KfYrtivINi62YrYsSDYr9mC2KfYptmCLg==",
   P2A: "CgrZhdmE2YHZgyDZgdmAIExpbmtpZnkg2YXYp9iy2KfZhCDZhdinINmD2YXZkdmE2LQuINin2YTZhdik2LPYs9in2Kog2KfZhNiq2LnZhNmK2YXZitipINin2YTZgtix2YrYqNipINmF2YbZgyDZg9iq2YLZhNioINi52YTZiSDYo9iz2KfYqtiw2Kkg2KjYrdin2YTZgyDwn46vCtmD2YXZkdmEINiq2LPYrNmK2YTZgyAo2KjYp9mC2Yog2LrZitixINiu2LfZiNin2Kog2YLZhNin2YQpOgo=",
   P3A: "CgrYotiu2LEg2KrYsNmD2YrYsSDwn5mPINmD2YXZkdmEINmF2YTZgdmDINmB2YAgTGlua2lmeSDYqNin2LQg2KfZhNmF2K/Yp9ix2LMg2KfZhNmC2LHZitio2Kkg2YXZhtmDINmK2YLYr9ix2Ygg2YrZiNi12YTZiCDZhNmK2YMuINmF2KzYp9mG2KfZiyDZiNmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipOgo=",
-  WELCOME_BODY: "CgrYqtmI2LXZkdmE2YbYpyDYqNmF2LnZhNmI2YXYp9iq2YMg2YHZgCBMaW5raWZ5INmI2LPYrNmR2YTZhtin2YfYpyDYqNmG2KzYp9itIOKchQrYtNmD2LHYp9mLINio2LLYp9mBINi52YTZiSDYp9mE2YjZgtiqINmI2KfZhNmF2KzZh9mI2K8g2KfZhNmE2Yog2K7YtdmR2LXYqtmKINio2KfYtCDYqti52YXZkdixINmF2YTZgdmD2Iwg2YjYudmE2Ykg2KfZhNir2YLYqSDYp9mE2YTZiiDZhdmG2K3YqtmK2YbYpyDwn5mPCti62KfYr9mKINmG2KrZiNin2LXZhNmIINmF2LnYp9mDINmF2KjYp9i02LHYqSDYpdmE2Kcg2YTZgtmK2YbYpyDYtNmKINmB2LHYtdipINiq2YbYp9iz2Kgg2YXZhNmB2YPYjCDZiNmE2Kcg2KXZhNinINin2K3Yqtin2KzZitmG2Kcg2LTZiiDYqtmI2LbZititLgrZhdix2K3YqNin2Ysg2KjZitmDINmF2LnYp9mG2Kcg2YHZgCBMaW5raWZ52Iwg2YjZhtiq2YXZhtin2Ygg2YTZitmDINmD2YQg2KfZhNiq2YjZgdmK2YIhIPCfmoA="
+  WELCOME_BODY: "CgrYqtmI2LXZkdmE2YbYpyDYqNmF2LnZhNmI2YXYp9iq2YMg2YHZgCBMaW5raWZ5INmI2LPYrNmR2YTZhtin2YfYpyDYqNmG2KzYp9itIOKchQrYtNmD2LHYp9mLINio2LLYp9mBINi52YTZiSDYp9mE2YjZgtiqINmI2KfZhNmF2KzZh9mI2K8g2KfZhNmE2Yog2K7YtdmR2LXYqtmKINio2KfYtCDYqti52YXZkdixINmF2YTZgdmD2Iwg2YjYudmE2Ykg2KfZhNir2YLYqSDYp9mE2YTZiiDZhdmG2K3YqtmK2YbYpyDwn5mPCti62KfYr9mKINmG2KrZiNin2LXZhNmIINmF2LnYp9mDINmF2KjYp9i02LHYqSDYpdmE2Kcg2YTZgtmK2YbYpyDYtNmKINmB2LHYtdipINiq2YbYp9iz2Kgg2YXZhNmB2YPYjCDZiNmE2Kcg2KXZhNinINin2K3Yqtin2KzZitmG2Kcg2LTZiiDYqtmI2LbZititLgrZhdix2K3YqNin2Ysg2KjZitmDINmF2LnYp9mG2Kcg2YHZgCBMaW5raWZ52Iwg2YjZhtiq2YXZhtin2Ygg2YTZitmDINmD2YQg2KfZhNiq2YjZgdmK2YIhIPCfmoA=",
+  SUBJ_WELCOME: "2YXYsdit2KjYp9mLINio2YMg2YHZiiBMaW5raWZ5IOKAlCDYqtmFINin2LPYqtmE2KfZhSDZhdmE2YHZgyDinIU=",
+  SUBJ_NUDGE: "TGlua2lmeTog2YPZhdmR2YQg2YXZhNmB2YMg2KfZhNmF2YfZhtmKIOKAlCDYqNmC2YrYqiDYrti32YjYp9iqINmC2YTZitmE2Kk="
 };
 var _MSG = null;
 function msg_(k) {
@@ -187,7 +189,13 @@ function doPost(e) {
             var already = sheet.getRange(savedRow, map["welcomed"]).getValue();
             if (!already) {
               var rv = sheet.getRange(savedRow, 1, 1, sheet.getLastColumn()).getValues()[0];
-              queueWelcome(cell(rv, map, "first_name") || "", normalizePhone(cell(rv, map, "whatsapp")));
+              var wname = cell(rv, map, "first_name") || "";
+              queueWelcome(wname, normalizePhone(cell(rv, map, "whatsapp")));
+              // automatic welcome EMAIL (free, no bans)
+              var wemail = cell(rv, map, "email");
+              if (wemail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(wemail))) {
+                try { MailApp.sendEmail(String(wemail), msg_("SUBJ_WELCOME"), buildWelcomeMessage(wname)); } catch (eErr) {}
+              }
               sheet.getRange(savedRow, map["welcomed"]).setValue(now);
             }
           }
@@ -263,6 +271,11 @@ function processAbandoners() {
         var msg = buildNudgeMessage(stage, name, resumeUrl);
         var waLink = phone ? ("https://wa.me/" + phone + "?text=" + encodeURIComponent(msg)) : "";
         contact.appendRow([now, sanitizeCell(name), phone, "Nudge " + stage, resumeUrl, waCell(waLink), sanitizeCell(msg)]);
+        // automatic recovery EMAIL to the abandoner (free, no bans, fully automatic)
+        var abEmail = cell(row, map, "email");
+        if (abEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(abEmail))) {
+          try { MailApp.sendEmail(String(abEmail), msg_("SUBJ_NUDGE"), msg); } catch (emErr) {}
+        }
         sheet.getRange(rowNum, col).setValue(now);
         adminAlert("Linkify - nudge " + stage + " ready:\n" + name + " (" + phone + ")\n" + waLink);
         break;
