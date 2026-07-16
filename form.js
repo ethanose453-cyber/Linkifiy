@@ -327,7 +327,8 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- progressive partial save (retargeting engine) ----------
      Fires on every "next". Sends TEXT fields only (fast, no files) so we
      capture the lead even if they never finish. Non-blocking + silent. */
-  function savePartial(reachedIndex) {
+  let _cvPartialSent = false;
+  async function savePartial(reachedIndex) {
     try {
       const hp = document.getElementById("website");
       if (hp && hp.value.trim()) return;                 // bot -> ignore
@@ -341,11 +342,21 @@ document.addEventListener("DOMContentLoaded", () => {
       payload.updatedAt = new Date().toISOString();
       payload.resumeUrl = buildResumeUrl();
 
+      // Upload the CV as soon as it's attached (once), so we keep it even if the
+      // teacher never finishes the form. (CV now lives in step 1.)
+      const cvEl = document.getElementById("cv");
+      if (!_cvPartialSent && cvEl && cvEl.files && cvEl.files.length && cvEl.files[0].size <= MAX_FILE_MB * 1024 * 1024) {
+        try { payload.files = { cv: await fileToBase64(cvEl.files[0]) }; _cvPartialSent = true; } catch (e) {}
+      }
+
+      // keepalive has a ~64KB body cap, so only use it for the light text-only
+      // saves; when a file is attached, send a normal fetch (no size cap).
+      const hasFiles = !!payload.files;
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
-        keepalive: true                                   // survives page unload
+        keepalive: !hasFiles
       }).catch(function () { /* silent: never block the user */ });
     } catch (e) { /* silent */ }
   }
