@@ -100,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (i > _trkMaxStep) _trkMaxStep = i;
     track("FormStepView", { step: i + 1, form_type: "teacher" });
     filterSubjects();
+    applyTrackUI();
     clearStatus();
     if (scroll !== false) scrollToForm();
   }
@@ -192,8 +193,28 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!match) { const cb = lbl.querySelector("input"); if (cb) cb.checked = false; }
     });
   }
+  // Early-education (preschool) conditional UI. When the "التعليم الأولي والمربيات"
+  // track is chosen we swap the age-levels + institution lists to their preschool
+  // set (data-track="early") and reveal the early-ed-only fields (role + accompanist).
+  // Everything marked data-track="general" is shown for the other tracks instead.
+  const EARLY_TRACK = "التعليم الأولي والمربيات";
+  function applyTrackUI() {
+    const checked = form.querySelector('input[name="track"]:checked');
+    const isEarly = !!checked && checked.value === EARLY_TRACK;
+    form.querySelectorAll("[data-track]").forEach(function (lbl) {
+      const show = lbl.dataset.track === (isEarly ? "early" : "general");
+      lbl.hidden = !show;
+      if (!show) { const cb = lbl.querySelector("input"); if (cb) cb.checked = false; }
+    });
+    form.querySelectorAll("[data-early-field]").forEach(function (fld) {
+      fld.hidden = !isEarly;
+      if (!isEarly) fld.querySelectorAll("input").forEach(function (i) {
+        if (i.type === "radio" || i.type === "checkbox") i.checked = false;
+      });
+    });
+  }
   form.querySelectorAll('input[name="track"]').forEach(r =>
-    r.addEventListener("change", filterSubjects)
+    r.addEventListener("change", function () { filterSubjects(); applyTrackUI(); })
   );
 
   /* ---------- validation for current step ---------- */
@@ -473,6 +494,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const so = document.getElementById("skill_other");
     if (so && so.checked) so.dispatchEvent(new Event("change"));
     filterSubjects();
+    applyTrackUI();
   }
 
   /* ---------- submit ---------- */
