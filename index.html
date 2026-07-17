@@ -344,35 +344,58 @@
                 <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="اللغة الألمانية" /> <span data-i18n="sub.german">اللغة الألمانية</span></label>
                 <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="الفلسفة" /> <span data-i18n="sub.philo">الفلسفة</span></label>
                 <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="التاريخ والجغرافيا" /> <span data-i18n="sub.hist">التاريخ والجغرافيا</span></label>
-                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="مهارات حركية دقيقة" /> <span data-i18n="sub.motor">مهارات حركية دقيقة</span></label>
-                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="التربية الحس حركية" /> <span data-i18n="sub.psy">التربية الحس حركية</span></label>
-                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="اللغات المبكرة" /> <span data-i18n="sub.earlyLang">اللغات المبكرة</span></label>
-                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="أناشيد وقصص الأطفال" /> <span data-i18n="sub.songs">أناشيد وقصص الأطفال</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="العربية فقط" /> <span data-i18n="sub.arOnly">العربية فقط</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="الفرنسية" /> <span data-i18n="sub.frLang">الفرنسية</span></label>
+                <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="الإنجليزية" /> <span data-i18n="sub.enLang">الإنجليزية</span></label>
               </div>
             </div>
 
             <div class="field">
               <span class="label" data-i18n="f.levels">الفئة العمرية / الأسلاك التي تقدر تتعامل معها</span>
               <div class="check-grid">
-                <label class="check"><input type="checkbox" name="levels" value="التعليم الأولي (3-5 سنوات)" /> <span data-i18n="lvl.pre">التعليم الأولي (3-5 سنوات)</span></label>
-                <label class="check"><input type="checkbox" name="levels" value="التعليم الابتدائي" /> <span data-i18n="lvl.primary">الابتدائي</span></label>
-                <label class="check"><input type="checkbox" name="levels" value="التعليم الإعدادي" /> <span data-i18n="lvl.college">الإعدادي</span></label>
-                <label class="check"><input type="checkbox" name="levels" value="التعليم الثانوي التأهيلي" /> <span data-i18n="lvl.high">الثانوي التأهيلي</span></label>
-                <label class="check"><input type="checkbox" name="levels" value="التعليم العالي" /> <span data-i18n="lvl.higher">التعليم العالي</span></label>
-                <label class="check"><input type="checkbox" name="levels" value="تعليم الكبار / التكوين المستمر" /> <span data-i18n="lvl.adult">تعليم الكبار / التكوين المستمر</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="التعليم الأولي (3-5 سنوات)" /> <span data-i18n="lvl.pre">التعليم الأولي (3-5 سنوات)</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="التعليم الابتدائي" /> <span data-i18n="lvl.primary">الابتدائي</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="التعليم الإعدادي" /> <span data-i18n="lvl.college">الإعدادي</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="التعليم الثانوي التأهيلي" /> <span data-i18n="lvl.high">الثانوي التأهيلي</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="التعليم العالي" /> <span data-i18n="lvl.higher">التعليم العالي</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="levels" value="تعليم الكبار / التكوين المستمر" /> <span data-i18n="lvl.adult">تعليم الكبار / التكوين المستمر</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="levels" value="الحضانة (أقل من 3 سنوات)" /> <span data-i18n="lvl.creche">الحضانة (أقل من 3 سنوات)</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="levels" value="القسم الصغير (3-4 سنوات)" /> <span data-i18n="lvl.ps">القسم الصغير — Petite Section (3-4 سنوات)</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="levels" value="القسم المتوسط (4-5 سنوات)" /> <span data-i18n="lvl.ms">القسم المتوسط — Moyenne Section (4-5 سنوات)</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="levels" value="القسم الكبير (5-6 سنوات)" /> <span data-i18n="lvl.gs">القسم الكبير — Grande Section (5-6 سنوات)</span></label>
               </div>
             </div>
 
             <div class="field">
               <span class="label" data-i18n="f.instTypes">أنواع المؤسسات التي ترغب في العمل بها</span>
               <div class="check-grid">
-                <label class="check"><input type="checkbox" name="institution_types" value="مدرسة خاصة" /> <span data-i18n="it.school">مدرسة خاصة</span></label>
-                <label class="check"><input type="checkbox" name="institution_types" value="مركز دعم وتقوية" /> <span data-i18n="it.support">مركز دعم وتقوية</span></label>
-                <label class="check"><input type="checkbox" name="institution_types" value="مركز لغات" /> <span data-i18n="it.lang">مركز لغات</span></label>
-                <label class="check"><input type="checkbox" name="institution_types" value="مركز تكوين مهني" /> <span data-i18n="it.training">مركز تكوين مهني</span></label>
-                <label class="check"><input type="checkbox" name="institution_types" value="حضانة / تعليم أولي" /> <span data-i18n="it.nursery">حضانة / تعليم أولي</span></label>
-                <label class="check"><input type="checkbox" name="institution_types" value="مؤسسة تعليم عالي خاصة" /> <span data-i18n="it.higher">تعليم عالي خاص</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="مدرسة خاصة" /> <span data-i18n="it.school">مدرسة خاصة</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="مركز دعم وتقوية" /> <span data-i18n="it.support">مركز دعم وتقوية</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="مركز لغات" /> <span data-i18n="it.lang">مركز لغات</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="مركز تكوين مهني" /> <span data-i18n="it.training">مركز تكوين مهني</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="حضانة / تعليم أولي" /> <span data-i18n="it.nursery">حضانة / تعليم أولي</span></label>
+                <label class="check" data-track="general"><input type="checkbox" name="institution_types" value="مؤسسة تعليم عالي خاصة" /> <span data-i18n="it.higher">تعليم عالي خاص</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="institution_types" value="حضانة" /> <span data-i18n="it.creche">حضانة</span></label>
+                <label class="check" data-track="early"><input type="checkbox" name="institution_types" value="تعليم أولي (روض)" /> <span data-i18n="it.pre">تعليم أولي (روض)</span></label>
               </div>
+            </div>
+
+            <!-- ===== early-education only: professional role + accompanist ===== -->
+            <div class="field" data-early-field hidden>
+              <span class="label" data-i18n="f.earlyRole">الصفة المهنية المطلوبة</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="early_role" value="أستاذة / معلمة" /> <span data-i18n="er.teacher">أستاذة (معلمة)</span></label>
+                <label class="check"><input type="checkbox" name="early_role" value="أستاذة مساعدة / مربية مساعدة" /> <span data-i18n="er.assistant">أستاذة مساعدة (مربية مساعدة)</span></label>
+              </div>
+            </div>
+
+            <div class="field" data-early-field hidden>
+              <span class="label"><span data-i18n="f.accompanist">هل تقبلين العمل كمرافقة؟</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="accompanist" value="نعم" /> <span data-i18n="acc.yes">نعم</span></label>
+                <label class="pill"><input type="radio" name="accompanist" value="لا" /> <span data-i18n="acc.no">لا</span></label>
+              </div>
+              <small class="hint" data-i18n="hint.accompanist">المرافِقة ترافق الأطفال وتساعد في العناية بهم داخل المؤسسة أو أثناء النقل. اختياري — لكنه يفتح لك فرصاً إضافية.</small>
             </div>
 
             <div class="field">
