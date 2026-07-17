@@ -324,11 +324,69 @@ document.addEventListener("DOMContentLoaded", () => {
     else successScreen.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  /* ---------- progressive partial save (retargeting engine) ----------
-     Fires on every "next". Sends TEXT fields only (fast, no files) so we
-     capture the lead even if they never finish. Non-blocking + silent. */
-  let _cvPartialSent = false;
+  /* ---------- progressive file upload (reliability engine) ----------
+     Every file is uploaded the moment the teacher advances past its step,
+     so the FINAL submit carries little-to-no file data -> small, fast, and
+     reliable even on weak mobile connections (the intermittent submit error).
+
+     _sentFiles maps a fieldId -> signature of what we last uploaded for it.
+     If the attachment later changes (re-picked / more files), the signature
+     changes and it is re-uploaded. Marks are optimistic and are rolled back
+     if the upload turns out to have failed, so no file is ever silently lost. */
+  const FILE_FIELDS = { cv: "single", certs: "multi", work_cert: "multi", photo: "single" };
+  const _sentFiles = {};
+
+  function fileSig(files) {
+    if (!files || !files.length) return "";
+    const parts = [];
+    for (let i = 0; i < files.length; i++) parts.push(files[i].name + "|" + files[i].size + "|" + files[i].lastModified);
+    return parts.join("::");
+  }
+
+  // Base64-encode only the file fields whose current attachment differs from
+  // what we last uploaded. Marks them as sent optimistically and returns both
+  // the payload piece and the list of ids so the caller can roll back on error.
+  async function collectPendingFiles() {
+    const out = {};
+    const ids = [];
+    for (const id in FILE_FIELDS) {
+      const el = document.getElementById(id);
+      if (!el || !el.files || !el.files.length) continue;
+      const sig = fileSig(el.files);
+      if (_sentFiles[id] === sig) continue;              // unchanged -> already uploaded
+      if (FILE_FIELDS[id] === "single") {
+        if (el.files[0].size > MAX_FILE_MB * 1024 * 1024) continue;
+        try { out[id] = await fileToBase64(el.files[0]); } catch (e) { continue; }
+      } else {
+        const arr = [];
+        for (let i = 0; i < el.files.length && i < 5; i++) {
+          if (el.files[i].size <= MAX_FILE_MB * 1024 * 1024) {
+            try { arr.push(await fileToBase64(el.files[i])); } catch (e) {}
+          }
+        }
+        if (!arr.length) continue;
+        out[id] = arr;
+      }
+      _sentFiles[id] = sig;                              // optimistic mark
+      ids.push(id);
+    }
+    return { files: out, ids: ids };
+  }
+
+  function rollbackFiles(ids) { (ids || []).forEach(function (id) { delete _sentFiles[id]; }); }
+
+  // Treat an Apps Script response as a success unless it explicitly reports a problem.
+  function isSaveOk(result) {
+    return !result || !result.status ||
+      result.status === "success" || result.status === "duplicate" || result.status === "ignored";
+  }
+
+  /* ---------- progressive partial save (retargeting + reliability) ----------
+     Fires on every "next". Saves text fields (fast) and uploads any newly
+     attached files so they're captured even if the teacher never finishes.
+     Non-blocking + silent; runs in the background (not awaited by the click). */
   async function savePartial(reachedIndex) {
+    let sentIds = [];
     try {
       const hp = document.getElementById("website");
       if (hp && hp.value.trim()) return;                 // bot -> ignore
@@ -342,23 +400,29 @@ document.addEventListener("DOMContentLoaded", () => {
       payload.updatedAt = new Date().toISOString();
       payload.resumeUrl = buildResumeUrl();
 
-      // Upload the CV as soon as it's attached (once), so we keep it even if the
-      // teacher never finishes the form. (CV now lives in step 1.)
-      const cvEl = document.getElementById("cv");
-      if (!_cvPartialSent && cvEl && cvEl.files && cvEl.files.length && cvEl.files[0].size <= MAX_FILE_MB * 1024 * 1024) {
-        try { payload.files = { cv: await fileToBase64(cvEl.files[0]) }; _cvPartialSent = true; } catch (e) {}
-      }
+      // Upload every file that's been attached so far (and not yet uploaded).
+      const pending = await collectPendingFiles();
+      sentIds = pending.ids;
+      if (sentIds.length) payload.files = pending.files;
 
       // keepalive has a ~64KB body cap, so only use it for the light text-only
-      // saves; when a file is attached, send a normal fetch (no size cap).
-      const hasFiles = !!payload.files;
+      // saves; when files ride along, send a normal fetch (no size cap).
+      const hasFiles = sentIds.length > 0;
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
         keepalive: !hasFiles
-      }).catch(function () { /* silent: never block the user */ });
-    } catch (e) { /* silent */ }
+      }).then(function (res) {
+        if (!hasFiles) return;                            // text-only: fire-and-forget
+        return res.text().then(function (txt) {
+          let j = null; try { j = JSON.parse(txt); } catch (e) {}
+          if (!isSaveOk(j)) throw new Error("logical");   // server rejected -> roll back files
+        });
+      }).catch(function () {
+        rollbackFiles(sentIds);   // upload failed -> final submit will re-send these files
+      });
+    } catch (e) { rollbackFiles(sentIds); /* silent */ }
   }
 
   /* ---------- resume where you stopped ----------
@@ -434,28 +498,15 @@ document.addEventListener("DOMContentLoaded", () => {
     setStatus("loading", T("st.uploading"));
     track("FormSubmitAttempt", { form_type: "teacher" });
 
+    let _submitFileIds = [];
     try {
       const payload = collectData();
-      const files = {};
-      // photo (single). CV is already uploaded during the first partial save, so
-      // only re-send it here if that partial upload didn't happen -> smaller,
-      // faster, more reliable final request.
-      const _photoEl = document.getElementById("photo");
-      if (_photoEl && _photoEl.files.length) files.photo = await fileToBase64(_photoEl.files[0]);
-      const _cvEl = document.getElementById("cv");
-      if (!_cvPartialSent && _cvEl && _cvEl.files.length) files.cv = await fileToBase64(_cvEl.files[0]);
-      // multi-file fields: extra certificates + experience proofs (cap at 5 each)
-      for (const id of ["certs", "work_cert"]) {
-        const el = document.getElementById(id);
-        if (el && el.files.length) {
-          const arr = [];
-          for (let i = 0; i < el.files.length && i < 5; i++) {
-            if (el.files[i].size <= MAX_FILE_MB * 1024 * 1024) arr.push(await fileToBase64(el.files[i]));
-          }
-          if (arr.length) files[id] = arr;
-        }
-      }
-      payload.files = files;
+      // Only carry files that weren't already uploaded during the partial saves.
+      // In the common path that's just the photo (last step) or nothing at all,
+      // making the final request tiny and reliable on weak mobile networks.
+      const pending = await collectPendingFiles();
+      _submitFileIds = pending.ids;
+      payload.files = pending.files;
       payload.submittedAt = new Date().toISOString();
       payload.submissionId = SUBMISSION_ID;
       payload.status = "complete";
@@ -500,6 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
       track("TeacherRegistered", { city: _m.city || "", track_field: _m.track || "", diploma: _m.diploma || "", has_experience: _m.has_experience || "" });
       showSuccess();
     } catch (err) {
+      rollbackFiles(_submitFileIds);   // this submit failed -> re-include its files on next click
       track("FormSubmitError", { form_type: "teacher" });
       setStatus("error", T("st.error"));
       submitBtn.disabled = false; prevBtn.disabled = false;
