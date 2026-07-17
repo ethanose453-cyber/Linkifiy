@@ -66,7 +66,8 @@ var MSG_B64 = {
   P3A: "CgrYotiu2LEg2KrYsNmD2YrYsSDwn5mPINmD2YXZkdmEINmF2YTZgdmDINmB2YAgTGlua2lmeSDYqNin2LQg2KfZhNmF2K/Yp9ix2LMg2KfZhNmC2LHZitio2Kkg2YXZhtmDINmK2YLYr9ix2Ygg2YrZiNi12YTZiCDZhNmK2YMuINmF2KzYp9mG2KfZiyDZiNmF2YYg2YbZgdizINin2YTYqNmE2KfYtdipOgo=",
   WELCOME_BODY: "CgrYqtmI2LXZkdmE2YbYpyDYqNmF2LnZhNmI2YXYp9iq2YMg2YHZgCBMaW5raWZ5INmI2LPYrNmR2YTZhtin2YfYpyDYqNmG2KzYp9itIOKchQrYtNmD2LHYp9mLINio2LLYp9mBINi52YTZiSDYp9mE2YjZgtiqINmI2KfZhNmF2KzZh9mI2K8g2KfZhNmE2Yog2K7YtdmR2LXYqtmKINio2KfYtCDYqti52YXZkdixINmF2YTZgdmD2Iwg2YjYudmE2Ykg2KfZhNir2YLYqSDYp9mE2YTZiiDZhdmG2K3YqtmK2YbYpyDwn5mPCti62KfYr9mKINmG2KrZiNin2LXZhNmIINmF2LnYp9mDINmF2KjYp9i02LHYqSDYpdmE2Kcg2YTZgtmK2YbYpyDYtNmKINmB2LHYtdipINiq2YbYp9iz2Kgg2YXZhNmB2YPYjCDZiNmE2Kcg2KXZhNinINin2K3Yqtin2KzZitmG2Kcg2LTZiiDYqtmI2LbZititLgrZhdix2K3YqNin2Ysg2KjZitmDINmF2LnYp9mG2Kcg2YHZgCBMaW5raWZ52Iwg2YjZhtiq2YXZhtin2Ygg2YTZitmDINmD2YQg2KfZhNiq2YjZgdmK2YIhIPCfmoA=",
   SUBJ_WELCOME: "2YXYsdit2KjYp9mLINio2YMg2YHZiiBMaW5raWZ5IOKAlCDYqtmFINin2LPYqtmE2KfZhSDZhdmE2YHZgyDinIU=",
-  SUBJ_NUDGE: "TGlua2lmeTog2YPZhdmR2YQg2YXZhNmB2YMg2KfZhNmF2YfZhtmKIOKAlCDYqNmC2YrYqiDYrti32YjYp9iqINmC2YTZitmE2Kk="
+  SUBJ_NUDGE: "TGlua2lmeTog2YPZhdmR2YQg2YXZhNmB2YMg2KfZhNmF2YfZhtmKIOKAlCDYqNmC2YrYqiDYrti32YjYp9iqINmC2YTZitmE2Kk=",
+  WA_TEST: "2YXYsdit2KjYpyEg8J+RiyDZh9iw2Ycg2LHYs9in2YTYqSDYqtis2LHZitio2YrYqSDZhdmGIExpbmtpZnkg2LnYqNixINmI2KfYqtiz2KfYqCAoVHdpbGlvKS4g2KXYsNinINmI2LXZhNiq2YMg2YfYsNmHINin2YTYsdiz2KfZhNip2Iwg2YHYp9mE2LHYqNi3INmK2LnZhdmEINio2YbYrNin2K0g4pyF"
 };
 var _MSG = null;
 function msg_(k) {
@@ -574,6 +575,45 @@ function sendMail(to, subject, body) {
   var rt = prop("REPLY_TO");  if (rt) opts.replyTo = rt;
   try { MailApp.sendEmail(to, subject, body, opts); }
   catch (e) { try { MailApp.sendEmail(to, subject, body); } catch (e2) {} }
+}
+
+// ---- Twilio WhatsApp (retargeting channel) ----
+// Script Properties needed:
+//   TWILIO_SID    -> Account SID (starts with AC...)
+//   TWILIO_TOKEN  -> Auth Token  (keep secret)
+//   TWILIO_WA_FROM-> sender, e.g. "whatsapp:+14155238886" (sandbox) or your approved number
+// Sends a WhatsApp message via the Twilio REST API. Returns true on success.
+function sendWhatsApp(toPhone, body) {
+  var sid = prop("TWILIO_SID"), token = prop("TWILIO_TOKEN"), from = prop("TWILIO_WA_FROM");
+  if (!sid || !token || !from || !toPhone || !body) return false;
+  var to = normalizePhone(toPhone);
+  if (!to) return false;
+  var url = "https://api.twilio.com/2010-04-01/Accounts/" + sid + "/Messages.json";
+  var options = {
+    method: "post",
+    payload: { From: from, To: "whatsapp:+" + to, Body: body },
+    headers: { Authorization: "Basic " + Utilities.base64Encode(sid + ":" + token) },
+    muteHttpExceptions: true
+  };
+  try {
+    var res = UrlFetchApp.fetch(url, options);
+    var code = res.getResponseCode();
+    if (code >= 200 && code < 300) return true;
+    try { Logger.log("Twilio WA error " + code + ": " + res.getContentText()); } catch (e) {}
+    return false;
+  } catch (e) { return false; }
+}
+
+// Run this MANUALLY from the Apps Script editor to test the free Sandbox.
+// First set Script Property TEST_WA to your own WhatsApp number (that joined
+// the sandbox), e.g. "212710849666" or "0710849666".
+function testTwilioWhatsApp() {
+  var to = prop("TEST_WA");
+  if (!to) { Logger.log("Set Script Property TEST_WA to your WhatsApp number first."); return; }
+  var ok = sendWhatsApp(to, msg_("WA_TEST"));
+  Logger.log(ok
+    ? "WhatsApp test SENT to " + to + " - check your WhatsApp."
+    : "WhatsApp test FAILED - verify TWILIO_SID / TWILIO_TOKEN / TWILIO_WA_FROM / TEST_WA and that you sent 'join <code>' to the sandbox.");
 }
 
 function notifyEmail(record) {
