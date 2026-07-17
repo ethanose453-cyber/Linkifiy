@@ -437,11 +437,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = collectData();
       const files = {};
-      // single-file fields
-      for (const id of ["cv", "photo"]) {
-        const el = document.getElementById(id);
-        if (el && el.files.length) files[id] = await fileToBase64(el.files[0]);
-      }
+      // photo (single). CV is already uploaded during the first partial save, so
+      // only re-send it here if that partial upload didn't happen -> smaller,
+      // faster, more reliable final request.
+      const _photoEl = document.getElementById("photo");
+      if (_photoEl && _photoEl.files.length) files.photo = await fileToBase64(_photoEl.files[0]);
+      const _cvEl = document.getElementById("cv");
+      if (!_cvPartialSent && _cvEl && _cvEl.files.length) files.cv = await fileToBase64(_cvEl.files[0]);
       // multi-file fields: extra certificates + experience proofs (cap at 5 each)
       for (const id of ["certs", "work_cert"]) {
         const el = document.getElementById(id);
@@ -463,20 +465,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // text/plain = "simple request" => no CORS preflight; Apps Script returns a
       // readable JSON response with Access-Control-Allow-Origin: *
-      const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
+      // Retry up to 3 times to ride out transient network / Apps Script hiccups
+      // (the intermittent error some users hit). Data errors are NOT retried.
+      const _body = JSON.stringify(payload);
+      let result = null, lastErr = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: _body,
+          });
+          result = null;
+          try { result = await res.json(); } catch (e) { /* unreadable -> assume it went through */ }
 
-      let result = null;
-      try { result = await res.json(); } catch (e) { /* unreadable -> assume saved */ }
-
-      // explicit server error => surface it (data NOT saved)
-      if (result && result.status &&
-          result.status !== "success" && result.status !== "duplicate" && result.status !== "ignored") {
-        throw new Error(result.message || "server error");
+          if (!result || !result.status ||
+              result.status === "success" || result.status === "duplicate" || result.status === "ignored") {
+            lastErr = null; break;                              // saved OK
+          }
+          if (result.status === "invalid") throw new Error("invalid"); // data problem: don't retry
+          lastErr = new Error(result.status);                   // transient (error/rate_limited): retry
+        } catch (e) {
+          if (e && e.message === "invalid") throw e;            // don't retry data errors
+          lastErr = e;                                          // network error: retry
+        }
+        if (attempt < 3) await new Promise(function (r) { setTimeout(r, attempt * 1500); }); // backoff
       }
+      if (lastErr) throw lastErr;
 
       var _m = collectData();
       _trkSubmitted = true;
