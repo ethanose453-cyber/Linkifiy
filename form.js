@@ -45,11 +45,19 @@ function T(k) { return (typeof window.t === "function") ? window.t(k) : k; }
 
 /* ---------- analytics (Meta Pixel / GA / GTM) — safe no-op if none loaded ---------- */
 var FB_STD = { PageView: 1, ViewContent: 1, Lead: 1, CompleteRegistration: 1, Contact: 1, SubmitApplication: 1, Schedule: 1, Search: 1, InitiateCheckout: 1 };
+// Estimated monetary value (in MAD) attached to key events so Meta can compute
+// ROAS and run value-based optimization (fixes the "missing currency" warning).
+// These are ESTIMATES of a lead's worth — tweak to your real economics.
+// If your ad account bills in USD, change FB_CURRENCY to "USD".
+var FB_CURRENCY = "MAD";
+var FB_VALUE = { FormStepComplete: 5, Lead: 25, CompleteRegistration: 25, TeacherRegistered: 25 };
 function track(name, params) {
+  params = params || {};
+  if (FB_VALUE[name] != null && params.value == null) { params.value = FB_VALUE[name]; params.currency = FB_CURRENCY; }
   try {
-    if (typeof window.fbq === "function") window.fbq(FB_STD[name] ? "track" : "trackCustom", name, params || {});
-    if (typeof window.gtag === "function") window.gtag("event", name, params || {});
-    if (window.dataLayer && typeof window.dataLayer.push === "function") window.dataLayer.push(Object.assign({ event: name }, params || {}));
+    if (typeof window.fbq === "function") window.fbq(FB_STD[name] ? "track" : "trackCustom", name, params);
+    if (typeof window.gtag === "function") window.gtag("event", name, params);
+    if (window.dataLayer && typeof window.dataLayer.push === "function") window.dataLayer.push(Object.assign({ event: name }, params));
   } catch (e) {}
 }
 
