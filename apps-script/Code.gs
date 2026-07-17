@@ -194,7 +194,7 @@ function doPost(e) {
               // automatic welcome EMAIL (free, no bans)
               var wemail = cell(rv, map, "email");
               if (wemail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(wemail))) {
-                try { MailApp.sendEmail(String(wemail), msg_("SUBJ_WELCOME"), buildWelcomeMessage(wname)); } catch (eErr) {}
+                try { sendMail(String(wemail), msg_("SUBJ_WELCOME"), buildWelcomeMessage(wname)); } catch (eErr) {}
               }
               sheet.getRange(savedRow, map["welcomed"]).setValue(now);
             }
@@ -274,7 +274,7 @@ function processAbandoners() {
         // automatic recovery EMAIL to the abandoner (free, no bans, fully automatic)
         var abEmail = cell(row, map, "email");
         if (abEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(abEmail))) {
-          try { MailApp.sendEmail(String(abEmail), msg_("SUBJ_NUDGE"), msg); } catch (emErr) {}
+          try { sendMail(String(abEmail), msg_("SUBJ_NUDGE"), msg); } catch (emErr) {}
         }
         sheet.getRange(rowNum, col).setValue(now);
         adminAlert("Linkify - nudge " + stage + " ready:\n" + name + " (" + phone + ")\n" + waLink);
@@ -560,6 +560,20 @@ function saveFile(folder, fileObj, baseName) {
   var file = folder.createFile(blob);
   try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
   return file.getUrl();
+}
+
+// Central mail sender. Uses optional Script Properties so you can brand emails:
+//   MAIL_NAME  -> sender display name (e.g. "Linkify.ma") - works right away
+//   MAIL_FROM  -> send-from address (e.g. "contact@linkify.ma") - ONLY works once
+//                 it's added as a verified "Send mail as" alias on the script's Gmail
+//   REPLY_TO   -> reply-to address
+function sendMail(to, subject, body) {
+  var opts = {};
+  var nm = prop("MAIL_NAME"); if (nm) opts.name = nm;
+  var fr = prop("MAIL_FROM"); if (fr) opts.from = fr;
+  var rt = prop("REPLY_TO");  if (rt) opts.replyTo = rt;
+  try { MailApp.sendEmail(to, subject, body, opts); }
+  catch (e) { try { MailApp.sendEmail(to, subject, body); } catch (e2) {} }
 }
 
 function notifyEmail(record) {
