@@ -139,7 +139,7 @@ function doPost(e) {
     var lock = LockService.getScriptLock();
     try { lock.waitLock(30000); } catch (err) {}
     try {
-      var sheet = getSheet();
+      var sheet = getSheetFor(data);
       var map = ensureHeaders(sheet);
       var rowIndex = findRow(sheet, map, sid);
       var now = new Date();
@@ -236,7 +236,7 @@ function doGet(e) {
   }
   if (e.parameter.t === "s") return schoolResume(token);   // schools resume
   try {
-    var sheet = getSheet();
+    var sheet = (e.parameter.t === "a") ? getAdminSheet() : getSheet();
     var map = ensureHeaders(sheet);
     var rowIndex = findRow(sheet, map, token);
     if (rowIndex < 1) return json({ status: "notfound" });
@@ -256,7 +256,10 @@ function doGet(e) {
 
 /* ============ RETARGETING ENGINE ============ */
 function processAbandoners() {
-  var sheet = getSheet();
+  processAbandonersSheet(getSheet());
+  try { processAbandonersSheet(getAdminSheet()); } catch (e) {}
+}
+function processAbandonersSheet(sheet) {
   var map = ensureHeaders(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return;
@@ -491,13 +494,33 @@ function getSpreadsheet() {
 
 function getSheet() {
   var ss = getSpreadsheet();
-  var sh = CONFIG.SHEET_NAME ? ss.getSheetByName(CONFIG.SHEET_NAME) : ss.getSheets()[0];
-  if (!sh) sh = ss.insertSheet(CONFIG.SHEET_NAME || "Registrations");
+  // Prefer an explicit tab name from Script Property SHEET_NAME (deterministic,
+  // safe even if tab order changes); otherwise fall back to the first sheet.
+  var name = prop("SHEET_NAME") || CONFIG.SHEET_NAME;
+  var sh = name ? ss.getSheetByName(name) : ss.getSheets()[0];
+  if (!sh) sh = ss.insertSheet(name || "Registrations");
   if (sh.getLastRow() === 0) {
     sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
     sh.setFrozenRows(1);
   }
   return sh;
+}
+
+// Administrative-staff submissions live in their OWN tab, separate from teachers.
+var ADMIN_SHEET = "Administration";
+function getAdminSheet() {
+  var ss = getSpreadsheet();
+  var sh = ss.getSheetByName(ADMIN_SHEET);
+  if (!sh) sh = ss.insertSheet(ADMIN_SHEET);
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+// Route a submission to the right tab based on its profile type.
+function getSheetFor(data) {
+  return (data && data.profile_type === "administration") ? getAdminSheet() : getSheet();
 }
 
 function ensureHeaders(sheet) {

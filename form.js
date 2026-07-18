@@ -191,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "علمي / تقني": "علمي",
     "أدبي / إنساني": "أدبي",
     "التعليم الأولي والمربيات": "أولي",
+    "التربية الفنية والثقافية": "فنون",
   };
   function filterSubjects() {
     const checked = form.querySelector('input[name="track"]:checked');
