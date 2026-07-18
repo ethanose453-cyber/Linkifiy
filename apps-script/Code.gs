@@ -616,6 +616,52 @@ function testTwilioWhatsApp() {
     : "WhatsApp test FAILED - verify TWILIO_SID / TWILIO_TOKEN / TWILIO_WA_FROM / TEST_WA and that you sent 'join <code>' to the sandbox.");
 }
 
+// ---- WhatsApp Cloud API (Meta, direct - cheaper than Twilio) ----
+// Script Properties:
+//   WA_CLOUD_TOKEN -> access token (temporary 24h for testing; replace with a
+//                     permanent System User token for the live automation)
+//   WA_PHONE_ID    -> Phone number ID from the API Setup page
+//   WA_GRAPH_VER   -> optional Graph API version, defaults to v21.0
+function waCloudVer() { return prop("WA_GRAPH_VER") || "v21.0"; }
+
+// Sends a TEMPLATE message. Templates work anytime, so they're required to
+// message leads who haven't written to us in the last 24h (all retargeting).
+// components (optional) fills template variables/buttons.
+function sendWhatsAppTemplate(toPhone, templateName, langCode, components) {
+  var token = prop("WA_CLOUD_TOKEN"), pid = prop("WA_PHONE_ID");
+  if (!token || !pid || !toPhone || !templateName) return false;
+  var to = normalizePhone(toPhone);
+  if (!to) return false;
+  var tmpl = { name: templateName, language: { code: langCode || "en_US" } };
+  if (components) tmpl.components = components;
+  var options = {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify({ messaging_product: "whatsapp", to: to, type: "template", template: tmpl }),
+    headers: { Authorization: "Bearer " + token },
+    muteHttpExceptions: true
+  };
+  try {
+    var res = UrlFetchApp.fetch("https://graph.facebook.com/" + waCloudVer() + "/" + pid + "/messages", options);
+    var code = res.getResponseCode();
+    if (code >= 200 && code < 300) return true;
+    try { Logger.log("WA Cloud error " + code + ": " + res.getContentText()); } catch (e) {}
+    return false;
+  } catch (e) { return false; }
+}
+
+// Run MANUALLY from the editor to validate the Cloud API using the pre-approved
+// hello_world template. Set TEST_WA to your own WhatsApp number (the one you
+// verified as a recipient on the API Setup page while in test mode).
+function testWhatsAppCloud() {
+  var to = prop("TEST_WA");
+  if (!to) { Logger.log("Set Script Property TEST_WA first."); return; }
+  var ok = sendWhatsAppTemplate(to, "hello_world", "en_US");
+  Logger.log(ok
+    ? "WA Cloud test SENT (hello_world) to " + to + " - check WhatsApp."
+    : "WA Cloud test FAILED - check WA_CLOUD_TOKEN / WA_PHONE_ID / TEST_WA and that the recipient is verified in API Setup.");
+}
+
 function notifyEmail(record) {
   var to = prop("NOTIFY_EMAIL");
   if (!to) return;
