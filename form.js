@@ -197,7 +197,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const checked = form.querySelector('input[name="track"]:checked');
     const group = checked ? TRACK_GROUP[checked.value] : null;
     form.querySelectorAll(".check[data-group]").forEach(lbl => {
-      const match = !group || lbl.dataset.group === group;
+      // data-group may list several groups (space-separated) so a subject can
+      // appear under more than one track (e.g. sport under both علمي and أدبي).
+      const match = !group || lbl.dataset.group.split(/\s+/).indexOf(group) !== -1;
       lbl.hidden = !match;
       if (!match) { const cb = lbl.querySelector("input"); if (cb) cb.checked = false; }
     });
