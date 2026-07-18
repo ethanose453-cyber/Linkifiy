@@ -171,6 +171,15 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle(skillOther, e.target.checked);
   });
 
+  // "other administrative position" -> reveal the free-text field (admin form)
+  var _posOther = document.getElementById("position_other");
+  var _posOtherWrap = document.getElementById("position-other-wrap");
+  if (_posOther && _posOtherWrap) {
+    var _syncPosOther = function () { toggle(_posOtherWrap, _posOther.checked); };
+    _posOther.addEventListener("change", _syncPosOther);
+    _syncPosOther();
+  }
+
   // salary -> "مبلغ آخر" reveals the custom amount field
   const salaryCustomWrap = document.getElementById("salary-custom-wrap");
   const salarySel = document.getElementById("salary_expectation");

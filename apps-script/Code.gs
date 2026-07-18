@@ -36,7 +36,7 @@ var HEADERS = [
   "submittedAt", "first_name", "last_name", "age", "gender", "city", "city_other",
   "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "profile_type", "track", "admin_position", "diploma",
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
-  "subjects", "levels", "institution_types", "early_role", "accompanist", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
+  "subjects", "levels", "institution_types", "early_role", "accompanist", "admin_position_other", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
   "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
   "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at", "welcomed"
