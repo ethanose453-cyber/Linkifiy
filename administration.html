@@ -232,21 +232,21 @@
               <span class="label"><span data-i18n="a.f.position">المنصب / المناصب الإدارية التي ترغب فيها</span> <span class="req">*</span></span>
               <small class="hint" data-i18n="a.hint.position">اختر كل المناصب التي تناسب خبرتك — يمكنك اختيار أكثر من واحد.</small>
               <div class="check-grid">
-                <label class="check"><input type="checkbox" name="admin_position" value="مدير(ة) / نائب المدير" /> <span data-i18n="a.pos.director">مدير(ة) / نائب المدير</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="الحارس العام" /> <span data-i18n="a.pos.supervisor">الحارس العام</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="مقتصد / مسؤول مالي" /> <span data-i18n="a.pos.bursar">مقتصد / مسؤول مالي</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="محاسب(ة)" /> <span data-i18n="a.pos.accountant">محاسب(ة)</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="سكرتير(ة) / كاتب(ة)" /> <span data-i18n="a.pos.secretary">سكرتير(ة) / كاتب(ة)</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="مسؤول(ة) موارد بشرية" /> <span data-i18n="a.pos.hr">مسؤول(ة) موارد بشرية</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="موظف(ة) إداري / عون إداري" /> <span data-i18n="a.pos.admin">موظف(ة) إداري / عون إداري</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="مسؤول(ة) استقبال" /> <span data-i18n="a.pos.reception">مسؤول(ة) استقبال</span></label>
                 <label class="check"><input type="checkbox" name="admin_position" value="تقني معلوميات / صيانة" /> <span data-i18n="a.pos.it">تقني معلوميات / صيانة</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="عون أمن / حارس" /> <span data-i18n="a.pos.security">عون أمن / حارس</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="سائق(ة) نقل مدرسي" /> <span data-i18n="a.pos.driver">سائق(ة) نقل مدرسي</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="ممرض(ة) / مسؤول صحة مدرسية" /> <span data-i18n="a.pos.nurse">ممرض(ة) / مسؤول صحة مدرسية</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="عون خدمة / نظافة" /> <span data-i18n="a.pos.service">عون خدمة / نظافة</span></label>
-                <label class="check"><input type="checkbox" name="admin_position" value="مرافق(ة) / مربية مساعدة" /> <span data-i18n="a.pos.assistant">مرافق(ة) / مربية مساعدة</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)" /> <span data-i18n="a.pos.director">مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="نائب(ة) المدير / ناظر(ة) المؤسسة" /> <span data-i18n="a.pos.deputy">نائب(ة) المدير / ناظر(ة) المؤسسة</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="حارس(ة) عام" /> <span data-i18n="a.pos.supervisor">حارس(ة) عام</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="مفتش(ة) / مشرف(ة) تربوي(ة)" /> <span data-i18n="a.pos.inspector">مفتش(ة) / مشرف(ة) تربوي(ة)</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="مسؤول(ة) الموارد البشرية أو التسجيل" /> <span data-i18n="a.pos.hr">مسؤول(ة) الموارد البشرية أو التسجيل</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال" /> <span data-i18n="a.pos.secretary">سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال</span></label>
+                <label class="check"><input type="checkbox" name="admin_position" value="مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)" /> <span data-i18n="a.pos.counselor">مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)</span></label>
+                <label class="check"><input type="checkbox" id="position_other" name="admin_position" value="منصب إداري آخر" /> <span data-i18n="a.pos.other">منصب إداري آخر (يرجى التحديد)</span></label>
               </div>
+            </div>
+
+            <div class="field conditional" id="position-other-wrap" hidden>
+              <label for="admin_position_other" data-i18n="a.f.positionOther">حدّد المنصب الإداري</label>
+              <input type="text" id="admin_position_other" name="admin_position_other" />
             </div>
 
             <div class="grid-2">
@@ -343,7 +343,6 @@
               <div class="radio-row">
                 <label class="pill"><input type="radio" name="schedule" value="دوام كامل" /> <span data-i18n="sch.full">دوام كامل</span></label>
                 <label class="pill"><input type="radio" name="schedule" value="دوام جزئي" /> <span data-i18n="sch.part">دوام جزئي</span></label>
-                <label class="pill"><input type="radio" name="schedule" value="ساعات إضافية / حصص محددة" /> <span data-i18n="sch.hours">ساعات / حصص محددة</span></label>
                 <label class="pill"><input type="radio" name="schedule" value="كل ما سبق" /> <span data-i18n="sch.all">كل ما سبق</span></label>
               </div>
             </div>
