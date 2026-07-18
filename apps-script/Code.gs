@@ -39,7 +39,7 @@ var HEADERS = [
   "subjects", "levels", "institution_types", "early_role", "accompanist", "admin_position_other", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
   "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
   "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
-  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at", "welcomed"
+  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at", "welcomed", "wa_sent_at"
 ];
 
 var FILE_FIELDS = { cv: "CV_URL", certs: "CERTS_URL", photo: "PHOTO_URL", work_cert: "WORKCERT_URL" };
@@ -67,7 +67,8 @@ var MSG_B64 = {
   WELCOME_BODY: "CgrYqtmI2LXZkdmE2YbYpyDYqNmF2LnZhNmI2YXYp9iq2YMg2YHZgCBMaW5raWZ5INmI2LPYrNmR2YTZhtin2YfYpyDYqNmG2KzYp9itIOKchQrYtNmD2LHYp9mLINio2LLYp9mBINi52YTZiSDYp9mE2YjZgtiqINmI2KfZhNmF2KzZh9mI2K8g2KfZhNmE2Yog2K7YtdmR2LXYqtmKINio2KfYtCDYqti52YXZkdixINmF2YTZgdmD2Iwg2YjYudmE2Ykg2KfZhNir2YLYqSDYp9mE2YTZiiDZhdmG2K3YqtmK2YbYpyDwn5mPCti62KfYr9mKINmG2KrZiNin2LXZhNmIINmF2LnYp9mDINmF2KjYp9i02LHYqSDYpdmE2Kcg2YTZgtmK2YbYpyDYtNmKINmB2LHYtdipINiq2YbYp9iz2Kgg2YXZhNmB2YPYjCDZiNmE2Kcg2KXZhNinINin2K3Yqtin2KzZitmG2Kcg2LTZiiDYqtmI2LbZititLgrZhdix2K3YqNin2Ysg2KjZitmDINmF2LnYp9mG2Kcg2YHZgCBMaW5raWZ52Iwg2YjZhtiq2YXZhtin2Ygg2YTZitmDINmD2YQg2KfZhNiq2YjZgdmK2YIhIPCfmoA=",
   SUBJ_WELCOME: "2YXYsdit2KjYp9mLINio2YMg2YHZiiBMaW5raWZ5IOKAlCDYqtmFINin2LPYqtmE2KfZhSDZhdmE2YHZgyDinIU=",
   SUBJ_NUDGE: "TGlua2lmeTog2YPZhdmR2YQg2YXZhNmB2YMg2KfZhNmF2YfZhtmKIOKAlCDYqNmC2YrYqiDYrti32YjYp9iqINmC2YTZitmE2Kk=",
-  WA_TEST: "2YXYsdit2KjYpyEg8J+RiyDZh9iw2Ycg2LHYs9in2YTYqSDYqtis2LHZitio2YrYqSDZhdmGIExpbmtpZnkg2LnYqNixINmI2KfYqtiz2KfYqCAoVHdpbGlvKS4g2KXYsNinINmI2LXZhNiq2YMg2YfYsNmHINin2YTYsdiz2KfZhNip2Iwg2YHYp9mE2LHYqNi3INmK2LnZhdmEINio2YbYrNin2K0g4pyF"
+  WA_TEST: "2YXYsdit2KjYpyEg8J+RiyDZh9iw2Ycg2LHYs9in2YTYqSDYqtis2LHZitio2YrYqSDZhdmGIExpbmtpZnkg2LnYqNixINmI2KfYqtiz2KfYqCAoVHdpbGlvKS4g2KXYsNinINmI2LXZhNiq2YMg2YfYsNmHINin2YTYsdiz2KfZhNip2Iwg2YHYp9mE2LHYqNi3INmK2LnZhdmEINio2YbYrNin2K0g4pyF",
+  WA_NAME_FALLBACK: "2KPYs9iq2KfYsCjYqSk="
 };
 var _MSG = null;
 function msg_(k) {
@@ -256,10 +257,22 @@ function doGet(e) {
 
 /* ============ RETARGETING ENGINE ============ */
 function processAbandoners() {
-  processAbandonersSheet(getSheet());
-  try { processAbandonersSheet(getAdminSheet()); } catch (e) {}
+  processAbandonersSheet(getSheet(), true);           // teachers: email + WhatsApp
+  try { processAbandonersSheet(getAdminSheet(), false); } catch (e) {}  // admin: email only for now
 }
-function processAbandonersSheet(sheet) {
+// WhatsApp retargeting is enabled only when WA_RETARGET_ENABLED == "true" AND a
+// template + credentials are configured. It fires ONCE per lead at WA_NUDGE_STAGE
+// (default 1) and is tracked by the wa_sent_at column so it never repeats.
+function waRetargetOn() { return prop("WA_RETARGET_ENABLED") === "true" && !!prop("WA_TEMPLATE_NAME") && !!prop("WA_PHONE_ID") && !!prop("WA_CLOUD_TOKEN"); }
+function waRetargetStage() { var s = parseInt(prop("WA_NUDGE_STAGE") || "1", 10); return (s >= 1 && s <= 3) ? s : 1; }
+function sendRetargetTemplate(phone, name, token) {
+  var comps = [
+    { type: "body", parameters: [{ type: "text", text: (name || msg_("WA_NAME_FALLBACK")) }] },
+    { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: String(token) }] }
+  ];
+  return sendWhatsAppTemplate(phone, prop("WA_TEMPLATE_NAME"), prop("WA_TEMPLATE_LANG") || "ar", comps);
+}
+function processAbandonersSheet(sheet, sendWA) {
   var map = ensureHeaders(sheet);
   var last = sheet.getLastRow();
   if (last < 2) return;
@@ -291,6 +304,10 @@ function processAbandonersSheet(sheet) {
         var abEmail = cell(row, map, "email");
         if (abEmail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(abEmail))) {
           try { sendMail(String(abEmail), msg_("SUBJ_NUDGE"), msg); } catch (emErr) {}
+        }
+        // automatic WhatsApp retargeting (teachers only, once per lead, at the configured stage)
+        if (sendWA && waRetargetOn() && phone && stage === waRetargetStage() && !cell(row, map, "wa_sent_at")) {
+          try { if (sendRetargetTemplate(phone, name, sid) && map["wa_sent_at"]) sheet.getRange(rowNum, map["wa_sent_at"]).setValue(now); } catch (waErr) {}
         }
         sheet.getRange(rowNum, col).setValue(now);
         adminAlert("Linkify - nudge " + stage + " ready:\n" + name + " (" + phone + ")\n" + waLink);
