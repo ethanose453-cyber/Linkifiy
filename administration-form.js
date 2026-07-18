@@ -471,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(String(token))) return;
     try {
       setStatus("loading", "جاري استرجاع بياناتك المحفوظة…");
-      const res = await fetch(GOOGLE_SCRIPT_URL + "?resume=" + encodeURIComponent(token), { method: "GET" });
+      const res = await fetch(GOOGLE_SCRIPT_URL + "?resume=" + encodeURIComponent(token) + "&t=a", { method: "GET" });
       const data = await res.json();
       clearStatus();
       if (!data || data.status !== "found" || !data.record) return;
