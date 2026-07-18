@@ -34,7 +34,7 @@ var CONFIG = {
 
 var HEADERS = [
   "submittedAt", "first_name", "last_name", "age", "gender", "city", "city_other",
-  "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "track", "diploma",
+  "neighborhood", "whatsapp", "email", "transport", "license", "relocate", "profile_type", "track", "admin_position", "diploma",
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
   "subjects", "levels", "institution_types", "early_role", "accompanist", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
   "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
@@ -90,6 +90,18 @@ function prop(key) {
 }
 function siteUrl() { return prop("SITE_URL") || CONFIG.SITE_URL_DEFAULT; }
 
+// Build the resume link. Prefer the exact page the visitor submitted from (so an
+// Administration lead resumes on administration.html, a teacher on the home page),
+// but only accept our own domain to avoid abuse. Falls back to the home page.
+function safeResumeUrl(u, sid) {
+  var fallback = siteUrl() + "?resume=" + encodeURIComponent(sid);
+  if (!u || typeof u !== "string") return fallback;
+  if (u.indexOf("resume=") === -1) return fallback;
+  if (/^https?:\/\/(www\.)?linkify\.ma\//i.test(u)) return u;
+  if (siteUrl() && u.indexOf(siteUrl()) === 0) return u;
+  return fallback;
+}
+
 function setupSecrets() {
   var secrets = {
     SHEET_ID: "",
@@ -143,7 +155,7 @@ function doPost(e) {
       }
       record.updatedAt = now.toISOString();
       if (!isPartial) record.submittedAt = now.toISOString();
-      record.resume_url = siteUrl() + "?resume=" + encodeURIComponent(sid);
+      record.resume_url = safeResumeUrl(data.resumeUrl, sid);
 
       if (data.files) {
         var folder = getFolder();
