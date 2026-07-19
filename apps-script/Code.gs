@@ -27,8 +27,8 @@ var CONFIG = {
   NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
   MAX_FIELD_LEN: 5000,
   MAX_FILE_BYTES: 6 * 1024 * 1024,
-  RL_PER_SID: 30,
-  RL_GLOBAL: 600,
+  RL_PER_SID: 40,
+  RL_GLOBAL: 2000,
   RL_WINDOW_SEC: 60
 };
 
@@ -137,88 +137,95 @@ function doPost(e) {
     var errors = validatePayload(data, isPartial);
     if (errors.length) return json({ status: "invalid", fields: errors });
 
+    var now = new Date();
+    var record = {};
+    HEADERS.forEach(function (h) {
+      if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
+    });
+    record.submissionId = sid;
+    record.status = isPartial ? "partial" : "complete";
+    if (data.currentStep !== undefined && data.currentStep !== null) {
+      record.currentStep = clampInt(data.currentStep, 0, 10, 0);
+    }
+    record.updatedAt = now.toISOString();
+    if (!isPartial) record.submittedAt = now.toISOString();
+    record.resume_url = safeResumeUrl(data.resumeUrl, sid);
+
+    // Upload files to Drive OUTSIDE the lock. Drive I/O takes seconds; keeping it
+    // out of the lock prevents ALL submissions from serializing behind each other
+    // during ad-traffic spikes -- the root cause of the intermittent submit errors.
+    if (data.files) {
+      var folder = getFolder();
+      Object.keys(FILE_FIELDS).forEach(function (field) {
+        var f = data.files[field];
+        if (!f) return;
+        if (Object.prototype.toString.call(f) === "[object Array]") {
+          // multiple files (e.g. several work certificates) -> save each, join URLs
+          var urls = [];
+          for (var j = 0; j < f.length && j < 5; j++) {
+            var item = f[j];
+            if (item && item.data && validateFile(field, item).ok) {
+              try { urls.push(saveFile(folder, item, sid + "_" + field + "_" + j)); } catch (upErr) {}
+            }
+          }
+          if (urls.length) record[FILE_FIELDS[field]] = urls.join(", ");
+        } else if (f.data) {
+          if (validateFile(field, f).ok) {
+            try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr2) {}
+          }
+        }
+      });
+    }
+
+    // verification tier: self -> refs -> docs -> docs+refs (Linkify-verified is set manually)
+    var hasCert = record.WORKCERT_URL && String(record.WORKCERT_URL).indexOf("http") === 0;
+    var hasRef = (record.prev_employer_name && String(record.prev_employer_name).trim() !== "") ||
+                 (record.prev_employer_phone && String(record.prev_employer_phone).trim() !== "");
+    record.verification = (hasCert && hasRef) ? "docs+refs" : hasCert ? "docs" : hasRef ? "refs" : "self";
+
+    // Hold the lock ONLY for the fast sheet read-modify-write (milliseconds).
+    var welcomeInfo = null;
     var lock = LockService.getScriptLock();
     try { lock.waitLock(30000); } catch (err) {}
     try {
       var sheet = getSheetFor(data);
       var map = ensureHeaders(sheet);
       var rowIndex = findRow(sheet, map, sid);
-      var now = new Date();
-
-      var record = {};
-      HEADERS.forEach(function (h) {
-        if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
-      });
-      record.submissionId = sid;
-      record.status = isPartial ? "partial" : "complete";
-      if (data.currentStep !== undefined && data.currentStep !== null) {
-        record.currentStep = clampInt(data.currentStep, 0, 10, 0);
-      }
-      record.updatedAt = now.toISOString();
-      if (!isPartial) record.submittedAt = now.toISOString();
-      record.resume_url = safeResumeUrl(data.resumeUrl, sid);
-
-      if (data.files) {
-        var folder = getFolder();
-        Object.keys(FILE_FIELDS).forEach(function (field) {
-          var f = data.files[field];
-          if (!f) return;
-          if (Object.prototype.toString.call(f) === "[object Array]") {
-            // multiple files (e.g. several work certificates) -> save each, join URLs
-            var urls = [];
-            for (var j = 0; j < f.length && j < 5; j++) {
-              var item = f[j];
-              if (item && item.data && validateFile(field, item).ok) {
-                try { urls.push(saveFile(folder, item, sid + "_" + field + "_" + j)); } catch (upErr) {}
-              }
-            }
-            if (urls.length) record[FILE_FIELDS[field]] = urls.join(", ");
-          } else if (f.data) {
-            if (validateFile(field, f).ok) {
-              try { record[FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr2) {}
-            }
-          }
-        });
-      }
-
-      // verification tier: self -> refs -> docs -> docs+refs (Linkify-verified is set manually)
-      var hasCert = record.WORKCERT_URL && String(record.WORKCERT_URL).indexOf("http") === 0;
-      var hasRef = (record.prev_employer_name && String(record.prev_employer_name).trim() !== "") ||
-                   (record.prev_employer_phone && String(record.prev_employer_phone).trim() !== "");
-      record.verification = (hasCert && hasRef) ? "docs+refs" : hasCert ? "docs" : hasRef ? "refs" : "self";
-
       if (rowIndex > 0) {
         updateRow(sheet, map, rowIndex, record);
       } else {
         record.createdAt = now.toISOString();
         appendRow(sheet, map, record);
       }
-
-      if (!isPartial) {
-        try { notifyEmail(record); } catch (mailErr) {}
-        // human thank-you: queue a warm welcome message once per completed teacher
-        try {
-          var savedRow = findRow(sheet, map, sid);
-          if (savedRow > 0 && map["welcomed"]) {
-            var already = sheet.getRange(savedRow, map["welcomed"]).getValue();
-            if (!already) {
-              var rv = sheet.getRange(savedRow, 1, 1, sheet.getLastColumn()).getValues()[0];
-              var wname = cell(rv, map, "first_name") || "";
-              queueWelcome(wname, normalizePhone(cell(rv, map, "whatsapp")));
-              // automatic welcome EMAIL (free, no bans)
-              var wemail = cell(rv, map, "email");
-              if (wemail && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(wemail))) {
-                try { sendMail(String(wemail), msg_("SUBJ_WELCOME"), buildWelcomeMessage(wname)); } catch (eErr) {}
-              }
-              sheet.getRange(savedRow, map["welcomed"]).setValue(now);
-            }
-          }
-        } catch (welErr) {}
+      // Mark "welcomed" atomically inside the lock; SEND the emails outside it.
+      if (!isPartial && map["welcomed"]) {
+        var savedRow = (rowIndex > 0) ? rowIndex : findRow(sheet, map, sid);
+        if (savedRow > 0 && !sheet.getRange(savedRow, map["welcomed"]).getValue()) {
+          var rv = sheet.getRange(savedRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+          welcomeInfo = {
+            name: cell(rv, map, "first_name") || "",
+            phone: normalizePhone(cell(rv, map, "whatsapp")),
+            email: cell(rv, map, "email")
+          };
+          sheet.getRange(savedRow, map["welcomed"]).setValue(now);
+        }
       }
-      return json({ status: isPartial ? "partial" : "success" });
     } finally {
       try { lock.releaseLock(); } catch (e2) {}
     }
+
+    // Slow notifications run AFTER the lock is released (they don't need it, and
+    // must never block other submissions).
+    if (!isPartial) {
+      try { notifyEmail(record); } catch (mailErr) {}
+      if (welcomeInfo) {
+        try { queueWelcome(welcomeInfo.name, welcomeInfo.phone); } catch (qErr) {}
+        if (welcomeInfo.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(welcomeInfo.email))) {
+          try { sendMail(String(welcomeInfo.email), msg_("SUBJ_WELCOME"), buildWelcomeMessage(welcomeInfo.name)); } catch (eErr) {}
+        }
+      }
+    }
+    return json({ status: isPartial ? "partial" : "success" });
   } catch (err) {
     return json({ status: "error" });
   }
