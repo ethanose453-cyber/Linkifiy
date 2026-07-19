@@ -269,9 +269,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
       if (f.closest("[hidden]")) return;
-      if (!f.files.length) ok = markError(f.closest(".field"), T("v.file")) && false;
-      else if (f.files[0].size > MAX_FILE_MB * 1024 * 1024)
-        ok = markError(f.closest(".field"), T("v.fileSize")) && false;
+      if (!f.files.length) { ok = markError(f.closest(".field"), T("v.file")) && false; return; }
+      if (f.files[0].size > MAX_FILE_MB * 1024 * 1024) { ok = markError(f.closest(".field"), T("v.fileSize")) && false; return; }
+      // CV must be a parseable document (PDF/Word) — reject images (scans/photos).
+      if (f.id === "cv" && !isValidCvFile(f.files[0])) { ok = markError(f.closest(".field"), T("v.cvType")) && false; return; }
     });
 
     // consent (last step) — both the data-sharing consent AND the truthfulness pledge are required
@@ -292,6 +293,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function isValidMaPhone(v) {
     var s = v.replace(/[\s\-().]/g, "");
     return /^(?:\+212|212|0)[567]\d{8}$/.test(s);
+  }
+
+  // The CV must be a real text document (PDF/Word), NOT an image (a photo/scan of
+  // a CV can't be parsed later). Reject anything that's an image or not pdf/doc/docx.
+  function isValidCvFile(file) {
+    if (!file) return false;
+    var mt = String(file.type || "").toLowerCase();
+    if (mt.indexOf("image/") === 0) return false;
+    return /\.(pdf|doc|docx)$/i.test(String(file.name || ""));
   }
 
   function fail(inp, msg) { markError(inp.closest(".field"), msg); return true; }  function markError(holder, msg) {
@@ -595,7 +605,10 @@ document.addEventListener("DOMContentLoaded", () => {
   ["cv", "certs", "photo", "work_cert"].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener("change", function () {
-      if (el.files && el.files.length) track("FileAttached", { field: id, count: el.files.length, form_type: "teacher" });
+      if (el.files && el.files.length) {
+        track("FileAttached", { field: id, count: el.files.length, form_type: "teacher" });
+        if (id === "cv" && !isValidCvFile(el.files[0])) markError(el.closest(".field"), T("v.cvType"));
+      }
     });
   });
   document.querySelectorAll('[data-i18n="hero.cta"], [data-i18n="nav.cta"], [data-i18n="nav.register"]').forEach(function (a) {
