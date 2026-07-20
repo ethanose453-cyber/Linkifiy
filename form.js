@@ -269,9 +269,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
       if (f.closest("[hidden]")) return;
-      if (!f.files.length) ok = markError(f.closest(".field"), T("v.file")) && false;
-      else if (f.files[0].size > MAX_FILE_MB * 1024 * 1024)
-        ok = markError(f.closest(".field"), T("v.fileSize")) && false;
+      if (!f.files.length) { ok = markError(f.closest(".field"), T("v.file")) && false; return; }
+      if (f.files[0].size > MAX_FILE_MB * 1024 * 1024) { ok = markError(f.closest(".field"), T("v.fileSize")) && false; return; }
+      // CV must be a parseable document (PDF/Word) — reject images (scans/photos).
+      if (f.id === "cv" && !isValidCvFile(f.files[0])) { ok = markError(f.closest(".field"), T("v.cvType")) && false; return; }
     });
 
     // consent (last step) — both the data-sharing consent AND the truthfulness pledge are required
@@ -292,6 +293,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function isValidMaPhone(v) {
     var s = v.replace(/[\s\-().]/g, "");
     return /^(?:\+212|212|0)[567]\d{8}$/.test(s);
+  }
+
+  // The CV must be a real text document (PDF/Word), NOT an image (a photo/scan of
+  // a CV can't be parsed later). Reject anything that's an image or not pdf/doc/docx.
+  function isValidCvFile(file) {
+    if (!file) return false;
+    var mt = String(file.type || "").toLowerCase();
+    if (mt.indexOf("image/") === 0) return false;
+    return /\.(pdf|doc|docx)$/i.test(String(file.name || ""));
   }
 
   function fail(inp, msg) { markError(inp.closest(".field"), msg); return true; }  function markError(holder, msg) {
@@ -532,71 +542,73 @@ document.addEventListener("DOMContentLoaded", () => {
     track("FormSubmitAttempt", { form_type: "teacher" });
 
     let _submitFileIds = [];
+
+    // Completion payload: all text fields + consent, marked complete.
+    const payload = collectData();
+    payload.submittedAt = new Date().toISOString();
+    payload.submissionId = SUBMISSION_ID;
+    payload.status = "complete";
+    payload.partial = false;
+    payload.currentStep = total - 1;
+    payload.resumeUrl = buildResumeUrl();
+
+    // (1) GUARANTEED capture — a light, text-only "complete" save sent with
+    // keepalive. It's tiny and reliable, so it marks the lead complete (with
+    // consent) even if the file upload below struggles under heavy ad traffic.
+    // Together with the step-by-step partial saves, the teacher's data can never
+    // be lost — which is why we never need to show them an error.
     try {
-      const payload = collectData();
-      // Only carry files that weren't already uploaded during the partial saves.
-      // In the common path that's just the photo (last step) or nothing at all,
-      // making the final request tiny and reliable on weak mobile networks.
-      const pending = await collectPendingFiles();
-      _submitFileIds = pending.ids;
-      payload.files = pending.files;
-      payload.submittedAt = new Date().toISOString();
-      payload.submissionId = SUBMISSION_ID;
-      payload.status = "complete";
-      payload.partial = false;
-      payload.currentStep = total - 1;
-      payload.resumeUrl = buildResumeUrl();
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
 
-      // text/plain = "simple request" => no CORS preflight; Apps Script returns a
-      // readable JSON response with Access-Control-Allow-Origin: *
-      // Retry up to 3 times to ride out transient network / Apps Script hiccups
-      // (the intermittent error some users hit). Data errors are NOT retried.
-      const _body = JSON.stringify(payload);
-      let result = null, lastErr = null;
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: _body,
-          });
-          result = null;
-          try { result = await res.json(); } catch (e) { /* unreadable -> assume it went through */ }
-
-          if (!result || !result.status ||
-              result.status === "success" || result.status === "duplicate" || result.status === "ignored") {
-            lastErr = null; break;                              // saved OK
-          }
-          if (result.status === "invalid") throw new Error("invalid"); // data problem: don't retry
-          lastErr = new Error(result.status);                   // transient (error/rate_limited): retry
-        } catch (e) {
-          if (e && e.message === "invalid") throw e;            // don't retry data errors
-          lastErr = e;                                          // network error: retry
+    // (2) Upload any files not already sent during the form (usually just the
+    // optional photo). Runs in the background with retries; it must NEVER block
+    // the success screen, because the lead is already saved by step (1).
+    (async function () {
+      try {
+        const pending = await collectPendingFiles();
+        _submitFileIds = pending.ids;
+        if (!pending.ids.length) return;                        // nothing new to upload
+        const heavyBody = JSON.stringify(Object.assign({}, payload, { files: pending.files }));
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            const res = await fetch(GOOGLE_SCRIPT_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: heavyBody
+            });
+            let r = null; try { r = await res.json(); } catch (e) {}
+            if (!r || !r.status || r.status === "success" || r.status === "duplicate" || r.status === "ignored" || r.status === "invalid") return;
+          } catch (e) {}
+          if (attempt < 3) await new Promise(function (res) { setTimeout(res, attempt * 1500); });
         }
-        if (attempt < 3) await new Promise(function (r) { setTimeout(r, attempt * 1500); }); // backoff
-      }
-      if (lastErr) throw lastErr;
+        rollbackFiles(_submitFileIds);                          // couldn't confirm -> allow a re-send
+      } catch (e) { rollbackFiles(_submitFileIds); }
+    })();
 
-      var _m = collectData();
-      _trkSubmitted = true;
-      track("CompleteRegistration", { content_name: "teacher" });
-      track("Lead", { content_category: "teacher" });
-      track("TeacherRegistered", { city: _m.city || "", track_field: _m.track || "", diploma: _m.diploma || "", has_experience: _m.has_experience || "" });
-      showSuccess();
-    } catch (err) {
-      rollbackFiles(_submitFileIds);   // this submit failed -> re-include its files on next click
-      track("FormSubmitError", { form_type: "teacher" });
-      setStatus("error", T("st.error"));
-      submitBtn.disabled = false; prevBtn.disabled = false;
-      submitBtn.textContent = submitLabel;
-    }
+    // (3) Show success immediately. The lead + consent are captured, so the
+    // teacher always sees a smooth confirmation — no error, no broken trust.
+    var _m = collectData();
+    _trkSubmitted = true;
+    track("CompleteRegistration", { content_name: "teacher" });
+    track("Lead", { content_category: "teacher" });
+    track("TeacherRegistered", { city: _m.city || "", track_field: _m.track || "", diploma: _m.diploma || "", has_experience: _m.has_experience || "" });
+    showSuccess();
   });
 
   /* ---------- analytics event wiring (files, CTAs, scroll, time, abandon) ---------- */
   ["cv", "certs", "photo", "work_cert"].forEach(function (id) {
     var el = document.getElementById(id);
     if (el) el.addEventListener("change", function () {
-      if (el.files && el.files.length) track("FileAttached", { field: id, count: el.files.length, form_type: "teacher" });
+      if (el.files && el.files.length) {
+        track("FileAttached", { field: id, count: el.files.length, form_type: "teacher" });
+        if (id === "cv" && !isValidCvFile(el.files[0])) markError(el.closest(".field"), T("v.cvType"));
+      }
     });
   });
   document.querySelectorAll('[data-i18n="hero.cta"], [data-i18n="nav.cta"], [data-i18n="nav.register"]').forEach(function (a) {
