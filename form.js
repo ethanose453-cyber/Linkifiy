@@ -259,12 +259,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // required checkbox GROUP: at least one contract type must be chosen
-    const ctFirst = stepEl.querySelector('input[name="contract_types"]');
-    if (ctFirst && ![...stepEl.querySelectorAll('input[name="contract_types"]')].some(c => c.checked)) {
-      ok = false;
-      markError(ctFirst.closest(".field"), T("v.choose"));
-    }
+    // required checkbox GROUPS: at least one option must be chosen in each.
+    // (Only enforced on the step where the group actually appears.)
+    ["contract_types", "levels", "institution_types"].forEach(function (nm) {
+      const first = stepEl.querySelector('input[name="' + nm + '"]');
+      if (first && ![...stepEl.querySelectorAll('input[name="' + nm + '"]')].some(c => c.checked)) {
+        ok = false;
+        markError(first.closest(".field"), T("v.choose"));
+      }
+    });
 
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
