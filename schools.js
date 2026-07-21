@@ -82,11 +82,29 @@ document.addEventListener("DOMContentLoaded", function () {
   var subjectSel = document.getElementById("subject");
   var subjectOtherWrap = document.getElementById("subject-other-wrap");
   var subjectOther = document.getElementById("subject_other");
+  // administrative-staff options: when chosen, the teaching "level" is irrelevant
+  var ADMIN_POS = [
+    "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)", "نائب(ة) المدير / ناظر(ة) المؤسسة", "حارس(ة) عام",
+    "مفتش(ة) / مشرف(ة) تربوي(ة)", "مسؤول(ة) الموارد البشرية أو التسجيل",
+    "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال", "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)",
+    "تقني معلوميات / صيانة", "إطار إداري آخر"
+  ];
   if (subjectSel && subjectOtherWrap) {
     subjectSel.addEventListener("change", function () {
-      var show = subjectSel.value === "مادة أخرى";
+      var v = subjectSel.value;
+      var isAdmin = ADMIN_POS.indexOf(v) !== -1;
+      // free-text field for "other subject" OR "other administrative role"
+      var show = (v === "مادة أخرى" || v === "إطار إداري آخر");
       subjectOtherWrap.hidden = !show;
       if (subjectOther) { subjectOther.required = show; if (!show) subjectOther.value = ""; }
+      // hide + un-require the teaching level when an administrative profile is requested
+      var levelSel = document.getElementById("level");
+      if (levelSel) {
+        var lf = levelSel.closest(".field");
+        if (lf) lf.hidden = isAdmin;
+        levelSel.required = !isAdmin;
+        if (isAdmin) levelSel.value = "";
+      }
     });
   }
 
