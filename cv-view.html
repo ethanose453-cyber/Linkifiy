@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Linkify.ma — عرض السير الذاتية</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',sans-serif;background:#0f2540;color:#0f2540;line-height:1.7}
+.top{background:linear-gradient(135deg,#126cb4,#6366f1);color:#fff;padding:20px 24px;display:flex;justify-content:space-between;align-items:center}
+.top .b{font-weight:800;font-size:1.2rem;letter-spacing:.5px}
+.top .n{font-size:.85rem;opacity:.9}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+.notice{background:#fff8e6;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:12px 18px;font-size:.9rem;margin-bottom:24px;text-align:center}
+.cv-card{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:28px;box-shadow:0 6px 24px rgba(0,0,0,.15)}
+.cv-head{padding:16px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center}
+.cv-head h2{font-size:1.15rem;color:#126cb4}
+.cv-head .tag{background:#ecfdf5;color:#059669;font-size:.72rem;padding:3px 10px;border-radius:12px;font-weight:600}
+.cv-frame{position:relative;width:100%;height:1120px;background:#f1f5f9}
+.cv-frame iframe{width:100%;height:100%;border:0}
+/* invisible layer to discourage direct interaction/right-click on the doc */
+.cv-guard{position:absolute;inset:0;z-index:5;background:transparent}
+.placeholder{padding:60px 24px;text-align:center;color:#64748b}
+.placeholder code{background:#f1f5f9;padding:2px 8px;border-radius:6px;font-size:.85rem}
+.foot{text-align:center;color:#94a3b8;font-size:.8rem;padding:10px}
+@media print{body{display:none!important}} /* block printing */
+</style>
+</head>
+<body oncontextmenu="return false">
+
+  <div class="top">
+    <span class="b">Linkify.ma</span>
+    <span class="n">عرض السير الذاتية — للاطّلاع فقط 🔒</span>
+  </div>
+
+  <div class="wrap">
+    <div class="notice">
+      هذه السير الذاتية مُتاحة <b>للاطّلاع فقط</b> ومحمية من طرف Linkify.ma. لحجز مقابلة مع أي مرشحة، تواصلوا معنا عبر الواتساب.
+    </div>
+
+    <!-- ===== Samira ===== -->
+    <div class="cv-card" id="samira">
+      <div class="cv-head"><h2>السيرة الذاتية — سميرة إ.</h2><span class="tag">المرشحة الأولى</span></div>
+      <div class="cv-frame">
+        <div class="cv-guard"></div>
+        <!-- استبدل DRIVE_ID_SAMIRA بمعرّف ملف الـ CV فـ Google Drive -->
+        <iframe src="https://drive.google.com/file/d/DRIVE_ID_SAMIRA/preview" allow="autoplay"></iframe>
+      </div>
+    </div>
+
+    <!-- ===== Amina ===== -->
+    <div class="cv-card" id="amina">
+      <div class="cv-head"><h2>السيرة الذاتية — أمينة ط.</h2><span class="tag">المرشحة الثانية</span></div>
+      <div class="cv-frame">
+        <div class="cv-guard"></div>
+        <!-- استبدل DRIVE_ID_AMINA بمعرّف ملف الـ CV فـ Google Drive -->
+        <iframe src="https://drive.google.com/file/d/DRIVE_ID_AMINA/preview" allow="autoplay"></iframe>
+      </div>
+    </div>
+
+    <div class="foot">© Linkify.ma — المعلومات سرية ومحمية · contact@linkify.ma</div>
+  </div>
+
+<script>
+  // scroll to the requested candidate (#samira / #amina)
+  (function(){ var h=location.hash; if(h){ var el=document.querySelector(h); if(el) el.scrollIntoView(); } })();
+  // deterrents against saving (not bulletproof, but discourages casual download)
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&['s','p'].indexOf((e.key||'').toLowerCase())!==-1){e.preventDefault();}
+  });
+</script>
+</body>
+</html>
