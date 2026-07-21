@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<title>Linkify.ma — Shortlist</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+body{font-family:'Tajawal',sans-serif;background:#f8fafc;color:#1e293b;padding:40px;line-height:1.7}
+.page{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden}
+.header{background:linear-gradient(135deg,#126cb4 0%,#6366f1 100%);color:#fff;padding:32px 40px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:1.6rem;font-weight:800}
+.header .logo{font-size:1.1rem;opacity:.9}
+.header .badge{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:500}
+.meta{padding:24px 40px;background:#f1f5f9;border-bottom:1px solid #e2e8f0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.meta-item{font-size:.85rem}.meta-item strong{display:block;color:#126cb4;font-size:.75rem;margin-bottom:2px}
+.candidates{padding:32px 40px}
+.candidates h2{font-size:1.2rem;color:#126cb4;margin-bottom:20px;padding-bottom:8px;border-bottom:2px solid #e2e8f0}
+.card{border:1px solid #e2e8f0;border-radius:12px;padding:24px;margin-bottom:20px;position:relative;page-break-inside:avoid}
+.card:last-child{margin-bottom:0}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.card-name{font-size:1.1rem;font-weight:700;color:#1e293b}
+.card-badge{background:#ecfdf5;color:#059669;font-size:.7rem;padding:3px 10px;border-radius:12px;font-weight:600}
+.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}
+.card-field{font-size:.82rem}.card-field .label{color:#64748b;font-size:.72rem;font-weight:500;display:block}
+.card-field .value{color:#1e293b;font-weight:500}
+.card-note{margin-top:14px;padding:10px 14px;background:#fffbeb;border-radius:8px;font-size:.8rem;border-right:3px solid #f59e0b}
+.footer{padding:20px 40px;background:#f8fafc;text-align:center;font-size:.75rem;color:#94a3b8;border-top:1px solid #e2e8f0}
+.match-tag{position:absolute;top:12px;left:12px;background:#126cb4;color:#fff;font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:600}
+@media print{body{padding:0;background:#fff}.page{box-shadow:none;border-radius:0}@page{margin:15mm}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>قائمة المرشحين المقترحين</h1>
+      <span class="badge">Shortlist</span>
+    </div>
+    <div class="logo">Linkify.ma</div>
+  </div>
+
+  <!-- REQUEST META -->
+  <div class="meta">
+    <div class="meta-item"><strong>المؤسسة</strong>Intello Marina Air & Hospitality Academy</div>
+    <div class="meta-item"><strong>المسؤول</strong>امجيدو حميد — مدير</div>
+    <div class="meta-item"><strong>المادة المطلوبة</strong>اللغة الإنجليزية (ESP / مضيفات الطيران)</div>
+    <div class="meta-item"><strong>المدينة</strong>سلا — حي الرمل، مارينا</div>
+    <div class="meta-item"><strong>نوع الحاجة</strong>خلال هذا الشهر · ساعات محددة</div>
+    <div class="meta-item"><strong>الحد الأدنى للخبرة</strong>5 سنوات فأكثر · إجازة</div>
+  </div>
+
+  <!-- CANDIDATES -->
+  <div class="candidates">
+    <h2>المرشحات (2)</h2>
+
+    <!-- Candidate 1 -->
+    <div class="card">
+      <span class="match-tag">تطابق ممتاز</span>
+      <div class="card-header">
+        <div class="card-name">أمينة الطويل</div>
+        <div class="card-badge">متاحة</div>
+      </div>
+      <div class="card-grid">
+        <div class="card-field"><span class="label">السن / الجنس</span><span class="value">53 سنة · أنثى</span></div>
+        <div class="card-field"><span class="label">المدينة</span><span class="value">الرباط — حي التضامن، عين عودة (تمارة)</span></div>
+        <div class="card-field"><span class="label">الشهادة</span><span class="value">إجازة — الأدب الإنجليزي (جامعة محمد الخامس)</span></div>
+        <div class="card-field"><span class="label">اللغة الإنجليزية</span><span class="value">ممتاز</span></div>
+        <div class="card-field"><span class="label">اللغة الفرنسية</span><span class="value">ممتاز</span></div>
+        <div class="card-field"><span class="label">نوع المؤسسات</span><span class="value">مدرسة خاصة</span></div>
+        <div class="card-field"><span class="label">نمط الدوام</span><span class="value">دوام كامل</span></div>
+        <div class="card-field"><span class="label">نوع العقد</span><span class="value">CDI (غير محدد المدة)</span></div>
+        <div class="card-field"><span class="label">وسيلة النقل</span><span class="value">سيارة + رخصة</span></div>
+        <div class="card-field"><span class="label">الانتقال</span><span class="value">حسب العرض والامتيازات</span></div>
+        <div class="card-field"><span class="label">بديل (احتياط)</span><span class="value">نعم، حسب الظروف</span></div>
+        <div class="card-field"><span class="label">الأجر المتوقع</span><span class="value">7,000 – 9,000 درهم</span></div>
+      </div>
+      <div class="card-note">
+        <strong>ملاحظة Linkify:</strong> إجازة في الأدب الإنجليزي + مستوى ممتاز بالفرنسية والإنجليزية. تتوفر على سيارة ومستعدة للانتقال حسب العرض. تفضّل CDI بدوام كامل.
+      </div>
+    </div>
+
+    <!-- Candidate 2 -->
+    <div class="card">
+      <span class="match-tag">تطابق ممتاز</span>
+      <div class="card-header">
+        <div class="card-name">سميرة إغري (Samira Ighri)</div>
+        <div class="card-badge">متاحة</div>
+      </div>
+      <div class="card-grid">
+        <div class="card-field"><span class="label">السن / الجنس</span><span class="value">58 سنة · أنثى</span></div>
+        <div class="card-field"><span class="label">المدينة</span><span class="value">سلا — بوقنادل، شاطئ الأمم (قريبة جداً)</span></div>
+        <div class="card-field"><span class="label">الشهادة</span><span class="value">ماستر — اللغة الإنجليزية (جامعة ابن طفيل، كلية علوم التربية)</span></div>
+        <div class="card-field"><span class="label">اللغة الإنجليزية</span><span class="value">ممتاز</span></div>
+        <div class="card-field"><span class="label">اللغة الفرنسية</span><span class="value">ممتاز</span></div>
+        <div class="card-field"><span class="label">الخبرة</span><span class="value">أكثر من 5 سنوات — Aven Academy Lemzebri (enseignante بالإعدادي والثانوي)</span></div>
+        <div class="card-field"><span class="label">المستويات</span><span class="value">الإعدادي · الثانوي · التعليم العالي · تكوين الكبار</span></div>
+        <div class="card-field"><span class="label">نوع المؤسسات</span><span class="value">مدرسة خاصة · مركز دعم · مركز لغات · مركز تكوين · تعليم عالي</span></div>
+        <div class="card-field"><span class="label">نمط الدوام</span><span class="value">دوام جزئي · ساعات محددة</span></div>
+        <div class="card-field"><span class="label">نوع العقد</span><span class="value">CDD · بالساعة · دوام جزئي · تعويض مؤقت</span></div>
+        <div class="card-field"><span class="label">وسيلة النقل</span><span class="value">سيارة + رخصة</span></div>
+        <div class="card-field"><span class="label">الانتقال</span><span class="value">مستعدة تماماً</span></div>
+        <div class="card-field"><span class="label">بديل (احتياط)</span><span class="value">نعم، متاحة</span></div>
+      </div>
+      <div class="card-note">
+        <strong>ملاحظة Linkify:</strong> ماستر في الإنجليزية + أكثر من 5 سنوات خبرة (إعدادي + ثانوي + تكوين). تسكن فـ سلا (قريبة جداً من المؤسسة). تقبل ساعات محددة (مطابق لطلبكم). مستعدة للتعويض الطارئ. مرشحة مثالية لـ ESP.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    هذه القائمة أُعدت حصرياً لـ Intello Marina Air & Hospitality Academy بواسطة Linkify.ma · للتواصل: contact@linkify.ma<br/>
+    المعلومات سرية ولا يُسمح بمشاركتها خارج إطار التوظيف المتفق عليه.
+  </div>
+
+</div>
+</body>
+</html>
