@@ -134,7 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const cityOther    = document.getElementById("city-other-wrap");
   const diplomaOther = document.getElementById("diploma-other-wrap");
   const expBlock     = document.getElementById("experience-block");
-  const skillOther   = document.getElementById("skill-other-wrap");
 
   function toggle(el, show) {
     if (!el) return;
@@ -146,24 +145,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // city -> "مدينة أخرى"
+  // city -> "Autre ville"
   document.getElementById("city").addEventListener("change", e => {
-    const show = e.target.value === "مدينة أخرى";
+    const show = e.target.value === "Autre ville";
     const inp = document.getElementById("city_other");
     inp.dataset.req = "1";
     toggle(cityOther, show);
   });
 
-  // diploma -> "غير ذلك"
+  // diploma -> "Autre"
   document.getElementById("diploma").addEventListener("change", e => {
-    const show = e.target.value === "غير ذلك";
+    const show = e.target.value === "Autre";
     document.getElementById("diploma_other").dataset.req = "1";
     toggle(diplomaOther, show);
   });
 
-  // experience -> "نعم" shows the block, "لا (حديث التخرج)" hides
+  // experience -> "Oui" shows the block, "Non (nouveau diplômé)" hides
   form.querySelectorAll('input[name="has_experience"]').forEach(r => {
-    r.addEventListener("change", e => toggle(expBlock, e.target.value === "نعم"));
+    r.addEventListener("change", e => toggle(expBlock, e.target.value === "Oui"));
   });
 
   // custom skill checkbox
@@ -180,10 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
     _syncPosOther();
   }
 
-  // salary -> "مبلغ آخر" reveals the custom amount field
+  // salary -> "Autre montant" reveals the custom amount field
   const salaryCustomWrap = document.getElementById("salary-custom-wrap");
   const salarySel = document.getElementById("salary_expectation");
-  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "مبلغ آخر"));
+  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "Autre montant"));
 
   // contract "لا يهم" -> selecting it clears + disables the specific contract types
   (function () {
@@ -197,9 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // filter subjects by selected track (علمي / أدبي / أولي)
   const TRACK_GROUP = {
-    "علمي / تقني": "علمي",
-    "أدبي / إنساني": "أدبي",
-    "التعليم الأولي والمربيات": "أولي",
+    "Scientifique / Technique": "علمي",
+    "Littéraire / Sciences humaines": "أدبي",
+    "Éducation préscolaire et éducatrices": "أولي",
   };
   function filterSubjects() {
     const checked = form.querySelector('input[name="track"]:checked');
@@ -214,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // track is chosen we swap the age-levels + institution lists to their preschool
   // set (data-track="early") and reveal the early-ed-only fields (role + accompanist).
   // Everything marked data-track="general" is shown for the other tracks instead.
-  const EARLY_TRACK = "التعليم الأولي والمربيات";
+  const EARLY_TRACK = "Éducation préscolaire et éducatrices";
   function applyTrackUI() {
     const checked = form.querySelector('input[name="track"]:checked');
     const isEarly = !!checked && checked.value === EARLY_TRACK;
