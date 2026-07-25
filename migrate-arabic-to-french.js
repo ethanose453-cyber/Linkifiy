@@ -102,7 +102,10 @@ const MAPPING = {
   "نعم، سيارة": "oui, voiture",
   "نعم، دراجة نارية": "oui, moto",
   "نعم، دراجه ناريه": "oui, moto",
-  "لا أملك وسيلة نقل": "je n'ai pas de moyen de transport",
+  "لا أملك وسيلة نقل": "aucun moyen de transport",
+  // Alias: earlier hand-translation. Converges on the shorter canonical form,
+  // which 201 rows already use and which matches "aucun permis".
+  "je n'ai pas de moyen de transport": "aucun moyen de transport",
 
   // License
   "رخصة سيارة": "permis voiture",
@@ -125,6 +128,7 @@ const MAPPING = {
   "مستوى بكالوريا": "niveau baccalaureat",
   "بكالوريا": "baccalaureat",
   "دبلوم سنتين": "bac+2",
+  "bac +2": "bac+2",          // alias: spacing variant found in 49 rows
   "إجازة": "licence",
   "ماستر": "master",
   "مهندس": "ingenieur",
