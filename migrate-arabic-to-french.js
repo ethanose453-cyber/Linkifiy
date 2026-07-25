@@ -166,6 +166,14 @@ const MAPPING = {
   "الفرنسية": "francais",
   "الإنجليزية": "anglais",
 
+  /* Legacy preschool subjects. These came from an earlier version of the form
+     and are no longer offered, but rows still hold them, so they are mapped
+     here to keep the column fully canonical. */
+  "أناشيد وقصص الأطفال": "comptines et contes",
+  "التربية الحس حركية": "education psychomotrice",
+  "اللغات المبكرة": "initiation aux langues",
+  "مهارات حركية دقيقة": "motricite fine",
+
   // Levels
   "التعليم الأولي (3-5 سنوات)": "prescolaire (3-5 ans)",
   "التعليم الأولي": "prescolaire (3-5 ans)",
