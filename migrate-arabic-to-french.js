@@ -152,6 +152,9 @@ const MAPPING = {
   "التكنولوجيا": "technologie",
   "technologie": "technologie",
   "علوم المهندس": "sciences de l'ingenieur",
+  // Escape-hatch option. Identity entry so audits do not flag it.
+  "مادة أخرى": "autre matiere",
+  "autre matiere": "autre matiere",
   "sciences de l'ingenieur": "sciences de l'ingenieur",
   "التربية البدنية والرياضية": "education physique et sportive",
   "تسيير ومحاسبة": "gestion et comptabilite",
@@ -523,7 +526,7 @@ var PHONE_COLUMNS = { whatsapp: 1, prev_employer_phone: 1, phone: 1 };
 var TEXT_COLUMNS = {
   first_name: 1, last_name: 1, neighborhood: 1, email: 1,
   city_other: 1, diploma_other: 1, specialty: 1, university: 1,
-  admin_position_other: 1, skill_other_text: 1,
+  admin_position_other: 1, skill_other_text: 1, subject_other_text: 1,
   last_inst: 1, last_role: 1, schools: 1, prev_employer_name: 1, notes: 1
 };
 
@@ -590,15 +593,21 @@ function auditUnknowns() {
       var col = String(header[c] || "").trim();
       if (!col || SKIP_COLUMNS[col] || TEXT_COLUMNS[col] || PHONE_COLUMNS[col]) continue;
 
-      var counts = {};
+      var counts = {}, sample = {};
       for (var r = 0; r < data.length; r++) {
         var v = data[r][c];
         if (v === "" || v === null || v === undefined) continue;
         /* unknownFragments() understands that a mapped value may itself contain
            a comma, so it does not invent phantom fragments like "excel)". */
-        var frags = unknownFragments(String(v));
+        var raw = String(v);
+        var frags = unknownFragments(raw);
         for (var p = 0; p < frags.length; p++) {
-          counts[frags[p]] = (counts[frags[p]] || 0) + 1;
+          var f = frags[p];
+          counts[f] = (counts[f] || 0) + 1;
+          /* Keep one example of the FULL cell plus its row number. A fragment on
+             its own is often not enough to act on: "et mathematiques" only makes
+             sense once you can see the whole cell it came from and go fix it. */
+          if (!sample[f]) sample[f] = { row: r + 2, cell: raw };
         }
       }
 
@@ -609,7 +618,12 @@ function auditUnknowns() {
 
       sheetOut += "\n  " + col + ":";
       for (var k = 0; k < keys.length; k++) {
-        sheetOut += "\n      " + JSON.stringify(keys[k]) + "  x" + counts[keys[k]];
+        var key = keys[k], ex = sample[key];
+        sheetOut += "\n      " + JSON.stringify(key) + "  x" + counts[key];
+        // Only worth printing the cell when it differs from the fragment itself.
+        if (ex && ex.cell.trim() !== key) {
+          sheetOut += "\n          in row " + ex.row + ": " + JSON.stringify(ex.cell);
+        }
       }
     }
 

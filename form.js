@@ -134,6 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cityOther    = document.getElementById("city-other-wrap");
   const diplomaOther = document.getElementById("diploma-other-wrap");
   const expBlock     = document.getElementById("experience-block");
+  const subjectOther = document.getElementById("subject-other-wrap");
 
   function toggle(el, show) {
     if (!el) return;
@@ -164,6 +165,26 @@ document.addEventListener("DOMContentLoaded", () => {
   form.querySelectorAll('input[name="has_experience"]').forEach(r => {
     r.addEventListener("change", e => toggle(expBlock, e.target.value === "oui"));
   });
+
+  /* "مادة أخرى" -> reveal the free-text field, required while it is shown.
+     The escape hatch for a subject missing from the list. Subjects is a required
+     group, so without this a teacher whose subject is absent has to tick
+     something inaccurate or abandon the form -- which is exactly what happened
+     to the technologie / sciences de l'ingenieur teacher.
+
+     dataset.req is the flag toggle() reads to restore required, the same way
+     city_other and diploma_other work. The closest("[hidden]") guard keeps the
+     field from being demanded when the option itself is filtered out by track. */
+  const subjectOtherCb = document.getElementById("subject_other");
+  if (subjectOtherCb && subjectOther) {
+    const syncSubjectOther = () => {
+      const inp = document.getElementById("subject_other_text");
+      if (inp) inp.dataset.req = "1";
+      toggle(subjectOther, subjectOtherCb.checked && !subjectOtherCb.closest("[hidden]"));
+    };
+    subjectOtherCb.addEventListener("change", syncSubjectOther);
+    syncSubjectOther();
+  }
 
   // salary -> "autre montant" reveals the custom amount field
   const salaryCustomWrap = document.getElementById("salary-custom-wrap");
