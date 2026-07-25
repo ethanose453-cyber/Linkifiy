@@ -146,6 +146,13 @@ const MAPPING = {
   "الفيزياء والكيمياء": "physique-chimie",
   "علوم الحياة والأرض": "sciences de la vie et de la terre",
   "المعلوميات": "informatique",
+  // Technical-stream subjects. Added after a teacher could not find his
+  // specialty and abandoned the form. Identity entries keep auditUnknowns()
+  // from flagging the new values as unrecognized.
+  "التكنولوجيا": "technologie",
+  "technologie": "technologie",
+  "علوم المهندس": "sciences de l'ingenieur",
+  "sciences de l'ingenieur": "sciences de l'ingenieur",
   "التربية البدنية والرياضية": "education physique et sportive",
   "تسيير ومحاسبة": "gestion et comptabilite",
   "التربية الإسلامية": "education islamique",
