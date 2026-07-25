@@ -252,24 +252,32 @@ document.addEventListener("DOMContentLoaded", () => {
         ok = fail(inp, T("v.phone")) && false;
     });
 
-    // required radio groups
-    const radioGroups = new Set();
-    stepEl.querySelectorAll('input[type="radio"][required]').forEach(r => radioGroups.add(r.name));
-    radioGroups.forEach(name => {
-      const grp = stepEl.querySelectorAll(`input[name="${name}"]`);
-      if (![...grp].some(r => r.checked)) {
-        ok = false;
-        const holder = grp[0].closest(".field");
-        markError(holder, T("v.choose"));
-      }
-    });
+    /* Required radio / checkbox GROUPS.
+       A group counts as required when ANY member carries the required
+       attribute, which keeps the marker in the HTML next to the field instead
+       of hard-coded here. The form is novalidate, so the attribute is only ever
+       read by this function -- the browser never enforces it on a single box.
 
-    // required checkbox GROUP: at least one contract type must be chosen
-    const ctFirst = stepEl.querySelector('input[name="contract_types"]');
-    if (ctFirst && ![...stepEl.querySelectorAll('input[name="contract_types"]')].some(c => c.checked)) {
-      ok = false;
-      markError(ctFirst.closest(".field"), T("v.choose"));
+       Only VISIBLE members are considered: the levels and institution_types
+       grids swap options by track, and the experience block is conditional, so
+       a hidden option must not be able to block the step. If a whole group is
+       hidden the group is skipped entirely. */
+    function validateGroup(type) {
+      const names = new Set();
+      stepEl.querySelectorAll('input[type="' + type + '"][required]')
+            .forEach(el => names.add(el.name));
+      names.forEach(name => {
+        const members = [...stepEl.querySelectorAll('input[name="' + name + '"]')]
+                          .filter(el => !el.closest("[hidden]"));
+        if (!members.length) return;                  // group not applicable here
+        if (!members.some(el => el.checked)) {
+          ok = false;
+          markError(members[0].closest(".field"), T("v.choose"));
+        }
+      });
     }
+    validateGroup("radio");
+    validateGroup("checkbox");
 
     // required files
     stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {

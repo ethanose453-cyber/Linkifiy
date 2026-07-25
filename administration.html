@@ -277,18 +277,18 @@
             </div>
 
             <div class="field">
-              <span class="label" data-i18n="f.transport">هل تتوفر على وسيلة نقل خاصة؟</span>
+              <span class="label"><span data-i18n="f.transport">هل تتوفر على وسيلة نقل خاصة؟</span> <span class="req">*</span></span>
               <div class="radio-row">
-                <label class="pill"><input type="radio" name="transport" value="oui, voiture" /> <span data-i18n="tr.car">سيارة</span></label>
+                <label class="pill"><input type="radio" name="transport" required value="oui, voiture" /> <span data-i18n="tr.car">سيارة</span></label>
                 <label class="pill"><input type="radio" name="transport" value="oui, moto" /> <span data-i18n="tr.moto">دراجة نارية</span></label>
                 <label class="pill"><input type="radio" name="transport" value="aucun moyen de transport" /> <span data-i18n="tr.none">لا أملك</span></label>
               </div>
             </div>
 
             <div class="field">
-              <span class="label" data-i18n="f.relocate">مستعد للانتقال لمدينة أخرى من أجل العمل؟</span>
+              <span class="label"><span data-i18n="f.relocate">مستعد للانتقال لمدينة أخرى من أجل العمل؟</span> <span class="req">*</span></span>
               <div class="radio-row">
-                <label class="pill"><input type="radio" name="relocate" value="oui, tout a fait pret" /> <span data-i18n="rel.yes">نعم تماماً</span></label>
+                <label class="pill"><input type="radio" name="relocate" required value="oui, tout a fait pret" /> <span data-i18n="rel.yes">نعم تماماً</span></label>
                 <label class="pill"><input type="radio" name="relocate" value="selon l'offre et les avantages" /> <span data-i18n="rel.offer">حسب العرض</span></label>
                 <label class="pill"><input type="radio" name="relocate" value="non, ma ville uniquement" /> <span data-i18n="rel.no">مدينتي فقط</span></label>
               </div>
@@ -327,9 +327,9 @@
             <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span data-i18n="a.s4.legend">تفضيلات العمل</span></legend>
 
             <div class="field">
-              <span class="label" data-i18n="f.instTypes">أنواع المؤسسات التي ترغب في العمل بها</span>
+              <span class="label"><span data-i18n="f.instTypes">أنواع المؤسسات التي ترغب في العمل بها</span> <span class="req">*</span></span>
               <div class="check-grid">
-                <label class="check"><input type="checkbox" name="institution_types" value="ecole privee" /> <span data-i18n="it.school">مدرسة خاصة</span></label>
+                <label class="check"><input type="checkbox" name="institution_types" required value="ecole privee" /> <span data-i18n="it.school">مدرسة خاصة</span></label>
                 <label class="check"><input type="checkbox" name="institution_types" value="centre de soutien scolaire" /> <span data-i18n="it.support">مركز دعم وتقوية</span></label>
                 <label class="check"><input type="checkbox" name="institution_types" value="centre de langues" /> <span data-i18n="it.lang">مركز لغات</span></label>
                 <label class="check"><input type="checkbox" name="institution_types" value="centre de formation professionnelle" /> <span data-i18n="it.training">مركز تكوين مهني</span></label>
@@ -339,9 +339,9 @@
             </div>
 
             <div class="field">
-              <span class="label" data-i18n="f.schedule">نمط الدوام الذي تقدر تشتغل به</span>
+              <span class="label"><span data-i18n="f.schedule">نمط الدوام الذي تقدر تشتغل به</span> <span class="req">*</span></span>
               <div class="radio-row">
-                <label class="pill"><input type="radio" name="schedule" value="temps plein" /> <span data-i18n="sch.full">دوام كامل</span></label>
+                <label class="pill"><input type="radio" name="schedule" required value="temps plein" /> <span data-i18n="sch.full">دوام كامل</span></label>
                 <label class="pill"><input type="radio" name="schedule" value="temps partiel" /> <span data-i18n="sch.part">دوام جزئي</span></label>
                 <label class="pill"><input type="radio" name="schedule" value="tout ce qui precede" /> <span data-i18n="sch.all">كل ما سبق</span></label>
               </div>
@@ -368,7 +368,7 @@
             <div class="field">
               <span class="label"><span data-i18n="f.contracts">أنواع العقود التي تقبلها</span> <span class="req">*</span></span>
               <div class="check-grid">
-                <label class="check"><input type="checkbox" name="contract_types" value="peu importe (tout type de contrat)" data-ct-any /> <span data-i18n="ct.any">لا يهم — أي نوع عقد</span></label>
+                <label class="check"><input type="checkbox" name="contract_types" value="peu importe (tout type de contrat)" data-ct-any required /> <span data-i18n="ct.any">لا يهم — أي نوع عقد</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="cdi (contrat a duree indeterminee)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="cdd (contrat a duree determinee)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="periode d'essai" /> <span data-i18n="ct.essai">عقد تجريبي (Période d'essai)</span></label>
@@ -395,8 +395,8 @@
 
             <div class="conditional exp-block" id="experience-block" hidden>
               <div class="field">
-                <label for="exp_years" data-i18n="f.expYears">عدد سنوات الخبرة الإجمالية</label>
-                <select id="exp_years" name="exp_years">
+                <label for="exp_years"><span data-i18n="f.expYears">عدد سنوات الخبرة الإجمالية</span> <span class="req">*</span></label>
+                <select id="exp_years" name="exp_years" required data-req="1">
                   <option value="" disabled selected data-i18n="ph.choose">اختر</option>
                   <option value="moins d'un an" data-i18n="ey.lt1">أقل من سنة</option><option value="entre 1 et 3 ans" data-i18n="ey.1to3">بين سنة و 3 سنوات</option>
                   <option value="entre 4 et 5 ans" data-i18n="ey.4to5">بين 4 و 5 سنوات</option><option value="plus de 5 ans" data-i18n="ey.gt5">أكثر من 5 سنوات</option>
