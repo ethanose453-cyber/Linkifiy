@@ -199,6 +199,11 @@ const MAPPING = {
   // Salary
   "لا يهم": "peu importe",
   "مبلغ آخر": "autre montant",
+  // Identity entries: the numeric ranges need no translation, but listing them
+  // marks them as RECOGNIZED so the audit does not report them as unknown.
+  "2000-3500": "2000-3500",
+  "4000-6000": "4000-6000",
+  "7000-9000": "7000-9000",
 
   // Contract types
   "لا يهم (أي نوع عقد)": "peu importe (tout type de contrat)",
@@ -370,43 +375,119 @@ function translateOne(raw) {
   return null;
 }
 
+/* ===== KNOWN-VALUE INDEX =====
+   Every recognizable spelling (the Arabic keys AND the canonical values),
+   keyed by its canonical form and sorted LONGEST FIRST.
+
+   Longest-first is what makes multi-select parsing correct when a value itself
+   contains the separator. Ten of the mapped values do:
+     "microsoft office (word, excel)"
+     "enseignement a distance (zoom, meet, teams)"
+     "oui, tout a fait pret"      ("نعم، مستعد تماماً")
+   Splitting such a cell on "," shreds it into fragments that match nothing. */
+var KNOWN_SORTED = null;
+function knownSorted() {
+  if (!KNOWN_SORTED) {
+    var seen = {}, list = [];
+    Object.keys(MAPPING).forEach(function (k) {
+      var canon = MAPPING[k];
+      [k, canon].forEach(function (raw) {
+        var key = toCanonical(raw);
+        if (key !== "" && !seen[key]) { seen[key] = 1; list.push({ key: key, canon: canon }); }
+      });
+    });
+    list.sort(function (a, b) { return b.key.length - a.key.length; });
+    KNOWN_SORTED = list;
+  }
+  return KNOWN_SORTED;
+}
+
+// Longest known value starting exactly at position pos, or null.
+function matchAt(s, pos) {
+  var list = knownSorted();
+  for (var i = 0; i < list.length; i++) {
+    if (s.substr(pos, list[i].key.length) === list[i].key) return list[i];
+  }
+  return null;
+}
+
+// Consume a separator at pos. Returns the new position, or -1 if there is none.
+function eatSeparator(s, pos) {
+  if (s.substr(pos, 2) === ", ") return pos + 2;
+  var ch = s.charAt(pos);
+  if (ch === "," || ch === "\n") return pos + 1;
+  return -1;
+}
+
+/**
+ * Parse a multi-select cell by greedy longest-match.
+ * Returns the list of canonical values, or null if ANY part of the cell is not
+ * a known value -- in which case the caller leaves the cell untouched. That is
+ * what protects free text containing a comma, e.g.
+ * "Groupe Scolaire Al Amal, Casablanca" in the schools textarea.
+ */
+function parseMulti(raw) {
+  var s = toCanonical(String(raw).trim());
+  if (s === "") return null;
+
+  var out = [], pos = 0;
+  while (pos < s.length) {
+    var m = matchAt(s, pos);
+    if (!m) return null;
+    out.push(m.canon);
+    pos += m.key.length;
+    if (pos >= s.length) break;
+    var next = eatSeparator(s, pos);
+    if (next === -1) return null;   // trailing text after a known value
+    pos = next;
+  }
+  return out.length ? out : null;
+}
+
 /**
  * Translate a single cell value.
- * Handles single values and comma/newline-separated multi-selects.
+ * Handles single values and multi-selects (normalized to ", " separated).
  */
 function translateCell(cellValue) {
   var single = translateOne(cellValue);
   if (single !== null) return single;
 
-  // Multi-select cells: ", " / "," / newline separated
-  var separators = [", ", ",", "\n"];
-  for (var i = 0; i < separators.length; i++) {
-    var sep = separators[i];
-    if (cellValue.indexOf(sep) === -1) continue;
-
-    var parts = cellValue.split(sep);
-    var out = [];
-    var allKnown = true;
-    for (var j = 0; j < parts.length; j++) {
-      var t = translateOne(parts[j]);
-      if (t === null) { allKnown = false; break; }
-      out.push(t);
-    }
-
-    /* Rewrite ONLY when every fragment is a known option value.
-       A single unknown fragment means this is free text that merely happens to
-       contain a comma -- e.g. "Groupe Scolaire Al Amal, Casablanca" in the
-       schools textarea. Without this guard the "Casablanca" fragment alone
-       would be rewritten and the sentence silently mangled. */
-    if (allKnown && out.length) {
-      var joined = out.join(sep);
-      if (joined !== cellValue) return joined;
-      return cellValue;
-    }
-  }
+  var multi = parseMulti(cellValue);
+  if (multi) return multi.join(", ");
 
   // Unknown -> untouched (names, neighbourhoods, emails, free text)
   return cellValue;
+}
+
+/**
+ * Audit helper: the fragments of a cell that are NOT recognized.
+ * Empty array = the whole cell is accounted for.
+ */
+function unknownFragments(raw) {
+  if (translateOne(raw) !== null) return [];
+  if (parseMulti(raw)) return [];
+
+  var s = toCanonical(String(raw).trim());
+  var unknown = [], pos = 0, guard = 0;
+
+  while (pos < s.length && guard++ < 500) {
+    var m = matchAt(s, pos);
+    if (m) {
+      pos += m.key.length;
+      var next = eatSeparator(s, pos);
+      if (next !== -1) { pos = next; continue; }
+      if (pos >= s.length) break;
+    }
+    // Unrecognized run: report it up to the next separator and continue.
+    var iComma = s.indexOf(",", pos);
+    var iNl = s.indexOf("\n", pos);
+    var cut = (iComma === -1) ? iNl : (iNl === -1 ? iComma : Math.min(iComma, iNl));
+    var chunk = ((cut === -1) ? s.substring(pos) : s.substring(pos, cut)).trim();
+    if (chunk !== "") unknown.push(chunk);
+    if (cut === -1) break;
+    pos = cut + 1;
+  }
+  return unknown;
 }
 
 /* ===== PHONE COLUMNS =====
@@ -494,13 +575,11 @@ function auditUnknowns() {
       for (var r = 0; r < data.length; r++) {
         var v = data[r][c];
         if (v === "" || v === null || v === undefined) continue;
-        v = String(v);
-        var parts = (v.indexOf(",") !== -1) ? v.split(",") : [v];
-        for (var p = 0; p < parts.length; p++) {
-          var frag = parts[p].trim();
-          if (frag !== "" && translateOne(frag) === null) {
-            counts[frag] = (counts[frag] || 0) + 1;
-          }
+        /* unknownFragments() understands that a mapped value may itself contain
+           a comma, so it does not invent phantom fragments like "excel)". */
+        var frags = unknownFragments(String(v));
+        for (var p = 0; p < frags.length; p++) {
+          counts[frags[p]] = (counts[frags[p]] || 0) + 1;
         }
       }
 
@@ -567,13 +646,8 @@ function auditValues() {
       for (var r = 0; r < data.length; r++) {
         var v = data[r][c];
         if (v === "" || v === null || v === undefined) continue;
-        v = String(v);
-        // multi-select cells are audited fragment by fragment
-        var parts = (v.indexOf(",") !== -1) ? v.split(",") : [v];
-        for (var p = 0; p < parts.length; p++) {
-          var frag = parts[p].trim();
-          if (frag !== "") counts[frag] = (counts[frag] || 0) + 1;
-        }
+        v = String(v).trim();
+        if (v !== "") counts[v] = (counts[v] || 0) + 1;
       }
 
       var keys = Object.keys(counts);
@@ -583,9 +657,10 @@ function auditValues() {
       var lines = [], unknown = 0;
       for (var k = 0; k < keys.length; k++) {
         var val = keys[k];
-        var conv = translateOne(val);
+        var conv = translateCell(val);
+        var bad = unknownFragments(val);
         var tag;
-        if (conv === null) { tag = "[UNKNOWN] "; unknown++; }
+        if (bad.length) { tag = "[UNKNOWN] "; unknown++; }
         else if (conv === val) { tag = "[ok]      "; }
         else { tag = "[->] " + conv + "   <= "; }
         lines.push("    " + tag + JSON.stringify(val) + "  x" + counts[val]);
