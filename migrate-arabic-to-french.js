@@ -459,7 +459,74 @@ function normalizePhoneMa(v) {
 }
 
 /**
- * RUN THIS FIRST. Changes nothing.
+ * Changes nothing. Reports ONLY the values MAPPING does not recognize.
+ *
+ * auditValues() prints every value and gets long enough that the log panel
+ * truncates it. This prints just the problem cases, so the whole thing fits on
+ * one screen: anything listed here would be LEFT AS-IS by the migration and
+ * stay inconsistent with everything else.
+ *
+ * Empty output = every value is accounted for and it is safe to migrate.
+ */
+function auditUnknowns() {
+  var ss = getSpreadsheet();
+  var sheets = ["Sheet1", "Form Responses 1", "Administration"];
+  var out = "=== UNKNOWN VALUES (nothing changed) ===\n";
+  var grand = 0;
+
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i];
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) { out += "\n### " + name + ": SHEET NOT FOUND\n"; continue; }
+
+    var lastRow = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+    if (lastRow < 2) continue;
+
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+    var sheetOut = "";
+
+    for (var c = 0; c < lastCol; c++) {
+      var col = String(header[c] || "").trim();
+      if (!col || SKIP_COLUMNS[col] || TEXT_COLUMNS[col] || PHONE_COLUMNS[col]) continue;
+
+      var counts = {};
+      for (var r = 0; r < data.length; r++) {
+        var v = data[r][c];
+        if (v === "" || v === null || v === undefined) continue;
+        v = String(v);
+        var parts = (v.indexOf(",") !== -1) ? v.split(",") : [v];
+        for (var p = 0; p < parts.length; p++) {
+          var frag = parts[p].trim();
+          if (frag !== "" && translateOne(frag) === null) {
+            counts[frag] = (counts[frag] || 0) + 1;
+          }
+        }
+      }
+
+      var keys = Object.keys(counts);
+      if (!keys.length) continue;
+      keys.sort();
+      grand += keys.length;
+
+      sheetOut += "\n  " + col + ":";
+      for (var k = 0; k < keys.length; k++) {
+        sheetOut += "\n      " + JSON.stringify(keys[k]) + "  x" + counts[keys[k]];
+      }
+    }
+
+    out += "\n### " + name + (sheetOut ? sheetOut : "\n  (all values recognized)") + "\n";
+  }
+
+  out += "\n=== " + grand + " distinct unknown value(s) ===";
+  if (grand === 0) out += "\nSafe to run migrateAllSheets().";
+  else out += "\nSend this list over before migrating.";
+
+  Logger.log(out);
+}
+
+/**
+ * Changes nothing. Full listing of every distinct value per column.
  *
  * Lists every DISTINCT value found in each enumerated column, with a count and
  * a marker showing what the migration would do with it:
