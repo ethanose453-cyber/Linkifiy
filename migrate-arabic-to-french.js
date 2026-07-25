@@ -102,7 +102,10 @@ const MAPPING = {
   "نعم، سيارة": "oui, voiture",
   "نعم، دراجة نارية": "oui, moto",
   "نعم، دراجه ناريه": "oui, moto",
-  "لا أملك وسيلة نقل": "je n'ai pas de moyen de transport",
+  "لا أملك وسيلة نقل": "aucun moyen de transport",
+  // Alias: earlier hand-translation. Converges on the shorter canonical form,
+  // which 201 rows already use and which matches "aucun permis".
+  "je n'ai pas de moyen de transport": "aucun moyen de transport",
 
   // License
   "رخصة سيارة": "permis voiture",
@@ -125,6 +128,7 @@ const MAPPING = {
   "مستوى بكالوريا": "niveau baccalaureat",
   "بكالوريا": "baccalaureat",
   "دبلوم سنتين": "bac+2",
+  "bac +2": "bac+2",          // alias: spacing variant found in 49 rows
   "إجازة": "licence",
   "ماستر": "master",
   "مهندس": "ingenieur",
@@ -161,6 +165,14 @@ const MAPPING = {
   "العربية فقط": "arabe uniquement",
   "الفرنسية": "francais",
   "الإنجليزية": "anglais",
+
+  /* Legacy preschool subjects. These came from an earlier version of the form
+     and are no longer offered, but rows still hold them, so they are mapped
+     here to keep the column fully canonical. */
+  "أناشيد وقصص الأطفال": "comptines et contes",
+  "التربية الحس حركية": "education psychomotrice",
+  "اللغات المبكرة": "initiation aux langues",
+  "مهارات حركية دقيقة": "motricite fine",
 
   // Levels
   "التعليم الأولي (3-5 سنوات)": "prescolaire (3-5 ans)",
@@ -199,6 +211,11 @@ const MAPPING = {
   // Salary
   "لا يهم": "peu importe",
   "مبلغ آخر": "autre montant",
+  // Identity entries: the numeric ranges need no translation, but listing them
+  // marks them as RECOGNIZED so the audit does not report them as unknown.
+  "2000-3500": "2000-3500",
+  "4000-6000": "4000-6000",
+  "7000-9000": "7000-9000",
 
   // Contract types
   "لا يهم (أي نوع عقد)": "peu importe (tout type de contrat)",
@@ -302,9 +319,16 @@ function migrateSheet(sheet) {
   for (var r = 0; r < data.length; r++) {
     for (var c = 0; c < data[r].length; c++) {
       var cell = data[r][c];
-      if (typeof cell !== "string" || cell === "") continue;
+      if (cell === "" || cell === null || cell === undefined) continue;
 
       var colName = String(header[c] || "").trim();
+      /* A phone may have been stored as a NUMBER (612345678). Those cells would
+         otherwise be skipped and never normalized, so coerce them to text. */
+      if (typeof cell !== "string") {
+        if (!(PHONE_COLUMNS[colName] && typeof cell === "number")) continue;
+        cell = String(cell);
+      }
+
       var newValue = convertCell(colName, cell);
 
       if (newValue !== cell) {
@@ -363,43 +387,119 @@ function translateOne(raw) {
   return null;
 }
 
+/* ===== KNOWN-VALUE INDEX =====
+   Every recognizable spelling (the Arabic keys AND the canonical values),
+   keyed by its canonical form and sorted LONGEST FIRST.
+
+   Longest-first is what makes multi-select parsing correct when a value itself
+   contains the separator. Ten of the mapped values do:
+     "microsoft office (word, excel)"
+     "enseignement a distance (zoom, meet, teams)"
+     "oui, tout a fait pret"      ("نعم، مستعد تماماً")
+   Splitting such a cell on "," shreds it into fragments that match nothing. */
+var KNOWN_SORTED = null;
+function knownSorted() {
+  if (!KNOWN_SORTED) {
+    var seen = {}, list = [];
+    Object.keys(MAPPING).forEach(function (k) {
+      var canon = MAPPING[k];
+      [k, canon].forEach(function (raw) {
+        var key = toCanonical(raw);
+        if (key !== "" && !seen[key]) { seen[key] = 1; list.push({ key: key, canon: canon }); }
+      });
+    });
+    list.sort(function (a, b) { return b.key.length - a.key.length; });
+    KNOWN_SORTED = list;
+  }
+  return KNOWN_SORTED;
+}
+
+// Longest known value starting exactly at position pos, or null.
+function matchAt(s, pos) {
+  var list = knownSorted();
+  for (var i = 0; i < list.length; i++) {
+    if (s.substr(pos, list[i].key.length) === list[i].key) return list[i];
+  }
+  return null;
+}
+
+// Consume a separator at pos. Returns the new position, or -1 if there is none.
+function eatSeparator(s, pos) {
+  if (s.substr(pos, 2) === ", ") return pos + 2;
+  var ch = s.charAt(pos);
+  if (ch === "," || ch === "\n") return pos + 1;
+  return -1;
+}
+
+/**
+ * Parse a multi-select cell by greedy longest-match.
+ * Returns the list of canonical values, or null if ANY part of the cell is not
+ * a known value -- in which case the caller leaves the cell untouched. That is
+ * what protects free text containing a comma, e.g.
+ * "Groupe Scolaire Al Amal, Casablanca" in the schools textarea.
+ */
+function parseMulti(raw) {
+  var s = toCanonical(String(raw).trim());
+  if (s === "") return null;
+
+  var out = [], pos = 0;
+  while (pos < s.length) {
+    var m = matchAt(s, pos);
+    if (!m) return null;
+    out.push(m.canon);
+    pos += m.key.length;
+    if (pos >= s.length) break;
+    var next = eatSeparator(s, pos);
+    if (next === -1) return null;   // trailing text after a known value
+    pos = next;
+  }
+  return out.length ? out : null;
+}
+
 /**
  * Translate a single cell value.
- * Handles single values and comma/newline-separated multi-selects.
+ * Handles single values and multi-selects (normalized to ", " separated).
  */
 function translateCell(cellValue) {
   var single = translateOne(cellValue);
   if (single !== null) return single;
 
-  // Multi-select cells: ", " / "," / newline separated
-  var separators = [", ", ",", "\n"];
-  for (var i = 0; i < separators.length; i++) {
-    var sep = separators[i];
-    if (cellValue.indexOf(sep) === -1) continue;
-
-    var parts = cellValue.split(sep);
-    var out = [];
-    var allKnown = true;
-    for (var j = 0; j < parts.length; j++) {
-      var t = translateOne(parts[j]);
-      if (t === null) { allKnown = false; break; }
-      out.push(t);
-    }
-
-    /* Rewrite ONLY when every fragment is a known option value.
-       A single unknown fragment means this is free text that merely happens to
-       contain a comma -- e.g. "Groupe Scolaire Al Amal, Casablanca" in the
-       schools textarea. Without this guard the "Casablanca" fragment alone
-       would be rewritten and the sentence silently mangled. */
-    if (allKnown && out.length) {
-      var joined = out.join(sep);
-      if (joined !== cellValue) return joined;
-      return cellValue;
-    }
-  }
+  var multi = parseMulti(cellValue);
+  if (multi) return multi.join(", ");
 
   // Unknown -> untouched (names, neighbourhoods, emails, free text)
   return cellValue;
+}
+
+/**
+ * Audit helper: the fragments of a cell that are NOT recognized.
+ * Empty array = the whole cell is accounted for.
+ */
+function unknownFragments(raw) {
+  if (translateOne(raw) !== null) return [];
+  if (parseMulti(raw)) return [];
+
+  var s = toCanonical(String(raw).trim());
+  var unknown = [], pos = 0, guard = 0;
+
+  while (pos < s.length && guard++ < 500) {
+    var m = matchAt(s, pos);
+    if (m) {
+      pos += m.key.length;
+      var next = eatSeparator(s, pos);
+      if (next !== -1) { pos = next; continue; }
+      if (pos >= s.length) break;
+    }
+    // Unrecognized run: report it up to the next separator and continue.
+    var iComma = s.indexOf(",", pos);
+    var iNl = s.indexOf("\n", pos);
+    var cut = (iComma === -1) ? iNl : (iNl === -1 ? iComma : Math.min(iComma, iNl));
+    var chunk = ((cut === -1) ? s.substring(pos) : s.substring(pos, cut)).trim();
+    if (chunk !== "") unknown.push(chunk);
+    if (cut === -1) break;
+    pos = cut + 1;
+  }
+  return unknown;
 }
 
 /* ===== PHONE COLUMNS =====
@@ -452,6 +552,142 @@ function normalizePhoneMa(v) {
 }
 
 /**
+ * Changes nothing. Reports ONLY the values MAPPING does not recognize.
+ *
+ * auditValues() prints every value and gets long enough that the log panel
+ * truncates it. This prints just the problem cases, so the whole thing fits on
+ * one screen: anything listed here would be LEFT AS-IS by the migration and
+ * stay inconsistent with everything else.
+ *
+ * Empty output = every value is accounted for and it is safe to migrate.
+ */
+function auditUnknowns() {
+  var ss = getSpreadsheet();
+  var sheets = ["Sheet1", "Form Responses 1", "Administration"];
+  var out = "=== UNKNOWN VALUES (nothing changed) ===\n";
+  var grand = 0;
+
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i];
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) { out += "\n### " + name + ": SHEET NOT FOUND\n"; continue; }
+
+    var lastRow = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+    if (lastRow < 2) continue;
+
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+    var sheetOut = "";
+
+    for (var c = 0; c < lastCol; c++) {
+      var col = String(header[c] || "").trim();
+      if (!col || SKIP_COLUMNS[col] || TEXT_COLUMNS[col] || PHONE_COLUMNS[col]) continue;
+
+      var counts = {};
+      for (var r = 0; r < data.length; r++) {
+        var v = data[r][c];
+        if (v === "" || v === null || v === undefined) continue;
+        /* unknownFragments() understands that a mapped value may itself contain
+           a comma, so it does not invent phantom fragments like "excel)". */
+        var frags = unknownFragments(String(v));
+        for (var p = 0; p < frags.length; p++) {
+          counts[frags[p]] = (counts[frags[p]] || 0) + 1;
+        }
+      }
+
+      var keys = Object.keys(counts);
+      if (!keys.length) continue;
+      keys.sort();
+      grand += keys.length;
+
+      sheetOut += "\n  " + col + ":";
+      for (var k = 0; k < keys.length; k++) {
+        sheetOut += "\n      " + JSON.stringify(keys[k]) + "  x" + counts[keys[k]];
+      }
+    }
+
+    out += "\n### " + name + (sheetOut ? sheetOut : "\n  (all values recognized)") + "\n";
+  }
+
+  out += "\n=== " + grand + " distinct unknown value(s) ===";
+  if (grand === 0) out += "\nSafe to run migrateAllSheets().";
+  else out += "\nSend this list over before migrating.";
+
+  Logger.log(out);
+}
+
+/**
+ * Changes nothing. Full listing of every distinct value per column.
+ *
+ * Lists every DISTINCT value found in each enumerated column, with a count and
+ * a marker showing what the migration would do with it:
+ *
+ *   [ok]      already canonical, nothing to do
+ *   [->]      recognized, will be converted
+ *   [UNKNOWN] not recognized -> would be LEFT AS-IS
+ *
+ * Every [UNKNOWN] is a value that will silently stay inconsistent. Read that
+ * list carefully and send it over before running migrateAllSheets(), so any
+ * missing spelling can be added to MAPPING first.
+ */
+function auditValues() {
+  var ss = getSpreadsheet();
+  var sheets = ["Sheet1", "Form Responses 1", "Administration"];
+  var out = "=== VALUE AUDIT (nothing changed) ===\n";
+
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i];
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) { out += "\n### " + name + ": SHEET NOT FOUND\n"; continue; }
+
+    var lastRow = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+    if (lastRow < 2) { out += "\n### " + name + ": empty\n"; continue; }
+
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+    out += "\n\n######## " + name + " (" + (lastRow - 1) + " rows) ########";
+
+    for (var c = 0; c < lastCol; c++) {
+      var col = String(header[c] || "").trim();
+      // Only enumerated columns matter here. Free text and system columns are
+      // either pure-lowercased or skipped, so there is nothing to review.
+      if (!col || SKIP_COLUMNS[col] || TEXT_COLUMNS[col] || PHONE_COLUMNS[col]) continue;
+
+      var counts = {};
+      for (var r = 0; r < data.length; r++) {
+        var v = data[r][c];
+        if (v === "" || v === null || v === undefined) continue;
+        v = String(v).trim();
+        if (v !== "") counts[v] = (counts[v] || 0) + 1;
+      }
+
+      var keys = Object.keys(counts);
+      if (!keys.length) continue;
+      keys.sort();
+
+      var lines = [], unknown = 0;
+      for (var k = 0; k < keys.length; k++) {
+        var val = keys[k];
+        var conv = translateCell(val);
+        var bad = unknownFragments(val);
+        var tag;
+        if (bad.length) { tag = "[UNKNOWN] "; unknown++; }
+        else if (conv === val) { tag = "[ok]      "; }
+        else { tag = "[->] " + conv + "   <= "; }
+        lines.push("    " + tag + JSON.stringify(val) + "  x" + counts[val]);
+      }
+
+      out += "\n\n  -- " + col + " (" + keys.length + " distinct"
+           + (unknown ? ", " + unknown + " UNKNOWN" : "") + ")\n"
+           + lines.join("\n");
+    }
+  }
+
+  Logger.log(out);
+}
+
+/**
  * Optional: Run this to see what WOULD change without actually changing anything
  */
 function dryRun() {
@@ -476,9 +712,14 @@ function dryRun() {
     for (var r = 0; r < data.length; r++) {
       for (var c = 0; c < data[r].length; c++) {
         var cell = data[r][c];
-        if (typeof cell !== "string" || cell === "") continue;
+        if (cell === "" || cell === null || cell === undefined) continue;
 
         var colName = String(header[c] || "").trim();
+        if (typeof cell !== "string") {
+          if (!(PHONE_COLUMNS[colName] && typeof cell === "number")) continue;
+          cell = String(cell);
+        }
+
         var newValue = convertCell(colName, cell);
 
         if (newValue !== cell) {
