@@ -376,7 +376,13 @@
                 <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="arabe uniquement" /> <span data-i18n="sub.arOnly">العربية فقط</span></label>
                 <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="francais" /> <span data-i18n="sub.frLang">الفرنسية</span></label>
                 <label class="check" data-group="أولي"><input type="checkbox" name="subjects" value="anglais" /> <span data-i18n="sub.enLang">الإنجليزية</span></label>
+                <label class="check" data-group="علمي أدبي فنون أولي"><input type="checkbox" id="subject_other" name="subjects" value="autre matiere" /> <span data-i18n="sub.other">مادة أخرى (حدّدها)</span></label>
               </div>
+            </div>
+
+            <div class="field conditional" id="subject-other-wrap" hidden>
+              <label for="subject_other_text"><span data-i18n="f.subjectOther">اذكر المادة التي تدرّسها</span> <span class="req">*</span></label>
+              <input type="text" id="subject_other_text" name="subject_other_text" data-i18n-ph="ph.subjectOther" placeholder="مثال: علوم المهندس، الهندسة الكهربائية..." />
             </div>
 
             <div class="field">
