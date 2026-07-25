@@ -3,239 +3,255 @@
  * Linkify.ma — Migrate existing Arabic data to French
  * ============================================================
  * 
- * HOW TO USE:
- * 1. Open your Google Sheet
- * 2. Go to Extensions → Apps Script
- * 3. Delete any existing code and paste this entire file
- * 4. Click Save (💾)
- * 5. Run the function: migrateAllSheets()
- * 6. Grant permissions when prompted
- * 7. Wait for it to finish (check Execution Log)
- * 
- * IMPORTANT:
- * - This script will REPLACE Arabic values with French equivalents
- * - It only changes values that match exactly — free text fields are NOT touched
- * - Run it ONCE. Running it again won't hurt (already-French values won't match Arabic)
- * - Make a BACKUP of your sheet before running (File → Make a copy)
+ * WHAT IT DOES
+ *   1. Arabic values          -> canonical lowercase French  ("القنيطرة" -> "kenitra")
+ *   2. Already-French values  -> canonical lowercase French  ("Kénitra"  -> "kenitra")
+ *   3. Phone columns          -> +212XXXXXXXXX               ("0710849666" -> "+212710849666")
+ *
+ * Step 2 is what fixes the rows that were translated by hand, so the whole
+ * database ends up in the exact same shape the form now submits.
+ *
+ * HOW TO USE
+ *   1. Make a BACKUP first: File > Make a copy
+ *   2. Extensions > Apps Script
+ *   3. Paste this file at the BOTTOM of your existing Code.gs
+ *      (do NOT delete the existing backend code - it is still needed)
+ *   4. Save
+ *   5. Pick dryRun in the function dropdown and press Run
+ *      -> changes NOTHING, prints a preview to View > Execution log
+ *   6. When the preview looks right, pick migrateAllSheets and press Run
+ *
+ * NOTES
+ *   - No deployment needed. These functions run from the editor only.
+ *   - Free text (names, neighbourhoods, emails, notes) is NEVER touched:
+ *     only values known to MAPPING are rewritten.
+ *   - Phone numbers that are not recognizably Moroccan are left exactly as-is,
+ *     so a typo is never silently turned into a different valid number.
+ *   - Safe to run more than once: the result is already canonical, so a second
+ *     run reports 0 changes.
+ *   - Reuses getSpreadsheet() from the existing backend, so it honours the
+ *     SHEET_ID script property.
+ *   - Sheets processed: Sheet1, Form Responses 1, Administration.
+ *     The Schools tab is NOT touched.
  * ============================================================
  */
 
 // ===== MAPPING: Arabic → French =====
 const MAPPING = {
   // Gender
-  "ذكر": "H",
-  "أنثى": "F",
+  "ذكر": "h",
+  "أنثى": "f",
 
   // Cities
-  "القنيطرة": "Kénitra",
-  "سلا": "Salé",
-  "الرباط": "Rabat",
-  "تمارة": "Témara",
-  "الصخيرات": "Skhirat",
-  "بوزنيقة": "Bouznika",
-  "المحمدية": "Mohammedia",
-  "الدار البيضاء": "Casablanca",
-  "طنجة": "Tanger",
-  "تطوان": "Tétouan",
-  "العرائش": "Larache",
-  "القصر الكبير": "Ksar El Kébir",
-  "سيدي سليمان": "Sidi Slimane",
-  "سيدي قاسم": "Sidi Kacem",
-  "وزان": "Ouezzane",
-  "مكناس": "Meknès",
-  "فاس": "Fès",
-  "صفرو": "Sefrou",
-  "تازة": "Taza",
-  "وجدة": "Oujda",
-  "بركان": "Berkane",
-  "الناضور": "Nador",
-  "خريبكة": "Khouribga",
-  "بني ملال": "Béni Mellal",
-  "الفقيه بن صالح": "Fquih Ben Salah",
-  "سطات": "Settat",
-  "برشيد": "Berrechid",
-  "الجديدة": "El Jadida",
-  "سيدي بنور": "Sidi Bennour",
-  "آسفي": "Safi",
-  "الصويرة": "Essaouira",
-  "مراكش": "Marrakech",
-  "قلعة السراغنة": "Kelaat Sraghna",
-  "أكادير": "Agadir",
-  "إنزكان": "Inezgane",
-  "آيت ملول": "Aït Melloul",
-  "تارودانت": "Taroudant",
-  "تيزنيت": "Tiznit",
-  "مدينة أخرى": "Autre ville",
+  "القنيطرة": "kenitra",
+  "سلا": "sale",
+  "الرباط": "rabat",
+  "تمارة": "temara",
+  "الصخيرات": "skhirat",
+  "بوزنيقة": "bouznika",
+  "المحمدية": "mohammedia",
+  "الدار البيضاء": "casablanca",
+  "طنجة": "tanger",
+  "تطوان": "tetouan",
+  "العرائش": "larache",
+  "القصر الكبير": "ksar el kebir",
+  "سيدي سليمان": "sidi slimane",
+  "سيدي قاسم": "sidi kacem",
+  "وزان": "ouezzane",
+  "مكناس": "meknes",
+  "فاس": "fes",
+  "صفرو": "sefrou",
+  "تازة": "taza",
+  "وجدة": "oujda",
+  "بركان": "berkane",
+  "الناضور": "nador",
+  "خريبكة": "khouribga",
+  "بني ملال": "beni mellal",
+  "الفقيه بن صالح": "fquih ben salah",
+  "سطات": "settat",
+  "برشيد": "berrechid",
+  "الجديدة": "el jadida",
+  "سيدي بنور": "sidi bennour",
+  "آسفي": "safi",
+  "الصويرة": "essaouira",
+  "مراكش": "marrakech",
+  "قلعة السراغنة": "kelaat sraghna",
+  "أكادير": "agadir",
+  "إنزكان": "inezgane",
+  "آيت ملول": "ait melloul",
+  "تارودانت": "taroudant",
+  "تيزنيت": "tiznit",
+  "مدينة أخرى": "autre ville",
   // Common typos/variants the founder may have used
-  "القنيطره": "Kénitra",
-  "تماره": "Témara",
-  "بوزنيقه": "Bouznika",
-  "المحمديه": "Mohammedia",
-  "طنجه": "Tanger",
-  "خريبكه": "Khouribga",
-  "تازه": "Taza",
-  "الجديده": "El Jadida",
-  "الصويره": "Essaouira",
-  "اكادير": "Agadir",
-  "ايت ملول": "Aït Melloul",
-  "اسفي": "Safi",
-  "قلعه السراغنه": "Kelaat Sraghna",
-  "مدينه اخرى": "Autre ville",
+  "القنيطره": "kenitra",
+  "تماره": "temara",
+  "بوزنيقه": "bouznika",
+  "المحمديه": "mohammedia",
+  "طنجه": "tanger",
+  "خريبكه": "khouribga",
+  "تازه": "taza",
+  "الجديده": "el jadida",
+  "الصويره": "essaouira",
+  "اكادير": "agadir",
+  "ايت ملول": "ait melloul",
+  "اسفي": "safi",
+  "قلعه السراغنه": "kelaat sraghna",
+  "مدينه اخرى": "autre ville",
 
   // Transport
-  "نعم، سيارة": "Oui, voiture",
-  "نعم، دراجة نارية": "Oui, moto",
-  "نعم، دراجه ناريه": "Oui, moto",
-  "لا أملك وسيلة نقل": "Je n'ai pas de moyen de transport",
+  "نعم، سيارة": "oui, voiture",
+  "نعم، دراجة نارية": "oui, moto",
+  "نعم، دراجه ناريه": "oui, moto",
+  "لا أملك وسيلة نقل": "je n'ai pas de moyen de transport",
 
   // License
-  "رخصة سيارة": "Permis voiture",
-  "رخصة دراجة نارية": "Permis moto",
-  "رخصه دراجه": "Permis moto",
-  "لا أملك رخصة": "Aucun permis",
+  "رخصة سيارة": "permis voiture",
+  "رخصة دراجة نارية": "permis moto",
+  "رخصه دراجه": "permis moto",
+  "لا أملك رخصة": "aucun permis",
 
   // Relocate
-  "نعم، مستعد تماماً": "Oui, tout à fait prêt",
-  "حسب العرض والامتيازات": "Selon l'offre et les avantages",
-  "لا، مدينتي فقط": "Non, ma ville uniquement",
+  "نعم، مستعد تماماً": "oui, tout a fait pret",
+  "حسب العرض والامتيازات": "selon l'offre et les avantages",
+  "لا، مدينتي فقط": "non, ma ville uniquement",
 
   // Track
-  "علمي / تقني": "Scientifique / Technique",
-  "أدبي / إنساني": "Littéraire / Sciences humaines",
-  "التعليم الأولي والمربيات": "Éducation préscolaire et éducatrices",
-  "التربية الفنية والثقافية": "Éducation artistique et culturelle",
+  "علمي / تقني": "scientifique / technique",
+  "أدبي / إنساني": "litteraire / sciences humaines",
+  "التعليم الأولي والمربيات": "education prescolaire et educatrices",
+  "التربية الفنية والثقافية": "education artistique et culturelle",
 
   // Diploma
-  "مستوى بكالوريا": "Niveau baccalauréat",
-  "بكالوريا": "Baccalauréat",
-  "دبلوم سنتين": "Bac+2",
-  "إجازة": "Licence",
-  "ماستر": "Master",
-  "مهندس": "Ingénieur",
-  "دكتوراه": "Doctorat",
-  "غير ذلك": "Autre",
+  "مستوى بكالوريا": "niveau baccalaureat",
+  "بكالوريا": "baccalaureat",
+  "دبلوم سنتين": "bac+2",
+  "إجازة": "licence",
+  "ماستر": "master",
+  "مهندس": "ingenieur",
+  "دكتوراه": "doctorat",
+  "غير ذلك": "autre",
 
   // Language levels
-  "ممتاز": "Excellent",
-  "متوسط": "Intermédiaire",
-  "أساسي": "Basique",
-  "لا توجد معرفة": "Aucune connaissance",
+  "ممتاز": "excellent",
+  "متوسط": "intermediaire",
+  "أساسي": "basique",
+  "لا توجد معرفة": "aucune connaissance",
 
   // Subjects
-  "الرياضيات": "Mathématiques",
-  "الفيزياء والكيمياء": "Physique-Chimie",
-  "علوم الحياة والأرض": "Sciences de la Vie et de la Terre",
-  "المعلوميات": "Informatique",
-  "التربية البدنية والرياضية": "Éducation physique et sportive",
-  "تسيير ومحاسبة": "Gestion et Comptabilité",
-  "التربية الإسلامية": "Éducation islamique",
-  "اللغة العربية": "Langue arabe",
-  "اللغة الفرنسية": "Langue française",
-  "اللغة الإنجليزية": "Langue anglaise",
-  "اللغة الإسبانية": "Langue espagnole",
-  "اللغة الألمانية": "Langue allemande",
-  "الفلسفة": "Philosophie",
-  "التاريخ والجغرافيا": "Histoire-Géographie",
-  "التربية التشكيلية والفنون البصرية": "Arts plastiques et visuels",
-  "المسرح والفنون الأدائية": "Théâtre et arts de la scène",
-  "التربية الموسيقية": "Éducation musicale",
-  "التصوير الفوتوغرافي والسمعي البصري": "Photographie et audiovisuel",
-  "المعامل التربوية والابتكار": "Ateliers pédagogiques et innovation",
-  "التنشيط الثقافي والتفتح الفني": "Animation culturelle et éveil artistique",
-  "العربية فقط": "Arabe uniquement",
-  "الفرنسية": "Français",
-  "الإنجليزية": "Anglais",
+  "الرياضيات": "mathematiques",
+  "الفيزياء والكيمياء": "physique-chimie",
+  "علوم الحياة والأرض": "sciences de la vie et de la terre",
+  "المعلوميات": "informatique",
+  "التربية البدنية والرياضية": "education physique et sportive",
+  "تسيير ومحاسبة": "gestion et comptabilite",
+  "التربية الإسلامية": "education islamique",
+  "اللغة العربية": "langue arabe",
+  "اللغة الفرنسية": "langue francaise",
+  "اللغة الإنجليزية": "langue anglaise",
+  "اللغة الإسبانية": "langue espagnole",
+  "اللغة الألمانية": "langue allemande",
+  "الفلسفة": "philosophie",
+  "التاريخ والجغرافيا": "histoire-geographie",
+  "التربية التشكيلية والفنون البصرية": "arts plastiques et visuels",
+  "المسرح والفنون الأدائية": "theatre et arts de la scene",
+  "التربية الموسيقية": "education musicale",
+  "التصوير الفوتوغرافي والسمعي البصري": "photographie et audiovisuel",
+  "المعامل التربوية والابتكار": "ateliers pedagogiques et innovation",
+  "التنشيط الثقافي والتفتح الفني": "animation culturelle et eveil artistique",
+  "العربية فقط": "arabe uniquement",
+  "الفرنسية": "francais",
+  "الإنجليزية": "anglais",
 
   // Levels
-  "التعليم الأولي (3-5 سنوات)": "Préscolaire (3-5 ans)",
-  "التعليم الأولي": "Préscolaire (3-5 ans)",
-  "التعليم الابتدائي": "Primaire",
-  "التعليم الإعدادي": "Collège",
-  "التعليم الثانوي التأهيلي": "Lycée",
-  "التعليم العالي": "Enseignement supérieur",
-  "تعليم الكبار / التكوين المستمر": "Formation des adultes / Formation continue",
-  "الحضانة (أقل من 3 سنوات)": "Crèche (moins de 3 ans)",
-  "القسم الصغير (3-4 سنوات)": "Petite Section (3-4 ans)",
-  "القسم المتوسط (4-5 سنوات)": "Moyenne Section (4-5 ans)",
-  "القسم الكبير (5-6 سنوات)": "Grande Section (5-6 ans)",
+  "التعليم الأولي (3-5 سنوات)": "prescolaire (3-5 ans)",
+  "التعليم الأولي": "prescolaire (3-5 ans)",
+  "التعليم الابتدائي": "primaire",
+  "التعليم الإعدادي": "college",
+  "التعليم الثانوي التأهيلي": "lycee",
+  "التعليم العالي": "enseignement superieur",
+  "تعليم الكبار / التكوين المستمر": "formation des adultes / formation continue",
+  "الحضانة (أقل من 3 سنوات)": "creche (moins de 3 ans)",
+  "القسم الصغير (3-4 سنوات)": "petite section (3-4 ans)",
+  "القسم المتوسط (4-5 سنوات)": "moyenne section (4-5 ans)",
+  "القسم الكبير (5-6 سنوات)": "grande section (5-6 ans)",
 
   // Institution types
-  "مدرسة خاصة": "École privée",
-  "مركز دعم وتقوية": "Centre de soutien scolaire",
-  "مركز لغات": "Centre de langues",
-  "مركز تكوين مهني": "Centre de formation professionnelle",
-  "حضانة / تعليم أولي": "Crèche / Préscolaire",
-  "مؤسسة تعليم عالي خاصة": "Établissement d'enseignement supérieur privé",
-  "حضانة": "Crèche",
-  "تعليم أولي (روض)": "Préscolaire (maternelle)",
+  "مدرسة خاصة": "ecole privee",
+  "مركز دعم وتقوية": "centre de soutien scolaire",
+  "مركز لغات": "centre de langues",
+  "مركز تكوين مهني": "centre de formation professionnelle",
+  "حضانة / تعليم أولي": "creche / prescolaire",
+  "مؤسسة تعليم عالي خاصة": "etablissement d'enseignement superieur prive",
+  "حضانة": "creche",
+  "تعليم أولي (روض)": "prescolaire (maternelle)",
 
   // Schedule
-  "دوام كامل": "Temps plein",
-  "دوام جزئي": "Temps partiel",
-  "ساعات إضافية / حصص محددة": "Heures supplémentaires / Séances ponctuelles",
-  "ساعات إضافية / حص": "Heures supplémentaires / Séances ponctuelles",
-  "كل ما سبق": "Tout ce qui précède",
+  "دوام كامل": "temps plein",
+  "دوام جزئي": "temps partiel",
+  "ساعات إضافية / حصص محددة": "heures supplementaires / seances ponctuelles",
+  "ساعات إضافية / حص": "heures supplementaires / seances ponctuelles",
+  "كل ما سبق": "tout ce qui precede",
 
   // Substitute
-  "نعم، متاح للتعويض الطارئ": "Oui, disponible pour remplacement urgent",
-  "نعم، حسب الظروف": "Oui, selon les circonstances",
+  "نعم، متاح للتعويض الطارئ": "oui, disponible pour remplacement urgent",
+  "نعم، حسب الظروف": "oui, selon les circonstances",
 
   // Salary
-  "لا يهم": "Peu importe",
-  "مبلغ آخر": "Autre montant",
+  "لا يهم": "peu importe",
+  "مبلغ آخر": "autre montant",
 
   // Contract types
-  "لا يهم (أي نوع عقد)": "Peu importe (tout type de contrat)",
-  "CDI (غير محدد المدة)": "CDI (Contrat à durée indéterminée)",
-  "CDD (محدد المدة)": "CDD (Contrat à durée déterminée)",
-  "عقد تجريبي": "Période d'essai",
-  "بالتوقيت / بالساعة": "Vacataire (à l'heure)",
-  "تعويض مؤقت": "Remplacement temporaire",
-  "مقاول ذاتي / Freelance": "Auto-entrepreneur / Freelance",
-  "تدريب / إدماج": "Stage / Insertion",
+  "لا يهم (أي نوع عقد)": "peu importe (tout type de contrat)",
+  "CDI (غير محدد المدة)": "cdi (contrat a duree indeterminee)",
+  "CDD (محدد المدة)": "cdd (contrat a duree determinee)",
+  "عقد تجريبي": "periode d'essai",
+  "بالتوقيت / بالساعة": "vacataire (a l'heure)",
+  "تعويض مؤقت": "remplacement temporaire",
+  "مقاول ذاتي / Freelance": "auto-entrepreneur / freelance",
+  "تدريب / إدماج": "stage / insertion",
 
   // Experience
-  "نعم": "Oui",
-  "لا (حديث التخرج)": "Non (nouveau diplômé)",
-  "أقل من سنة": "Moins d'un an",
-  "بين سنة و 3 سنوات": "Entre 1 et 3 ans",
-  "بين 4 و 5 سنوات": "Entre 4 et 5 ans",
-  "أكثر من 5 سنوات": "Plus de 5 ans",
+  "نعم": "oui",
+  "لا (حديث التخرج)": "non (nouveau diplome)",
+  "أقل من سنة": "moins d'un an",
+  "بين سنة و 3 سنوات": "entre 1 et 3 ans",
+  "بين 4 و 5 سنوات": "entre 4 et 5 ans",
+  "أكثر من 5 سنوات": "plus de 5 ans",
 
   // Skills (teacher)
-  "التدريس عن بعد (Zoom, Meet, Teams)": "Enseignement à distance (Zoom, Meet, Teams)",
-  "تصميم المحتوى (Canva, Genially, PPT)": "Conception de contenu (Canva, Genially, PPT)",
-  "دمج الذكاء الاصطناعي فالتعليم": "Intégration de l'IA dans l'enseignement",
-  "التحليل الإحصائي (SPSS)": "Analyse statistique (SPSS)",
-  "المسرح التربوي والتنشيط": "Théâtre éducatif et animation",
-  "تدبير الأنشطة الموازية والنوادي": "Gestion des activités parascolaires et clubs",
-  "مهارة أخرى": "Autre compétence",
+  "التدريس عن بعد (Zoom, Meet, Teams)": "enseignement a distance (zoom, meet, teams)",
+  "تصميم المحتوى (Canva, Genially, PPT)": "conception de contenu (canva, genially, ppt)",
+  "دمج الذكاء الاصطناعي فالتعليم": "integration de l'ia dans l'enseignement",
+  "التحليل الإحصائي (SPSS)": "analyse statistique (spss)",
+  "المسرح التربوي والتنشيط": "theatre educatif et animation",
+  "تدبير الأنشطة الموازية والنوادي": "gestion des activites parascolaires et clubs",
+  "مهارة أخرى": "autre competence",
 
   // Skills (admin)
-  "مايكروسوفت أوفيس (Word, Excel)": "Microsoft Office (Word, Excel)",
-  "تدبير منصة مسار / برامج المؤسسات": "Gestion plateforme Massar / logiciels scolaires",
-  "برامج المحاسبة والتسيير": "Logiciels de comptabilité et gestion",
-  "التواصل واستقبال الزبناء": "Communication et accueil",
-  "التنظيم والأرشفة": "Organisation et archivage",
+  "مايكروسوفت أوفيس (Word, Excel)": "microsoft office (word, excel)",
+  "تدبير منصة مسار / برامج المؤسسات": "gestion plateforme massar / logiciels scolaires",
+  "برامج المحاسبة والتسيير": "logiciels de comptabilite et gestion",
+  "التواصل واستقبال الزبناء": "communication et accueil",
+  "التنظيم والأرشفة": "organisation et archivage",
 
   // Admin positions
-  "تقني معلوميات / صيانة": "Technicien informatique / Maintenance",
-  "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)": "Directeur(trice) général(e) / Directeur(trice) pédagogique",
-  "نائب(ة) المدير / ناظر(ة) المؤسسة": "Adjoint(e) du directeur / Surveillant(e) général(e)",
-  "حارس(ة) عام": "Surveillant(e) général(e)",
-  "مفتش(ة) / مشرف(ة) تربوي(ة)": "Inspecteur(trice) / Superviseur(e) pédagogique",
-  "مسؤول(ة) الموارد البشرية أو التسجيل": "Responsable RH ou inscriptions",
-  "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال": "Secrétaire / Agent administratif / Réceptionniste",
-  "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)": "Conseiller(ère) d'orientation / Psychologue ou assistant(e) social(e)",
-  "منصب إداري آخر": "Autre poste administratif",
+  "تقني معلوميات / صيانة": "technicien informatique / maintenance",
+  "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)": "directeur(trice) general(e) / directeur(trice) pedagogique",
+  "نائب(ة) المدير / ناظر(ة) المؤسسة": "adjoint(e) du directeur / surveillant(e) general(e)",
+  "حارس(ة) عام": "surveillant(e) general(e)",
+  "مفتش(ة) / مشرف(ة) تربوي(ة)": "inspecteur(trice) / superviseur(e) pedagogique",
+  "مسؤول(ة) الموارد البشرية أو التسجيل": "responsable rh ou inscriptions",
+  "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال": "secretaire / agent administratif / receptionniste",
+  "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)": "conseiller(ere) d'orientation / psychologue ou assistant(e) social(e)",
+  "منصب إداري آخر": "autre poste administratif",
 
   // Early role
-  "أستاذة / معلمة": "Enseignante / Éducatrice",
-  "أستاذة مساعدة / مربية مساعدة": "Assistante enseignante / Aide-éducatrice",
+  "أستاذة / معلمة": "enseignante / educatrice",
+  "أستاذة مساعدة / مربية مساعدة": "assistante enseignante / aide-educatrice",
 
   // Accompanist + misc
-  "لا": "Non",
-  "موافق": "Oui",
+  "لا": "non",
+  "موافق": "oui",
 };
 
 /**
@@ -243,151 +259,242 @@ const MAPPING = {
  * Migrates: Sheet1, Form Responses 1, Administration
  */
 function migrateAllSheets() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  const teacherSheets = ["Sheet1", "Form Responses 1"];
-  const adminSheets = ["Administration"];
-  
-  let totalChanges = 0;
-  
-  for (const name of teacherSheets) {
-    const sheet = ss.getSheetByName(name);
+  var ss = getSpreadsheet();
+  var sheets = ["Sheet1", "Form Responses 1", "Administration"];
+  var totalChanges = 0;
+
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i];
+    var sheet = ss.getSheetByName(name);
     if (sheet) {
-      Logger.log("📋 Processing: " + name);
+      Logger.log("Processing: " + name);
       totalChanges += migrateSheet(sheet);
     } else {
-      Logger.log("⚠️ Sheet not found: " + name);
+      Logger.log("Sheet not found: " + name);
     }
   }
-  
-  for (const name of adminSheets) {
-    const sheet = ss.getSheetByName(name);
-    if (sheet) {
-      Logger.log("📋 Processing: " + name);
-      totalChanges += migrateSheet(sheet);
-    } else {
-      Logger.log("⚠️ Sheet not found: " + name);
-    }
-  }
-  
-  Logger.log("✅ DONE! Total cells changed: " + totalChanges);
-  SpreadsheetApp.getUi().alert("Migration terminée ✅\n\nCellules modifiées: " + totalChanges);
+
+  // Logged only. getUi() is unavailable when the script is bound via SHEET_ID,
+  // so we never call it -- open View > Execution log to read the result.
+  Logger.log("DONE. Total cells changed: " + totalChanges);
 }
 
 /**
  * Process a single sheet: read all data, replace matching values, write back
  */
 function migrateSheet(sheet) {
-  const lastRow = sheet.getLastRow();
-  const lastCol = sheet.getLastColumn();
-  
+  var lastRow = sheet.getLastRow();
+  var lastCol = sheet.getLastColumn();
+
   if (lastRow < 2 || lastCol < 1) {
-    Logger.log("  → Empty or header-only, skipping.");
+    Logger.log("  -> Empty or header-only, skipping.");
     return 0;
   }
-  
+
+  // Header row tells us which columns hold phone numbers.
+  var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+
   // Read all data at once (fast!)
-  const range = sheet.getRange(2, 1, lastRow - 1, lastCol); // skip header row
-  const data = range.getValues();
-  let changes = 0;
-  
-  for (let r = 0; r < data.length; r++) {
-    for (let c = 0; c < data[r].length; c++) {
-      const cell = data[r][c];
+  var range = sheet.getRange(2, 1, lastRow - 1, lastCol); // skip header row
+  var data = range.getValues();
+  var changes = 0;
+
+  for (var r = 0; r < data.length; r++) {
+    for (var c = 0; c < data[r].length; c++) {
+      var cell = data[r][c];
       if (typeof cell !== "string" || cell === "") continue;
-      
-      // Some cells contain comma-separated values (e.g. "الرياضيات, الفيزياء والكيمياء")
-      // We need to handle both single values and comma-separated lists
-      const newValue = translateCell(cell);
+
+      var colName = String(header[c] || "").trim();
+      var newValue = convertCell(colName, cell);
+
       if (newValue !== cell) {
         data[r][c] = newValue;
         changes++;
       }
     }
   }
-  
+
   // Write all data back at once (fast!)
   if (changes > 0) {
     range.setValues(data);
   }
-  
-  Logger.log("  → " + changes + " cells changed in " + sheet.getName());
+
+  Logger.log("  -> " + changes + " cells changed in " + sheet.getName());
   return changes;
+}
+
+/* ===== CANONICAL SET =====
+   Every valid French value, lowercase + accent-free. Built once from MAPPING.
+   This is what lets the script fix rows that were ALREADY translated to French
+   by hand ("Kénitra", "CDI (Contrat à durée indéterminée)") and bring them to
+   the same canonical shape the form now submits ("kenitra", "cdi (...)"). */
+var CANONICAL = null;
+function canonicalSet() {
+  if (!CANONICAL) {
+    CANONICAL = {};
+    Object.keys(MAPPING).forEach(function (k) { CANONICAL[MAPPING[k]] = true; });
+  }
+  return CANONICAL;
+}
+
+// "Kénitra" -> "kenitra". Mirrors the form's toAscii() exactly: only LATIN
+// accents are stripped, and the result is recomposed to NFC so non-Latin script
+// (Arabic names) is never silently rewritten into a decomposed byte sequence.
+function toCanonical(s) {
+  return s.normalize("NFD").replace(/([A-Za-z])[\u0300-\u036f]+/g, "$1").normalize("NFC").toLowerCase();
+}
+
+/**
+ * Translate ONE atomic value (no separators).
+ * Returns the canonical value, or null when nothing is known about it
+ * (free text like a name or a neighbourhood -> caller leaves it alone).
+ */
+function translateOne(raw) {
+  var v = raw.trim();
+  if (v === "") return null;
+
+  // 1) Arabic -> canonical
+  if (MAPPING[v]) return MAPPING[v];
+
+  // 2) Already French (any case / accents) -> canonical
+  var c = toCanonical(v);
+  if (canonicalSet()[c]) return c;
+
+  return null;
 }
 
 /**
  * Translate a single cell value.
- * Handles both single values and comma/newline-separated lists.
+ * Handles single values and comma/newline-separated multi-selects.
  */
 function translateCell(cellValue) {
-  // First, try exact match (fastest path for single-value cells)
-  if (MAPPING[cellValue.trim()]) {
-    return MAPPING[cellValue.trim()];
-  }
-  
-  // Check if cell contains comma-separated values
-  // Common separators in Google Sheets multi-select: ", " or "," or "\n"
-  const separators = [", ", ",", "\n"];
-  
-  for (const sep of separators) {
-    if (cellValue.indexOf(sep) !== -1) {
-      const parts = cellValue.split(sep);
-      let anyChanged = false;
-      const translated = parts.map(function(part) {
-        const trimmed = part.trim();
-        if (MAPPING[trimmed]) {
-          anyChanged = true;
-          return MAPPING[trimmed];
-        }
-        return trimmed;
-      });
-      if (anyChanged) {
-        return translated.join(sep);
-      }
+  var single = translateOne(cellValue);
+  if (single !== null) return single;
+
+  // Multi-select cells: ", " / "," / newline separated
+  var separators = [", ", ",", "\n"];
+  for (var i = 0; i < separators.length; i++) {
+    var sep = separators[i];
+    if (cellValue.indexOf(sep) === -1) continue;
+
+    var parts = cellValue.split(sep);
+    var out = [];
+    var allKnown = true;
+    for (var j = 0; j < parts.length; j++) {
+      var t = translateOne(parts[j]);
+      if (t === null) { allKnown = false; break; }
+      out.push(t);
+    }
+
+    /* Rewrite ONLY when every fragment is a known option value.
+       A single unknown fragment means this is free text that merely happens to
+       contain a comma -- e.g. "Groupe Scolaire Al Amal, Casablanca" in the
+       schools textarea. Without this guard the "Casablanca" fragment alone
+       would be rewritten and the sentence silently mangled. */
+    if (allKnown && out.length) {
+      var joined = out.join(sep);
+      if (joined !== cellValue) return joined;
+      return cellValue;
     }
   }
-  
-  // No match found — return original (free text fields stay untouched)
+
+  // Unknown -> untouched (names, neighbourhoods, emails, free text)
   return cellValue;
+}
+
+/* ===== PHONE COLUMNS =====
+   Phones are normalized to +212XXXXXXXXX, matching what the form now sends.
+   Only columns named exactly like these are touched. */
+var PHONE_COLUMNS = { whatsapp: 1, prev_employer_phone: 1, phone: 1 };
+
+/* ===== FREE-TEXT COLUMNS =====
+   Whatever the visitor typed. These get lowercase + Latin-accent stripping ONLY
+   -- never value mapping -- exactly matching what the form now does on submit,
+   so migrated rows and new rows end up in the same shape.
+   Lowercasing the email also makes duplicate detection reliable
+   ("Ahmed@Gmail.com" and "ahmed@gmail.com" are the same person). */
+var TEXT_COLUMNS = {
+  first_name: 1, last_name: 1, neighborhood: 1, email: 1,
+  city_other: 1, diploma_other: 1, specialty: 1, university: 1,
+  admin_position_other: 1, skill_other_text: 1,
+  last_inst: 1, last_role: 1, schools: 1, prev_employer_name: 1, notes: 1
+};
+
+/* ===== COLUMNS NEVER TOUCHED =====
+   System / bookkeeping columns, plus the numeric ones. Skipping by NAME is the
+   strongest protection available: nothing here can be altered even by accident.
+   Note CV_URL etc. are excluded because lowercasing a Drive link breaks it. */
+var SKIP_COLUMNS = {
+  age: 1, salary_custom: 1,
+  submittedAt: 1, profile_type: 1, consent: 1, truth_consent: 1,
+  CV_URL: 1, CERTS_URL: 1, PHOTO_URL: 1, WORKCERT_URL: 1, verification: 1,
+  submissionId: 1, status: 1, currentStep: 1, createdAt: 1, updatedAt: 1,
+  resume_url: 1, nudge1_at: 1, nudge2_at: 1, nudge3_at: 1, welcomed: 1, wa_sent_at: 1
+};
+
+/* Decide what to do with one cell, given its column name. */
+function convertCell(colName, cell) {
+  if (SKIP_COLUMNS[colName]) return cell;                    // untouched
+  if (PHONE_COLUMNS[colName]) return normalizePhoneMa(cell); // -> +212XXXXXXXXX
+  if (TEXT_COLUMNS[colName]) return toCanonical(cell.trim());// -> lowercase ascii
+  return translateCell(cell);                                // -> mapped value
+}
+
+function normalizePhoneMa(v) {
+  var s = String(v).replace(/[\s\-().]/g, "");
+  if (!s) return "";
+  if (s.indexOf("00") === 0) s = s.slice(2);
+  else if (s.charAt(0) === "+") s = s.slice(1);
+  if (s.indexOf("212") === 0) s = s.slice(3);
+  else if (s.charAt(0) === "0") s = s.slice(1);
+  // Not a recognizable Moroccan number -> leave exactly as-is (never guess).
+  return /^[567]\d{8}$/.test(s) ? "+212" + s : String(v).trim();
 }
 
 /**
  * Optional: Run this to see what WOULD change without actually changing anything
  */
 function dryRun() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const allSheets = ["Sheet1", "Form Responses 1", "Administration"];
-  
-  let report = "=== DRY RUN (no changes made) ===\n\n";
-  
-  for (const name of allSheets) {
-    const sheet = ss.getSheetByName(name);
-    if (!sheet) continue;
-    
-    const lastRow = sheet.getLastRow();
-    const lastCol = sheet.getLastColumn();
+  var ss = getSpreadsheet();
+  var allSheets = ["Sheet1", "Form Responses 1", "Administration"];
+
+  var report = "=== DRY RUN (no changes made) ===\n\n";
+
+  for (var i = 0; i < allSheets.length; i++) {
+    var name = allSheets[i];
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) { report += name + ": SHEET NOT FOUND\n\n"; continue; }
+
+    var lastRow = sheet.getLastRow();
+    var lastCol = sheet.getLastColumn();
     if (lastRow < 2) continue;
-    
-    const data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
-    let sheetChanges = 0;
-    
-    for (let r = 0; r < data.length; r++) {
-      for (let c = 0; c < data[r].length; c++) {
-        const cell = data[r][c];
+
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+    var sheetChanges = 0;
+
+    for (var r = 0; r < data.length; r++) {
+      for (var c = 0; c < data[r].length; c++) {
+        var cell = data[r][c];
         if (typeof cell !== "string" || cell === "") continue;
-        const newValue = translateCell(cell);
+
+        var colName = String(header[c] || "").trim();
+        var newValue = convertCell(colName, cell);
+
         if (newValue !== cell) {
           sheetChanges++;
-          if (sheetChanges <= 10) { // show first 10 examples
-            report += name + " [Row " + (r+2) + ", Col " + (c+1) + "]: \"" + cell + "\" → \"" + newValue + "\"\n";
+          if (sheetChanges <= 15) { // show first 15 examples per sheet
+            report += name + " [Row " + (r + 2) + ", " + (colName || "Col " + (c + 1)) +
+                      "]: \"" + cell + "\" -> \"" + newValue + "\"\n";
           }
         }
       }
     }
-    
+
     report += "\n" + name + ": " + sheetChanges + " cells would change\n\n";
   }
-  
+
+  // Logged only. getUi() is unavailable when the script is bound via SHEET_ID,
+  // so we never call it -- open View > Execution log to read the report.
   Logger.log(report);
-  SpreadsheetApp.getUi().alert(report.substring(0, 2000)); // alert has a char limit
 }

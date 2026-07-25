@@ -145,30 +145,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // city -> "Autre ville"
+  // city -> "autre ville"
   document.getElementById("city").addEventListener("change", e => {
-    const show = e.target.value === "Autre ville";
+    const show = e.target.value === "autre ville";
     const inp = document.getElementById("city_other");
     inp.dataset.req = "1";
     toggle(cityOther, show);
   });
 
-  // diploma -> "Autre"
+  // diploma -> "autre"
   document.getElementById("diploma").addEventListener("change", e => {
-    const show = e.target.value === "Autre";
+    const show = e.target.value === "autre";
     document.getElementById("diploma_other").dataset.req = "1";
     toggle(diplomaOther, show);
   });
 
-  // experience -> "Oui" shows the block, "Non (nouveau diplômé)" hides
+  // experience -> "oui" shows the block, "non (nouveau diplome)" hides
   form.querySelectorAll('input[name="has_experience"]').forEach(r => {
-    r.addEventListener("change", e => toggle(expBlock, e.target.value === "Oui"));
+    r.addEventListener("change", e => toggle(expBlock, e.target.value === "oui"));
   });
 
-  // salary -> "Autre montant" reveals the custom amount field
+  // salary -> "autre montant" reveals the custom amount field
   const salaryCustomWrap = document.getElementById("salary-custom-wrap");
   const salarySel = document.getElementById("salary_expectation");
-  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "Autre montant"));
+  if (salarySel) salarySel.addEventListener("change", e => toggle(salaryCustomWrap, e.target.value === "autre montant"));
 
   // contract "لا يهم" -> selecting it clears + disables the specific contract types
   (function () {
@@ -182,10 +182,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // filter subjects by selected track (علمي / أدبي / أولي)
   const TRACK_GROUP = {
-    "Scientifique / Technique": "علمي",
-    "Littéraire / Sciences humaines": "أدبي",
-    "Éducation préscolaire et éducatrices": "أولي",
-    "Éducation artistique et culturelle": "فنون",
+    "scientifique / technique": "علمي",
+    "litteraire / sciences humaines": "أدبي",
+    "education prescolaire et educatrices": "أولي",
+    "education artistique et culturelle": "فنون",
   };
   function filterSubjects() {
     const checked = form.querySelector('input[name="track"]:checked');
@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // track is chosen we swap the age-levels + institution lists to their preschool
   // set (data-track="early") and reveal the early-ed-only fields (role + accompanist).
   // Everything marked data-track="general" is shown for the other tracks instead.
-  const EARLY_TRACK = "Éducation préscolaire et éducatrices";
+  const EARLY_TRACK = "education prescolaire et educatrices";
   function applyTrackUI() {
     const checked = form.querySelector('input[name="track"]:checked');
     const isEarly = !!checked && checked.value === EARLY_TRACK;
@@ -334,13 +334,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  /* ---------- outgoing data normalization ----------
+     The database is populated in lowercase ASCII so records stay easy to match
+     and de-duplicate. Dropdown/checkbox values are already lowercase in the
+     HTML; this normalizes what the visitor TYPES so free text matches too.
+
+     Fields excluded on purpose:
+       - whatsapp / prev_employer_phone : normalized to +212 instead (see below)
+       - salary_custom / age            : numbers, nothing to lower
+       - consent / truth_consent        : fixed markers
+       - website                        : honeypot, must stay untouched
+  */
+  const NO_LOWER = { whatsapp: 1, prev_employer_phone: 1, salary_custom: 1, age: 1, consent: 1, truth_consent: 1, website: 1 };
+  const PHONE_FIELDS = { whatsapp: 1, prev_employer_phone: 1 };
+
+  // Strip LATIN accents so "Kénitra" typed by hand still matches the "kenitra"
+  // option. The [A-Za-z] guard + NFC recompose matter: a bare NFD strip would
+  // also pull the hamza off Arabic letters and leave the text decomposed, so
+  // "أحمد" would silently become a different byte sequence that renders the
+  // same. Non-Latin script is returned byte-identical.
+  function toAscii(s) {
+    try {
+      return s.normalize("NFD").replace(/([A-Za-z])[\u0300-\u036f]+/g, "$1").normalize("NFC");
+    } catch (e) { return s; }
+  }
+
+  // Every Moroccan number is stored in one canonical shape: +212XXXXXXXXX.
+  // Accepts 06xxxxxxxx, 6xxxxxxxx, 212..., 00212..., and spaced/dashed input.
+  // Anything that doesn't look Moroccan is returned trimmed but unchanged, so a
+  // typo is never silently turned into a different valid number.
+  function normalizePhoneMa(v) {
+    var s = String(v).replace(/[\s\-().]/g, "");
+    if (!s) return "";
+    if (s.indexOf("00") === 0) s = s.slice(2);
+    else if (s.charAt(0) === "+") s = s.slice(1);
+    if (s.indexOf("212") === 0) s = s.slice(3);
+    else if (s.charAt(0) === "0") s = s.slice(1);
+    return /^[567]\d{8}$/.test(s) ? "+212" + s : String(v).trim();
+  }
+
   function collectData() {
     const data = {};
     const fd = new FormData(form);
     for (const [k, v] of fd.entries()) {
       if (v instanceof File) continue;            // files handled separately
-      if (data[k]) data[k] = [].concat(data[k], v).join(", ");  // multi-checkbox -> joined
-      else data[k] = v;
+      let val = v;
+      if (typeof val === "string") {
+        val = val.trim();
+        if (PHONE_FIELDS[k]) val = normalizePhoneMa(val);
+        else if (!NO_LOWER[k]) val = toAscii(val).toLowerCase();
+      }
+      if (data[k]) data[k] = [].concat(data[k], val).join(", ");  // multi-checkbox -> joined
+      else data[k] = val;
     }
     return data;
   }
