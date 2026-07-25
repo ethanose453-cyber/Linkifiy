@@ -302,9 +302,16 @@ function migrateSheet(sheet) {
   for (var r = 0; r < data.length; r++) {
     for (var c = 0; c < data[r].length; c++) {
       var cell = data[r][c];
-      if (typeof cell !== "string" || cell === "") continue;
+      if (cell === "" || cell === null || cell === undefined) continue;
 
       var colName = String(header[c] || "").trim();
+      /* A phone may have been stored as a NUMBER (612345678). Those cells would
+         otherwise be skipped and never normalized, so coerce them to text. */
+      if (typeof cell !== "string") {
+        if (!(PHONE_COLUMNS[colName] && typeof cell === "number")) continue;
+        cell = String(cell);
+      }
+
       var newValue = convertCell(colName, cell);
 
       if (newValue !== cell) {
@@ -452,6 +459,81 @@ function normalizePhoneMa(v) {
 }
 
 /**
+ * RUN THIS FIRST. Changes nothing.
+ *
+ * Lists every DISTINCT value found in each enumerated column, with a count and
+ * a marker showing what the migration would do with it:
+ *
+ *   [ok]      already canonical, nothing to do
+ *   [->]      recognized, will be converted
+ *   [UNKNOWN] not recognized -> would be LEFT AS-IS
+ *
+ * Every [UNKNOWN] is a value that will silently stay inconsistent. Read that
+ * list carefully and send it over before running migrateAllSheets(), so any
+ * missing spelling can be added to MAPPING first.
+ */
+function auditValues() {
+  var ss = getSpreadsheet();
+  var sheets = ["Sheet1", "Form Responses 1", "Administration"];
+  var out = "=== VALUE AUDIT (nothing changed) ===\n";
+
+  for (var i = 0; i < sheets.length; i++) {
+    var name = sheets[i];
+    var sheet = ss.getSheetByName(name);
+    if (!sheet) { out += "\n### " + name + ": SHEET NOT FOUND\n"; continue; }
+
+    var lastRow = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+    if (lastRow < 2) { out += "\n### " + name + ": empty\n"; continue; }
+
+    var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+    out += "\n\n######## " + name + " (" + (lastRow - 1) + " rows) ########";
+
+    for (var c = 0; c < lastCol; c++) {
+      var col = String(header[c] || "").trim();
+      // Only enumerated columns matter here. Free text and system columns are
+      // either pure-lowercased or skipped, so there is nothing to review.
+      if (!col || SKIP_COLUMNS[col] || TEXT_COLUMNS[col] || PHONE_COLUMNS[col]) continue;
+
+      var counts = {};
+      for (var r = 0; r < data.length; r++) {
+        var v = data[r][c];
+        if (v === "" || v === null || v === undefined) continue;
+        v = String(v);
+        // multi-select cells are audited fragment by fragment
+        var parts = (v.indexOf(",") !== -1) ? v.split(",") : [v];
+        for (var p = 0; p < parts.length; p++) {
+          var frag = parts[p].trim();
+          if (frag !== "") counts[frag] = (counts[frag] || 0) + 1;
+        }
+      }
+
+      var keys = Object.keys(counts);
+      if (!keys.length) continue;
+      keys.sort();
+
+      var lines = [], unknown = 0;
+      for (var k = 0; k < keys.length; k++) {
+        var val = keys[k];
+        var conv = translateOne(val);
+        var tag;
+        if (conv === null) { tag = "[UNKNOWN] "; unknown++; }
+        else if (conv === val) { tag = "[ok]      "; }
+        else { tag = "[->] " + conv + "   <= "; }
+        lines.push("    " + tag + JSON.stringify(val) + "  x" + counts[val]);
+      }
+
+      out += "\n\n  -- " + col + " (" + keys.length + " distinct"
+           + (unknown ? ", " + unknown + " UNKNOWN" : "") + ")\n"
+           + lines.join("\n");
+    }
+  }
+
+  Logger.log(out);
+}
+
+/**
  * Optional: Run this to see what WOULD change without actually changing anything
  */
 function dryRun() {
@@ -476,9 +558,14 @@ function dryRun() {
     for (var r = 0; r < data.length; r++) {
       for (var c = 0; c < data[r].length; c++) {
         var cell = data[r][c];
-        if (typeof cell !== "string" || cell === "") continue;
+        if (cell === "" || cell === null || cell === undefined) continue;
 
         var colName = String(header[c] || "").trim();
+        if (typeof cell !== "string") {
+          if (!(PHONE_COLUMNS[colName] && typeof cell === "number")) continue;
+          cell = String(cell);
+        }
+
         var newValue = convertCell(colName, cell);
 
         if (newValue !== cell) {
