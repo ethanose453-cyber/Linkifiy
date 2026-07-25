@@ -332,21 +332,39 @@
             <div class="field">
               <span class="label"><span data-i18n="f.subjects">المواد / اللغات التي تريد تدريسها</span> <span class="req">*</span></span>
               <small class="hint subjects-hint" data-i18n="hint.subjects">المواد معروضة بناءً على توجهك العام. غيّر التوجه في الخطوة السابقة لتتغيّر.</small>
+              <!-- Subjects are filtered by the chosen track (see filterSubjects in
+                   form.js), which matches any group listed in data-group.
+
+                   A scientific teacher is often willing to teach a language or
+                   another literary subject, so every literary subject carries
+                   BOTH groups and stays visible to them. Scientific subjects
+                   remain "علمي" only, so a literary teacher is not offered
+                   physics or maths.
+
+                   DOM order is the display order: sciences first, then the
+                   languages, then the remaining literary subjects. That way a
+                   scientific teacher sees their own subjects on top with the
+                   literary ones underneath, and a literary teacher opens on the
+                   languages. -->
               <div class="check-grid">
+                <!-- sciences: scientific track only -->
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="mathematiques" /> <span data-i18n="sub.math">الرياضيات</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="physique-chimie" /> <span data-i18n="sub.pc">الفيزياء والكيمياء</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="sciences de la vie et de la terre" /> <span data-i18n="sub.svt">علوم الحياة والأرض</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="informatique" /> <span data-i18n="sub.it">المعلوميات</span></label>
-                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="education physique et sportive" /> <span data-i18n="sub.sport">التربية البدنية والرياضية</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="gestion et comptabilite" /> <span data-i18n="sub.acc">تسيير ومحاسبة</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="education islamique" /> <span data-i18n="sub.islam">التربية الإسلامية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="langue arabe" /> <span data-i18n="sub.arabic">اللغة العربية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="langue francaise" /> <span data-i18n="sub.french">اللغة الفرنسية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="langue anglaise" /> <span data-i18n="sub.english">اللغة الإنجليزية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="langue espagnole" /> <span data-i18n="sub.spanish">اللغة الإسبانية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="langue allemande" /> <span data-i18n="sub.german">اللغة الألمانية</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="philosophie" /> <span data-i18n="sub.philo">الفلسفة</span></label>
-                <label class="check" data-group="أدبي"><input type="checkbox" name="subjects" value="histoire-geographie" /> <span data-i18n="sub.hist">التاريخ والجغرافيا</span></label>
+                <!-- languages first in the shared block -->
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="langue francaise" /> <span data-i18n="sub.french">اللغة الفرنسية</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="langue anglaise" /> <span data-i18n="sub.english">اللغة الإنجليزية</span></label>
+                <!-- remaining literary subjects, shared with the scientific track -->
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="langue arabe" /> <span data-i18n="sub.arabic">اللغة العربية</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="langue espagnole" /> <span data-i18n="sub.spanish">اللغة الإسبانية</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="langue allemande" /> <span data-i18n="sub.german">اللغة الألمانية</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="philosophie" /> <span data-i18n="sub.philo">الفلسفة</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="histoire-geographie" /> <span data-i18n="sub.hist">التاريخ والجغرافيا</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="education islamique" /> <span data-i18n="sub.islam">التربية الإسلامية</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="education physique et sportive" /> <span data-i18n="sub.sport">التربية البدنية والرياضية</span></label>
+                <!-- arts: artistic track only -->
                 <label class="check" data-group="فنون"><input type="checkbox" name="subjects" value="arts plastiques et visuels" /> <span data-i18n="sub.artsVisual">التربية التشكيلية والفنون البصرية (رسم، نحت، أشغال يدوية)</span></label>
                 <label class="check" data-group="فنون"><input type="checkbox" name="subjects" value="theatre et arts de la scene" /> <span data-i18n="sub.artsTheater">المسرح والفنون الأدائية (التعبير الجسدي والتشخيص)</span></label>
                 <label class="check" data-group="فنون"><input type="checkbox" name="subjects" value="education musicale" /> <span data-i18n="sub.artsMusic">التربية الموسيقية</span></label>
