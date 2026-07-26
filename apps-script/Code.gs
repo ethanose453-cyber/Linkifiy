@@ -751,9 +751,120 @@ function saveFile(folder, fileObj, baseName) {
   var safeName = sanitizeToken(baseName) + "_" + String(fileObj.name || "file").replace(/[^\w.\-]/g, "_");
   var blob = Utilities.newBlob(bytes, fileObj.type || "application/octet-stream", safeName);
   var file = folder.createFile(blob);
-  try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) {}
+  /* Uploads stay PRIVATE.
+
+     These are CVs: full name, phone, email, address, studies, previous
+     employers, often a photo. The previous setting was ANYONE_WITH_LINK, which
+     let anyone holding the URL read one with no account, no permission and no
+     trace -- and those URLs are stored in the sheet, so anyone who ever sees the
+     sheet or a screenshot of it holds them permanently.
+
+     Link-sharing was never needed: the team reaches these files through the
+     Drive folder they own. Grant access by sharing the "Linkify Uploads" FOLDER
+     with the specific people who need it, not by publishing every file.
+
+     Set explicitly rather than relying on the folder's current state, so a
+     folder that is itself link-shared cannot silently make uploads public. */
+  try { file.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE); } catch (e) {}
   return file.getUrl();
 }
+
+/* ============ UPLOAD SHARING MAINTENANCE ============
+   saveFile() now keeps new uploads private, but every file uploaded BEFORE that
+   change is still shared with "anyone with the link". These two functions report
+   on and repair the existing files.
+
+   Run auditUploadSharing() first: it changes nothing and tells you how many
+   files are currently public. Then run lockDownUploads() until it reports DONE.
+
+   Both are resumable. Apps Script stops a function at 6 minutes, and there can
+   easily be over a thousand files, so progress is saved in a continuation token
+   and each run picks up where the last one stopped. Re-run until you see DONE.
+   ==================================================================== */
+
+var LOCKDOWN_TOKEN_KEY = "uploadLockdownToken";
+var LOCKDOWN_BUDGET_MS = 4.5 * 60 * 1000;   // stop well before the 6-minute kill
+
+function isPubliclyShared(file) {
+  try {
+    var a = file.getSharingAccess();
+    return a === DriveApp.Access.ANYONE || a === DriveApp.Access.ANYONE_WITH_LINK;
+  } catch (e) { return false; }
+}
+
+/* Changes nothing. Counts how many uploads are readable by anyone with the URL. */
+function auditUploadSharing() {
+  var started = Date.now();
+  var it = getFolder().getFiles();
+  var total = 0, pub = 0, examples = [];
+
+  while (it.hasNext()) {
+    if (Date.now() - started > LOCKDOWN_BUDGET_MS) {
+      Logger.log("Stopped early after " + total + " files (time limit). Counts so far:");
+      break;
+    }
+    var f = it.next();
+    total++;
+    if (isPubliclyShared(f)) {
+      pub++;
+      if (examples.length < 5) examples.push(f.getName());
+    }
+  }
+
+  Logger.log("Files scanned : " + total);
+  Logger.log("PUBLIC        : " + pub + "   (readable by anyone with the link)");
+  Logger.log("private       : " + (total - pub));
+  if (examples.length) Logger.log("examples      : " + examples.join(", "));
+  Logger.log(pub ? "\nRun lockDownUploads() to make these private."
+                 : "\nNothing to fix.");
+}
+
+/* Makes every upload private. Resumable: re-run until it logs DONE. */
+function lockDownUploads() {
+  var started = Date.now();
+  var store = PropertiesService.getScriptProperties();
+  var token = store.getProperty(LOCKDOWN_TOKEN_KEY);
+
+  var it = token ? DriveApp.continueFileIterator(token) : getFolder().getFiles();
+  var seen = 0, changed = 0, failed = 0;
+
+  while (it.hasNext()) {
+    if (Date.now() - started > LOCKDOWN_BUDGET_MS) {
+      store.setProperty(LOCKDOWN_TOKEN_KEY, it.getContinuationToken());
+      Logger.log("Paused to stay inside the time limit.");
+      Logger.log("  this run: seen " + seen + ", made private " + changed + ", failed " + failed);
+      Logger.log("  RUN lockDownUploads() AGAIN to continue.");
+      return;
+    }
+    var f = it.next();
+    seen++;
+    if (!isPubliclyShared(f)) continue;
+    try {
+      /* PRIVATE removes the "anyone with the link" grant. People and groups the
+         file or its folder was explicitly shared with keep their access, so the
+         team does not lose anything. */
+      f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+      changed++;
+    } catch (e) {
+      failed++;
+      Logger.log("  could not change: " + f.getName() + " -- " + e);
+    }
+  }
+
+  store.deleteProperty(LOCKDOWN_TOKEN_KEY);
+  Logger.log("DONE.");
+  Logger.log("  this run: seen " + seen + ", made private " + changed + ", failed " + failed);
+  if (failed) Logger.log("  re-run once more to retry the failures.");
+  Logger.log("  Verify with auditUploadSharing() -- it should report PUBLIC: 0");
+}
+
+/* Clears a stale continuation token if a run died mid-way and you want to start
+   the sweep from the beginning again. */
+function resetUploadLockdown() {
+  PropertiesService.getScriptProperties().deleteProperty(LOCKDOWN_TOKEN_KEY);
+  Logger.log("Progress reset. The next lockDownUploads() starts from the first file.");
+}
+
 
 // Central mail sender. Uses optional Script Properties so you can brand emails:
 //   MAIL_NAME  -> sender display name (e.g. "Linkify.ma") - works right away
