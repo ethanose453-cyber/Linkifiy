@@ -650,7 +650,8 @@ function saveFile(folder, fileObj, baseName) {
    ==================================================================== */
 
 var LOCKDOWN_TOKEN_KEY = "uploadLockdownToken";
-var LOCKDOWN_BUDGET_MS = 4.5 * 60 * 1000;   // stop well before the 6-minute kill
+var LOCKDOWN_DONE_KEY  = "uploadLockdownDone";   // cumulative count across passes
+var LOCKDOWN_BUDGET_MS = 4.5 * 60 * 1000;        // stop well before the 6-minute kill
 
 function isPubliclyShared(file) {
   try {
@@ -686,50 +687,107 @@ function auditUploadSharing() {
                  : "\nNothing to fix.");
 }
 
-/* Makes every upload private. Resumable: re-run until it logs DONE. */
+/* Schedules the sweep to run itself until it finishes, then stop.
+   With a couple of thousand files a single pass is not enough, and clicking Run
+   six or seven times is a good way to lose track of where you are. */
+function startUploadLockdown() {
+  stopUploadLockdown();
+  ScriptApp.newTrigger("lockDownUploads").timeBased().everyMinutes(5).create();
+  Logger.log("Scheduled: lockDownUploads() every 5 minutes. It deletes its own");
+  Logger.log("trigger once every file is done, so there is nothing to turn off.");
+  Logger.log("Running the first pass now...\n");
+  lockDownUploads();
+}
+
+function stopUploadLockdown() {
+  var n = 0;
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === "lockDownUploads") { ScriptApp.deleteTrigger(t); n++; }
+  });
+  if (n) Logger.log("Removed " + n + " scheduled sweep trigger(s).");
+  return n;
+}
+
+/* Makes every upload private. Resumable, and safe to run manually or on a
+   trigger. Re-run (or let the trigger re-run it) until it logs DONE. */
 function lockDownUploads() {
-  var started = Date.now();
-  var store = PropertiesService.getScriptProperties();
-  var token = store.getProperty(LOCKDOWN_TOKEN_KEY);
-
-  var it = token ? DriveApp.continueFileIterator(token) : getFolder().getFiles();
-  var seen = 0, changed = 0, failed = 0;
-
-  while (it.hasNext()) {
-    if (Date.now() - started > LOCKDOWN_BUDGET_MS) {
-      store.setProperty(LOCKDOWN_TOKEN_KEY, it.getContinuationToken());
-      Logger.log("Paused to stay inside the time limit.");
-      Logger.log("  this run: seen " + seen + ", made private " + changed + ", failed " + failed);
-      Logger.log("  RUN lockDownUploads() AGAIN to continue.");
-      return;
-    }
-    var f = it.next();
-    seen++;
-    if (!isPubliclyShared(f)) continue;
-    try {
-      /* PRIVATE removes the "anyone with the link" grant. People and groups the
-         file or its folder was explicitly shared with keep their access, so the
-         team does not lose anything. */
-      f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
-      changed++;
-    } catch (e) {
-      failed++;
-      Logger.log("  could not change: " + f.getName() + " -- " + e);
-    }
+  /* A manual run and a scheduled run must never share a continuation token, or
+     one of them would skip a whole batch. */
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(1000)) {
+    Logger.log("Another sweep is already running -- skipping this pass.");
+    return;
   }
 
-  store.deleteProperty(LOCKDOWN_TOKEN_KEY);
-  Logger.log("DONE.");
-  Logger.log("  this run: seen " + seen + ", made private " + changed + ", failed " + failed);
-  if (failed) Logger.log("  re-run once more to retry the failures.");
-  Logger.log("  Verify with auditUploadSharing() -- it should report PUBLIC: 0");
+  try {
+    var started = Date.now();
+    var store = PropertiesService.getScriptProperties();
+    var token = store.getProperty(LOCKDOWN_TOKEN_KEY);
+    var done = parseInt(store.getProperty(LOCKDOWN_DONE_KEY) || "0", 10);
+
+    var it = token ? DriveApp.continueFileIterator(token) : getFolder().getFiles();
+    var seen = 0, failed = 0;
+
+    while (it.hasNext()) {
+      if (Date.now() - started > LOCKDOWN_BUDGET_MS) {
+        store.setProperty(LOCKDOWN_TOKEN_KEY, it.getContinuationToken());
+        store.setProperty(LOCKDOWN_DONE_KEY, String(done + seen));
+        Logger.log("Paused to stay inside the time limit.");
+        Logger.log("  this pass: " + seen + " file(s), failed " + failed);
+        Logger.log("  total so far: " + (done + seen));
+        Logger.log(stillScheduled() ? "  the trigger will continue automatically in ~5 min."
+                                    : "  RUN lockDownUploads() AGAIN to continue.");
+        return;
+      }
+      var f = it.next();
+      seen++;
+      try {
+        /* Set unconditionally instead of reading getSharingAccess() first.
+           Checking doubled the Drive calls per file and halved throughput; on an
+           already-private file this is simply a no-op. auditUploadSharing()
+           confirms the end state, so nothing is lost by not checking here.
+
+           PRIVATE removes only the anyone-with-link grant. People and groups
+           with explicit access to the file or its folder keep it, so the team
+           does not lose anything. */
+        f.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+      } catch (e) {
+        failed++;
+        if (failed <= 5) Logger.log("  could not change: " + f.getName() + " -- " + e);
+      }
+    }
+
+    store.deleteProperty(LOCKDOWN_TOKEN_KEY);
+    store.deleteProperty(LOCKDOWN_DONE_KEY);
+    stopUploadLockdown();
+
+    Logger.log("DONE.");
+    Logger.log("  this pass: " + seen + " file(s), failed " + failed);
+    Logger.log("  total processed: " + (done + seen));
+    if (failed) Logger.log("  re-run once more to retry the failures.");
+    Logger.log("  Verify with auditUploadSharing() -- it should report PUBLIC: 0");
+  } finally {
+    try { lock.releaseLock(); } catch (e) {}
+  }
+}
+
+function stillScheduled() {
+  var found = false;
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === "lockDownUploads") found = true;
+  });
+  return found;
 }
 
 /* Clears a stale continuation token if a run died mid-way and you want to start
    the sweep from the beginning again. */
 function resetUploadLockdown() {
-  PropertiesService.getScriptProperties().deleteProperty(LOCKDOWN_TOKEN_KEY);
-  Logger.log("Progress reset. The next lockDownUploads() starts from the first file.");
+  var store = PropertiesService.getScriptProperties();
+  store.deleteProperty(LOCKDOWN_TOKEN_KEY);
+  store.deleteProperty(LOCKDOWN_DONE_KEY);
+  stopUploadLockdown();
+  Logger.log("Progress reset and any schedule removed.");
+  Logger.log("The next lockDownUploads() starts from the first file.");
 }
 
 
