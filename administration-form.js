@@ -165,11 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
     r.addEventListener("change", e => toggle(expBlock, e.target.value === "oui"));
   });
 
-  // custom skill checkbox
-  document.getElementById("skill_other").addEventListener("change", e => {
-    toggle(skillOther, e.target.checked);
-  });
-
   // "other administrative position" -> reveal the free-text field (admin form)
   var _posOther = document.getElementById("position_other");
   var _posOtherWrap = document.getElementById("position-other-wrap");
@@ -248,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (inp.required && !inp.value.trim()) ok = fail(inp, T("v.required")) && false;
       else if (inp.type === "email" && inp.value && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inp.value))
         ok = fail(inp, T("v.email")) && false;
-      else if ((inp.id === "whatsapp" || inp.id === "prev_employer_phone") && inp.value && !isValidMaPhone(inp.value))
+      else if (inp.id === "whatsapp" && inp.value && !isValidMaPhone(inp.value))
         ok = fail(inp, T("v.phone")) && false;
     });
 
@@ -571,8 +566,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     form.querySelectorAll('input[name="has_experience"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
     form.querySelectorAll('input[name="track"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
-    const so = document.getElementById("skill_other");
-    if (so && so.checked) so.dispatchEvent(new Event("change"));
     filterSubjects();
     applyTrackUI();
   }
