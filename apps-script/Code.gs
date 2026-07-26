@@ -118,6 +118,130 @@ function setupSecrets() {
 }
 
 
+/* ============ SERVER-SIDE ALLOW-LIST FOR ENUMERATED FIELDS ============
+   The forms already restrict these values, but client-side constraints are UX
+   only: a POST sent straight to this Web App URL never touches the page. Without
+   this check arbitrary text can be written into the very columns the database
+   and the matching depend on.
+
+   Generated from the shipped forms so it cannot drift from what they offer.
+   Regenerate whenever an option is added.
+
+   Single vs multi matters and is not cosmetic. Several SINGLE-select values
+   contain ", " themselves -- "oui, tout a fait pret", "oui, voiture",
+   "oui, disponible pour remplacement urgent" -- so they must be matched whole.
+   Splitting them would reject transport, relocate and substitute on every
+   single submission. No MULTI value currently contains ", ", which is what makes
+   the split below safe; the generator fails loudly if that ever stops being true.
+
+   Rollout is deliberately two-stage. Violations are always recorded to the
+   "Rejected Values" tab, but nothing is refused until the ENUM_STRICT script
+   property is set to "true". That way a missing value shows up as a log line
+   instead of a teacher being unable to register.
+   ===================================================================== */
+
+var ENUM_TEACHER = {
+    accompanist: ["non", "oui"],
+    admin_position: ["adjoint(e) du directeur / surveillant(e) general(e)", "autre poste administratif", "conseiller(ere) d'orientation / psychologue ou assistant(e) social(e)", "directeur(trice) general(e) / directeur(trice) pedagogique", "inspecteur(trice) / superviseur(e) pedagogique", "responsable rh ou inscriptions", "secretaire / agent administratif / receptionniste", "surveillant(e) general(e)", "technicien informatique / maintenance"],
+    city: ["agadir", "ait melloul", "autre ville", "beni mellal", "berkane", "berrechid", "bouznika", "casablanca", "el jadida", "essaouira", "fes", "fquih ben salah", "inezgane", "kelaat sraghna", "kenitra", "khouribga", "ksar el kebir", "larache", "marrakech", "meknes", "mohammedia", "nador", "ouezzane", "oujda", "rabat", "safi", "sale", "sefrou", "settat", "sidi bennour", "sidi kacem", "sidi slimane", "skhirat", "tanger", "taroudant", "taza", "temara", "tetouan", "tiznit"],
+    contract_types: ["auto-entrepreneur / freelance", "cdd (contrat a duree determinee)", "cdi (contrat a duree indeterminee)", "periode d'essai", "peu importe (tout type de contrat)", "remplacement temporaire", "stage / insertion", "temps partiel", "vacataire (a l'heure)"],
+    diploma: ["autre", "bac+2", "baccalaureat", "doctorat", "ingenieur", "licence", "master", "niveau baccalaureat"],
+    early_role: ["assistante enseignante / aide-educatrice", "enseignante / educatrice"],
+    exp_years: ["entre 1 et 3 ans", "entre 4 et 5 ans", "moins d'un an", "plus de 5 ans"],
+    gender: ["f", "h"],
+    has_experience: ["non (nouveau diplome)", "oui"],
+    institution_types: ["centre de formation professionnelle", "centre de langues", "centre de soutien scolaire", "creche", "creche / prescolaire", "ecole privee", "etablissement d'enseignement superieur prive", "prescolaire (maternelle)"],
+    lang_en: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_ar: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+  lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+  lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+  lang_fr: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    levels: ["college", "creche (moins de 3 ans)", "enseignement superieur", "formation des adultes / formation continue", "grande section (5-6 ans)", "lycee", "moyenne section (4-5 ans)", "petite section (3-4 ans)", "prescolaire (3-5 ans)", "primaire"],
+    license: ["aucun permis", "permis moto", "permis voiture"],
+    relocate: ["non, ma ville uniquement", "oui, tout a fait pret", "selon l'offre et les avantages"],
+    salary_expectation: ["2000-3500", "4000-6000", "7000-9000", "autre montant", "peu importe"],
+    schedule: ["heures supplementaires / seances ponctuelles", "temps partiel", "temps plein", "tout ce qui precede"],
+    subjects: ["anglais", "animation culturelle et eveil artistique", "arabe uniquement", "arts plastiques et visuels", "ateliers pedagogiques et innovation", "autre matiere", "education islamique", "education musicale", "education physique et sportive", "francais", "gestion et comptabilite", "histoire-geographie", "informatique", "langue allemande", "langue anglaise", "langue arabe", "langue espagnole", "langue francaise", "mathematiques", "philosophie", "photographie et audiovisuel", "physique-chimie", "sciences de l'ingenieur", "sciences de la vie et de la terre", "technologie", "theatre et arts de la scene"],
+    substitute: ["non", "oui, disponible pour remplacement urgent", "oui, selon les circonstances"],
+    track: ["education artistique et culturelle", "education prescolaire et educatrices", "litteraire / sciences humaines", "scientifique / technique"],
+    transport: ["aucun moyen de transport", "oui, moto", "oui, voiture"]
+};
+var ENUM_SCHOOL = {
+    budget: ["2000-3500", "4000-6000", "7000-9000", "لا يهم", "مبلغ آخر"],
+    city: ["آسفي", "آيت ملول", "أكادير", "إنزكان", "الجديدة", "الدار البيضاء", "الرباط", "الصخيرات", "الصويرة", "العرائش", "الفقيه بن صالح", "القصر الكبير", "القنيطرة", "المحمدية", "الناضور", "برشيد", "بركان", "بني ملال", "بوزنيقة", "تارودانت", "تازة", "تطوان", "تمارة", "تيزنيت", "خريبكة", "سطات", "سلا", "سيدي بنور", "سيدي سليمان", "سيدي قاسم", "صفرو", "طنجة", "فاس", "قلعة السراغنة", "مدينة أخرى", "مراكش", "مكناس", "وجدة", "وزان"],
+    contract_types: ["CDD (محدد المدة)", "CDI (غير محدد المدة)", "بالتوقيت / بالساعة", "تدريب / إدماج", "تعويض مؤقت", "دوام جزئي", "عقد تجريبي", "لا يهم (أي نوع عقد)", "مقاول ذاتي / Freelance"],
+    degree: ["إجازة", "باكالوريا", "دبلوم (سنتان)", "دكتوراه", "لا يهم", "ماستر", "مهندس"],
+    institution_type: ["روض / تعليم أولي", "مؤسسة تعليم عالي خاص", "مؤسسة تكوين مهني", "مدرسة خاصة", "مركز دعم وتقوية", "مركز لغات"],
+    level: ["إعدادي", "ابتدائي", "تعليم أولي", "تكوين", "ثانوي تأهيلي", "حضانة", "دعم", "روض", "لغات"],
+    min_experience: ["3 سنوات فأكثر", "5 سنوات فأكثر", "سنة فأكثر"],
+    need_type: ["أريد تجربة الخدمة", "بداية السنة الدراسية", "خلال هذا الشهر", "فورية"],
+    prefer_local: ["لا يهم", "نعم، مفضّل"],
+    role: ["سكرتير(ة)", "صاحب(ة) المؤسسة", "مدير(ة)", "مسؤول(ة) تربوي(ة)", "مفتش(ة)", "منسق(ة)", "موارد بشرية"],
+    subject: ["إطار إداري آخر", "الإسبانية", "الاجتماعيات", "التربية الإسلامية", "التربية البدنية والرياضية", "التربية الفنية والثقافية", "التعليم الأولي", "الدعم واللغات", "الرياضيات", "الفرنسية", "الفلسفة", "الفيزياء والكيمياء", "اللغة الإنجليزية", "اللغة العربية", "المعلوميات", "تقني معلوميات / صيانة", "حارس(ة) عام", "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال", "علوم الحياة والأرض", "مادة أخرى", "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)", "مسؤول(ة) الموارد البشرية أو التسجيل", "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)", "مفتش(ة) / مشرف(ة) تربوي(ة)", "نائب(ة) المدير / ناظر(ة) المؤسسة"],
+    work_type: ["تعويض مؤقت", "دوام جزئي", "دوام كامل", "ساعات محددة"]
+};
+/* Fields whose wire value is a ", "-joined list of options. */
+var ENUM_MULTI = { subjects: 1, levels: 1, institution_types: 1, early_role: 1, contract_types: 1, admin_position: 1 };
+
+function enumStrict() { return prop("ENUM_STRICT") === "true"; }
+
+/* Returns [{ field, value }] for every value outside its allow-list. */
+function enumViolations(data, map) {
+  var bad = [];
+  Object.keys(map).forEach(function (field) {
+    if (!Object.prototype.hasOwnProperty.call(data, field)) return;
+    var raw = data[field];
+    if (raw === null || raw === undefined) return;
+    raw = String(raw).trim();
+    if (raw === "") return;                       // empty is handled elsewhere
+
+    var allowed = map[field];
+    if (allowed.indexOf(raw) !== -1) return;      // exact match, incl. commas
+
+    if (!ENUM_MULTI[field]) {                     // single -> must match whole
+      bad.push({ field: field, value: raw });
+      return;
+    }
+    var parts = raw.split(", ");
+    for (var i = 0; i < parts.length; i++) {
+      var v = parts[i].trim();
+      if (v !== "" && allowed.indexOf(v) === -1) {
+        bad.push({ field: field, value: v });
+        return;                                   // one report per field is enough
+      }
+    }
+  });
+  return bad;
+}
+
+/* Always recorded, even in log-only mode: this tab is how we find out whether it
+   is safe to switch ENUM_STRICT on, and how we spot someone probing the
+   endpoint. */
+function recordRejectedValues(sid, formType, violations, enforced) {
+  try {
+    var ss = getSpreadsheet();
+    var sh = ss.getSheetByName("Rejected Values");
+    if (!sh) {
+      sh = ss.insertSheet("Rejected Values");
+      sh.getRange(1, 1, 1, 6).setValues([["at", "submissionId", "form", "field", "value", "enforced"]]);
+      sh.setFrozenRows(1);
+    }
+    var now = new Date();
+    for (var i = 0; i < violations.length; i++) {
+      sh.appendRow([now, sanitizeCell(sid), formType,
+                    sanitizeCell(violations[i].field), sanitizeCell(violations[i].value),
+                    enforced ? "rejected" : "logged only"]);
+    }
+  } catch (e) {}
+}
+
+function violationFields(violations) {
+  var out = [];
+  for (var i = 0; i < violations.length; i++) out.push(violations[i].field);
+  return out;
+}
+
+
 /* ============ WEB APP ENTRY POINTS ============ */
 function doPost(e) {
   try {
@@ -136,6 +260,15 @@ function doPost(e) {
     var isPartial = (data.partial === true) || (data.status === "partial");
     var errors = validatePayload(data, isPartial);
     if (errors.length) return json({ status: "invalid", fields: errors });
+
+    /* Enumerated fields must come from the lists the forms offer. Runs for
+       partial saves too -- a partial write pollutes the same columns. */
+    var enumBad = enumViolations(data, ENUM_TEACHER);
+    if (enumBad.length) {
+      var enforce = enumStrict();
+      recordRejectedValues(sid, "teacher", enumBad, enforce);
+      if (enforce) return json({ status: "invalid", fields: violationFields(enumBad) });
+    }
 
     var now = new Date();
     var record = {};
@@ -851,6 +984,13 @@ function handleSchoolPost(data) {
   if (!isPartial) {
     var errors = validateSchool(data);
     if (errors.length) return json({ status: "invalid", fields: errors });
+  }
+
+  var enumBadS = enumViolations(data, ENUM_SCHOOL);
+  if (enumBadS.length) {
+    var enforceS = enumStrict();
+    recordRejectedValues(sid, "school", enumBadS, enforceS);
+    if (enforceS) return json({ status: "invalid", fields: violationFields(enumBadS) });
   }
 
   var lock = LockService.getScriptLock();
