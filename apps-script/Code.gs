@@ -26,7 +26,7 @@ var CONFIG = {
   SITE_URL_DEFAULT: "https://linkify.ma",
   NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
   MAX_FIELD_LEN: 5000,
-  MAX_FILE_BYTES: 6 * 1024 * 1024,
+  MAX_FILE_BYTES: 11 * 1024 * 1024,   // 10MB client limit + base64 rounding headroom
   RL_PER_SID: 40,
   RL_GLOBAL: 2000,
   RL_WINDOW_SEC: 60
