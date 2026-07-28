@@ -6,7 +6,13 @@
 /* 🔴🔴🔴 لصق هنا رابط الـ Web App ديال Google Apps Script (شوف SETUP.md) 🔴🔴🔴 */
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzh2xUP0OzYuVNTURxdK8-G7uOABnaOmM9W5lym8oShRUUZhkQjZoMeXF9YOIFemS4u1g/exec";
 
-const MAX_FILE_MB = 5;
+const MAX_FILE_MB = 10;          // raised from 5: teachers were abandoning on it
+/* Cap on the combined size of one field's attachments. certs and work_cert accept
+   several files, and everything is base64-encoded into a single JSON POST, which
+   inflates it by about a third. Without this cap five 10MB certificates would
+   build a ~67MB request that Apps Script simply refuses -- and the teacher would
+   see a success screen with nothing delivered. */
+const MAX_FIELD_TOTAL_MB = 20;
 const SHARE_URL = "https://linkify.ma"; // official domain
 
 /* ---------- stable submission id + resume token ----------
@@ -289,11 +295,25 @@ document.addEventListener("DOMContentLoaded", () => {
     validateGroup("radio");
     validateGroup("checkbox");
 
-    // required files
-    stepEl.querySelectorAll('input[type="file"][required]').forEach(f => {
+    /* Files. Checks EVERY attachment on EVERY file input, not just the first one
+       on the inputs marked required.
+
+       Before, size was only checked on files[0] of required inputs. certs and
+       work_cert are optional and take several files, so an oversized certificate
+       passed validation and was then dropped without a word inside
+       collectPendingFiles() -- the teacher saw a successful submission with a
+       document silently missing. */
+    stepEl.querySelectorAll('input[type="file"]').forEach(f => {
       if (f.closest("[hidden]")) return;
-      if (!f.files.length) { ok = markError(f.closest(".field"), T("v.file")) && false; return; }
-      if (f.files[0].size > MAX_FILE_MB * 1024 * 1024) { ok = markError(f.closest(".field"), T("v.fileSize")) && false; return; }
+      if (f.required && !f.files.length) { ok = markError(f.closest(".field"), T("v.file")) && false; return; }
+      var _total = 0, _tooBig = false;
+      for (var _i = 0; _i < f.files.length; _i++) {
+        _total += f.files[_i].size;
+        if (f.files[_i].size > MAX_FILE_MB * 1024 * 1024) _tooBig = true;
+      }
+      if (_tooBig) { ok = markError(f.closest(".field"), T("v.fileSize")) && false; return; }
+      if (_total > MAX_FIELD_TOTAL_MB * 1024 * 1024) { ok = markError(f.closest(".field"), T("v.filesTotal")) && false; return; }
+      if (!f.files.length) return;
       // CV must be a parseable document (PDF/Word) — reject images (scans/photos).
       if (f.id === "cv" && !isValidCvFile(f.files[0])) { ok = markError(f.closest(".field"), T("v.cvType")) && false; return; }
     });

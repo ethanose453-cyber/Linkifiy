@@ -145,6 +145,14 @@ const MAPPING = {
   "الرياضيات": "mathematiques",
   "الفيزياء والكيمياء": "physique-chimie",
   "علوم الحياة والأرض": "sciences de la vie et de la terre",
+  "الجيولوجيا": "geologie",
+  "geologie": "geologie",
+  "علم النفس": "psychologie",
+  "psychologie": "psychologie",
+  /* Variants already sitting in the sheet, reported by auditUnknowns(). */
+  "histoire": "histoire-geographie",
+  "physique": "physique-chimie",
+  "education physique et sport": "education physique et sportive",
   "المعلوميات": "informatique",
   // Technical-stream subjects. Added after a teacher could not find his
   // specialty and abandoned the form. Identity entries keep auditUnknowns()

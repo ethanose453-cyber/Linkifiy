@@ -219,7 +219,7 @@
             <div class="field file-field">
               <label for="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span data-i18n="f.cv">السيرة الذاتية (CV)</span> <span class="req">*</span></label>
               <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
-              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 5MB. هذا الملف أساسي في ملفك.</small>
+              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 10MB. هذا الملف أساسي في ملفك.</small>
             </div>
 
             <p class="step-consent-note">
@@ -321,7 +321,7 @@
             <div class="field file-field">
               <label for="certs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="f.certs">شواهد إضافية (اختياري)</span></label>
               <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" multiple />
-              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... يمكنك اختيار أكثر من ملف (أقصى حجم 5MB لكل ملف).</small>
+              <small class="hint" data-i18n="hint.certs">شواهد التكوين المستمر، دبلومات اللغات... يمكنك اختيار أكثر من ملف (أقصى حجم 10MB لكل ملف).</small>
             </div>
           </fieldset>
 
@@ -351,6 +351,8 @@
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="mathematiques" /> <span data-i18n="sub.math">الرياضيات</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="physique-chimie" /> <span data-i18n="sub.pc">الفيزياء والكيمياء</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="sciences de la vie et de la terre" /> <span data-i18n="sub.svt">علوم الحياة والأرض</span></label>
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="geologie" /> <span data-i18n="sub.geo">الجيولوجيا</span></label>
+                <label class="check" data-group="علمي أدبي"><input type="checkbox" name="subjects" value="psychologie" /> <span data-i18n="sub.psycho">علم النفس</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="informatique" /> <span data-i18n="sub.it">المعلوميات</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="technologie" /> <span data-i18n="sub.techno">التكنولوجيا</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="sciences de l'ingenieur" /> <span data-i18n="sub.engSci">علوم المهندس</span></label>
@@ -528,7 +530,7 @@
             <div class="field file-field">
               <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="f.photo">الصورة الشخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
               <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
-              <small class="hint" data-i18n="hint.photo">اختيارية، لكنها مهمة جداً — فهي أول ما تراه المؤسسة في ملفك وتعكس صورتك المهنية. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 5MB).</small>
+              <small class="hint" data-i18n="hint.photo">اختيارية، لكنها مهمة جداً — فهي أول ما تراه المؤسسة في ملفك وتعكس صورتك المهنية. يُفضّل صورة بخلفية محايدة وملامح واضحة (أقصى حجم 10MB).</small>
             </div>
 
             <div class="field consent">
