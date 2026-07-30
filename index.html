@@ -228,36 +228,13 @@
             </p>
           </fieldset>
 
-          <!-- ===== STEP 2: معلومات عامة + التعليم ===== -->
+          <!-- ===== STEP 2: التكوين والكفاءات =====
+               track lives here because step 3 filters its subject list from it,
+               so it must be answered first. Languages + certificates moved in
+               from the old step 3: they belong next to the diploma, and on
+               their own they made a step so short it read as the last one. -->
           <fieldset class="form-step" data-step="2" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12.5V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><span data-i18n="s2.legend">معلومات عامة وتعليمية</span></legend>
-
-            <div class="field">
-              <span class="label"><span data-i18n="f.transport">هل تتوفر على وسيلة نقل خاصة؟</span> <span class="req">*</span></span>
-              <div class="radio-row">
-                <label class="pill"><input type="radio" name="transport" required value="oui, voiture" /> <span data-i18n="tr.car">سيارة</span></label>
-                <label class="pill"><input type="radio" name="transport" value="oui, moto" /> <span data-i18n="tr.moto">دراجة نارية</span></label>
-                <label class="pill"><input type="radio" name="transport" value="aucun moyen de transport" /> <span data-i18n="tr.none">لا أملك</span></label>
-              </div>
-            </div>
-
-            <div class="field">
-              <span class="label"><span data-i18n="f.license">هل تتوفر على رخصة قيادة؟</span> <span class="req">*</span></span>
-              <div class="radio-row">
-                <label class="pill"><input type="radio" name="license" required value="permis voiture" /> <span data-i18n="lic.car">رخصة سيارة</span></label>
-                <label class="pill"><input type="radio" name="license" value="permis moto" /> <span data-i18n="lic.moto">رخصة دراجة</span></label>
-                <label class="pill"><input type="radio" name="license" value="aucun permis" /> <span data-i18n="lic.none">لا أملك</span></label>
-              </div>
-            </div>
-
-            <div class="field">
-              <span class="label"><span data-i18n="f.relocate">مستعد للانتقال لمدينة أخرى من أجل العمل؟</span> <span class="req">*</span></span>
-              <div class="radio-row">
-                <label class="pill"><input type="radio" name="relocate" required value="oui, tout a fait pret" /> <span data-i18n="rel.yes">نعم تماماً</span></label>
-                <label class="pill"><input type="radio" name="relocate" value="selon l'offre et les avantages" /> <span data-i18n="rel.offer">حسب العرض</span></label>
-                <label class="pill"><input type="radio" name="relocate" value="non, ma ville uniquement" /> <span data-i18n="rel.no">مدينتي فقط</span></label>
-              </div>
-            </div>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6"/><path d="M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 2.5 9 2.5 12 0v-5"/></svg><span data-i18n="s2.legend">تكوينك وكفاءاتك</span></legend>
 
             <div class="field">
               <span class="label"><span data-i18n="f.track">التوجه العام</span> <span class="req">*</span></span>
@@ -296,11 +273,6 @@
                 <input type="text" id="university" name="university" />
               </div>
             </div>
-          </fieldset>
-
-          <!-- ===== STEP 3: اللغات + الملفات ===== -->
-          <fieldset class="form-step" data-step="3" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg><span data-i18n="s3.legend">الكفاءات اللغوية وملفاتك</span></legend>
 
             <p class="field-group-title" data-i18n="lang.rate">قيّم مستواك في اللغات التالية:</p>
             <div class="lang-grid">
@@ -325,9 +297,12 @@
             </div>
           </fieldset>
 
-          <!-- ===== STEP 4: التدريس ===== -->
-          <fieldset class="form-step" data-step="4" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg><span data-i18n="s4.legend">ماذا وأين تريد أن تُدرّس</span></legend>
+          <!-- ===== STEP 3: المواد =====
+               One question, but a long visual grid, so the step never reads as
+               "almost done". It used to sit at the top of a 7-question step
+               whose sheer length is where teachers were dropping out. -->
+          <fieldset class="form-step" data-step="3" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg><span data-i18n="s3.legend">المواد التي تريد تدريسها</span></legend>
 
             <div class="field">
               <span class="label"><span data-i18n="f.subjects">المواد / اللغات التي تريد تدريسها</span> <span class="req">*</span></span>
@@ -386,6 +361,11 @@
               <label for="subject_other_text"><span data-i18n="f.subjectOther">اذكر المادة التي تدرّسها</span> <span class="req">*</span></label>
               <input type="text" id="subject_other_text" name="subject_other_text" data-i18n-ph="ph.subjectOther" placeholder="مثال: علوم المهندس، الهندسة الكهربائية..." />
             </div>
+          </fieldset>
+
+          <!-- ===== STEP 4: الأسلاك + نوع المؤسسة + الدوام ===== -->
+          <fieldset class="form-step" data-step="4" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h.01"/><path d="M9 13h.01"/></svg><span data-i18n="s4.legend">أين تريد أن تُدرّس</span></legend>
 
             <div class="field">
               <span class="label"><span data-i18n="f.levels">الفئة العمرية / الأسلاك التي تقدر تتعامل معها</span> <span class="req">*</span></span>
@@ -444,6 +424,41 @@
                 <label class="pill"><input type="radio" name="schedule" value="tout ce qui precede" /> <span data-i18n="sch.all">كل ما سبق</span></label>
               </div>
             </div>
+          </fieldset>
+
+          <!-- ===== STEP 5: شروط العمل والتنقل =====
+               transport / license / relocate moved here from step 2. They are
+               work-mobility questions, not identity ones, and step 2 was
+               carrying them while step 5 carried a single question. -->
+          <fieldset class="form-step" data-step="5" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12.5V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><span data-i18n="s5.legend">شروط العمل والتنقل</span></legend>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.transport">هل تتوفر على وسيلة نقل خاصة؟</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="transport" required value="oui, voiture" /> <span data-i18n="tr.car">سيارة</span></label>
+                <label class="pill"><input type="radio" name="transport" value="oui, moto" /> <span data-i18n="tr.moto">دراجة نارية</span></label>
+                <label class="pill"><input type="radio" name="transport" value="aucun moyen de transport" /> <span data-i18n="tr.none">لا أملك</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.license">هل تتوفر على رخصة قيادة؟</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="license" required value="permis voiture" /> <span data-i18n="lic.car">رخصة سيارة</span></label>
+                <label class="pill"><input type="radio" name="license" value="permis moto" /> <span data-i18n="lic.moto">رخصة دراجة</span></label>
+                <label class="pill"><input type="radio" name="license" value="aucun permis" /> <span data-i18n="lic.none">لا أملك</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label"><span data-i18n="f.relocate">مستعد للانتقال لمدينة أخرى من أجل العمل؟</span> <span class="req">*</span></span>
+              <div class="radio-row">
+                <label class="pill"><input type="radio" name="relocate" required value="oui, tout a fait pret" /> <span data-i18n="rel.yes">نعم تماماً</span></label>
+                <label class="pill"><input type="radio" name="relocate" value="selon l'offre et les avantages" /> <span data-i18n="rel.offer">حسب العرض</span></label>
+                <label class="pill"><input type="radio" name="relocate" value="non, ma ville uniquement" /> <span data-i18n="rel.no">مدينتي فقط</span></label>
+              </div>
+            </div>
 
             <div class="field">
               <span class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <span data-i18n="f.substitute">هل أنت مستعد للعمل كأستاذ بديل (احتياط) عند الغياب الطارئ؟</span></span>
@@ -489,9 +504,11 @@
             </div>
           </fieldset>
 
-          <!-- ===== STEP 5: الخبرة المهنية (conditional) ===== -->
-          <fieldset class="form-step" data-step="5" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg><span data-i18n="s5.legend">الخبرة المهنية</span></legend>
+          <!-- ===== STEP 6: الخبرة المهنية + إنهاء التسجيل =====
+               The old step 5 held a single radio, so it flashed by and made the
+               form feel padded. Merged with the closing step; both are short. -->
+          <fieldset class="form-step" data-step="6" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg><span data-i18n="s6.legend">خبرتك وإنهاء التسجيل</span></legend>
 
             <div class="field">
               <span class="label"><span data-i18n="f.hasExp">هل سبق لك العمل في مجال التعليم؟</span> <span class="req">*</span></span>
@@ -521,11 +538,6 @@
                 <small class="hint" data-i18n="hint.workCert">اختياري، لكنه مهم جداً — رفع شهادة أو أكثر تُثبت خبرتك يمكن أن يضاعف فرصك في الاختيار بشكل كبير، لأنه يمنح المؤسسات ثقة في معلوماتك. يمكنك رفع أكثر من ملف (PDF أو صور).</small>
               </div>
             </div>
-          </fieldset>
-
-          <!-- ===== STEP 6: الصورة + الموافقة ===== -->
-          <fieldset class="form-step" data-step="6" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .962 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.962 0z"/></svg><span data-i18n="s6.legend">إنهاء التسجيل</span></legend>
 
             <div class="field file-field">
               <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="f.photo">الصورة الشخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>

@@ -107,7 +107,18 @@ document.addEventListener("DOMContentLoaded", () => {
     stepNow.textContent = i + 1;
     if (stepPct) stepPct.textContent = Math.round(((i + 1) / total) * 100) + "%";
     if (stepDots) { var _k = stepDots.children; for (var _j = 0; _j < _k.length; _j++) { _k[_j].classList.toggle("done", _j < i); _k[_j].classList.toggle("active", _j === i); } }
-    if (stepHint) stepHint.textContent = (i === total - 1) ? T("form.almostThere") : "";
+    /* Always say how much is left. A short step used to read as the last one,
+       so the next click landed on a wall of questions and people quit there. */
+    if (stepHint) {
+      if (i === total - 1) stepHint.textContent = T("form.almostThere");
+      else {
+        const left = total - 1 - i;
+        // Arabic counts one and two with their own word forms, so "باقي 2 خطوات"
+        // reads wrong; fr/en fall back to the plural template for both.
+        const key = (left === 1) ? "form.remaining1" : (left === 2) ? "form.remaining2" : "form.remaining";
+        stepHint.textContent = T(key).replace("{n}", left);
+      }
+    }
     prevBtn.hidden   = i === 0;
     nextBtn.hidden   = i === total - 1;
     submitBtn.hidden = i !== total - 1;
@@ -489,6 +500,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try { out[id] = await fileToBase64(el.files[0]); } catch (e) { continue; }
       } else {
         const arr = [];
+        // Over the per-field cap: skip the whole batch rather than mark it sent.
+        // validateStep() shows the teacher the error, so nothing is lost quietly.
+        let _tot = 0;
+        for (let i = 0; i < el.files.length; i++) _tot += el.files[i].size;
+        if (_tot > MAX_FIELD_TOTAL_MB * 1024 * 1024) continue;
         for (let i = 0; i < el.files.length && i < 5; i++) {
           if (el.files[i].size <= MAX_FILE_MB * 1024 * 1024) {
             try { arr.push(await fileToBase64(el.files[i])); } catch (e) {}
@@ -504,6 +520,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rollbackFiles(ids) { (ids || []).forEach(function (id) { delete _sentFiles[id]; }); }
+
+  /* Upload an attachment as soon as it is picked, not on the next "next".
+     work_cert and photo now both sit on the final step, so waiting would push
+     up to 30MB of base64 into the one submit request -- the payload size that
+     was making submits fail on weak mobile connections. Debounced because
+     picking several files fires change once per pick on some browsers. */
+  let _fileSaveTimer = null;
+  Object.keys(FILE_FIELDS).forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("change", function () {
+      clearTimeout(_fileSaveTimer);
+      _fileSaveTimer = setTimeout(function () { savePartial(current); }, 400);
+    });
+  });
 
   // Treat an Apps Script response as a success unless it explicitly reports a problem.
   function isSaveOk(result) {
