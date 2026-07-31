@@ -237,11 +237,40 @@ document.addEventListener("DOMContentLoaded", () => {
   function bindCollapse(btnId, panelId, onToggle) {
     const btn = document.getElementById(btnId), panel = document.getElementById(panelId);
     if (!btn || !panel) return null;
+    let releaseTimer = null;
+
+    /* The height is animated in real pixels read off the content, because a
+       fixed max-height cap makes the browser spread the easing over the cap
+       rather than over the list -- see the note in styles.css.
+
+       Once open the cap is released to "none" so the panel can still grow:
+       switching track adds or removes options, and a validation error appends a
+       message. A frozen pixel cap would clip both. */
     const set = (open) => {
-      panel.classList.toggle("is-collapsed", !open);
+      clearTimeout(releaseTimer);
+      // scrollHeight reports the full content height even under max-height:0,
+      // but it is 0 when an ancestor is display:none -- fall back to uncapped.
+      const h = panel.scrollHeight;
+      if (open) {
+        panel.classList.remove("is-collapsed");
+        panel.style.maxHeight = h ? h + "px" : "none";
+        releaseTimer = setTimeout(function () { panel.style.maxHeight = "none"; }, 420);
+      } else {
+        // there is nothing to animate away from while the cap is "none", so pin
+        // the current height for one frame first
+        if (!panel.style.maxHeight || panel.style.maxHeight === "none") {
+          panel.style.maxHeight = h + "px";
+          void panel.offsetHeight;                    // force reflow before collapsing
+        }
+        panel.classList.add("is-collapsed");
+        panel.style.maxHeight = "0px";
+      }
       btn.setAttribute("aria-expanded", open ? "true" : "false");
       if (onToggle) onToggle(open);
     };
+
+    // adopt whatever state the markup declared
+    if (panel.classList.contains("is-collapsed")) panel.style.maxHeight = "0px";
     btn.addEventListener("click", () => set(panel.classList.contains("is-collapsed")));
     return { open: () => set(true), close: () => set(false), isOpen: () => !panel.classList.contains("is-collapsed") };
   }

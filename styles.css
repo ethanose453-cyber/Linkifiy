@@ -860,16 +860,47 @@ section[id] { scroll-margin-top: 84px; }
   width: 100%; margin: 10px 0; padding: 11px 14px;
   background: var(--bg-alt); border: 1.5px solid var(--line); border-radius: 12px;
   font: inherit; font-weight: 700; color: var(--ink); cursor: pointer;
-  transition: border-color .18s ease, color .18s ease;
+  transition: border-color .18s ease, color .18s ease, background .18s ease, transform .12s ease;
 }
 .select-toggle:hover:not(:disabled) { border-color: var(--teal); color: var(--teal-dark); }
+.select-toggle:active:not(:disabled) { transform: scale(.985); }
+.select-toggle[aria-expanded="true"] { border-color: var(--teal); color: var(--teal-dark); background: var(--tint); }
 .select-toggle:disabled { opacity: .5; cursor: not-allowed; }
-.select-toggle .chev { width: 18px; height: 18px; flex: none; transition: transform .22s ease; }
+/* slight overshoot on the arrow: it lands rather than stops */
+.select-toggle .chev { width: 18px; height: 18px; flex: none; transition: transform .34s cubic-bezier(.34,1.5,.64,1); }
 .select-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
 
-.collapsible { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; max-height: 4000px; }
-.collapsible.is-collapsed { max-height: 0; opacity: 0; visibility: hidden; margin: 0; }
-@media (prefers-reduced-motion: reduce) { .collapsible, .select-toggle .chev { transition: none; } }
+/* max-height is written inline by form.js from the content's own height.
+   A fixed cap cannot animate well: the browser spreads the easing across the
+   WHOLE cap, so a 600px list under a 4000px cap reaches full height in the
+   first 15% of the duration and then animates 3400px of nothing. That reads as
+   a snap followed by a late fade, which is what made this feel broken.
+
+   Opening is slower and eased out (content settling into place); closing is
+   quicker and eased in, because waiting for something to disappear is dead
+   time. visibility is delayed to the end of the collapse so the boxes leave the
+   tab order only once they are actually gone. */
+.collapsible {
+  overflow: hidden;
+  transform: translateY(0);
+  transition: max-height .38s cubic-bezier(.22,.7,.25,1),
+              opacity .26s ease .04s,
+              transform .36s cubic-bezier(.22,.7,.25,1);
+}
+.collapsible.is-collapsed {
+  max-height: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: max-height .28s cubic-bezier(.4,0,.7,1),
+              opacity .17s ease,
+              transform .28s cubic-bezier(.4,0,.7,1),
+              visibility 0s .28s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .collapsible, .collapsible.is-collapsed, .select-toggle, .select-toggle .chev { transition: none; }
+  .collapsible, .collapsible.is-collapsed { transform: none; }
+}
 
 /* what has been picked, so a collapsed panel still shows the answer */
 .pick-summary {

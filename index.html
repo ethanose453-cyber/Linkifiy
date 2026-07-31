@@ -331,7 +331,7 @@
                    the hidden attribute: validateStep() only considers members
                    that are not inside [hidden], so hiding them that way would
                    let a teacher skip a required group entirely. -->
-              <button type="button" class="select-toggle" id="subjectsToggle" aria-expanded="true" aria-controls="subjectsPanel">
+              <button type="button" class="select-toggle" id="subjectsToggle" aria-expanded="false" aria-controls="subjectsPanel">
                 <span id="subjectsCount" data-i18n="f.subjectsPick">اختر المواد</span>
                 <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
               </button>
@@ -350,7 +350,7 @@
                    scientific teacher sees their own subjects on top with the
                    literary ones underneath, and a literary teacher opens on the
                    languages. -->
-              <div class="check-grid collapsible" id="subjectsPanel">
+              <div class="check-grid collapsible is-collapsed" id="subjectsPanel">
                 <!-- sciences: scientific track only -->
                 <!-- The required marker rides the first member, the same way
                      levels and institution_types do. validateGroup() reads the
