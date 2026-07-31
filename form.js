@@ -126,6 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
     track("FormStepView", { step: i + 1, form_type: "teacher" });
     filterSubjects();
     applyTrackUI();
+    updateSubjectsCount();
+    updateStrength();
     clearStatus();
     if (scroll !== false) scrollToForm();
   }
@@ -203,6 +205,77 @@ document.addEventListener("DOMContentLoaded", () => {
     syncSubjectOther();
   }
 
+  /* ---------- "I'll send my CV later" ----------
+     The CV is required, and it used to be required on step 1, which lost every
+     teacher browsing on a phone without the file to hand -- before we held a
+     single field to follow up on. Ticking this releases the requirement and
+     flags the record so the team can chase the file on WhatsApp. */
+  const cvInput = document.getElementById("cv");
+  const cvLater = document.getElementById("cv_later");
+  if (cvInput && cvLater) {
+    const syncCvLater = () => {
+      cvInput.required = !cvLater.checked;
+      const holder = cvInput.closest(".field");
+      if (holder && cvLater.checked) {
+        holder.classList.remove("has-error");
+        const e = holder.querySelector(".field-error"); if (e) e.remove();
+      }
+    };
+    cvLater.addEventListener("change", function () { syncCvLater(); updateStrength(); });
+    cvInput.addEventListener("change", function () {
+      // attaching a file makes the promise moot; untick it so cv_pending clears
+      if (cvInput.files && cvInput.files.length && cvLater.checked) { cvLater.checked = false; syncCvLater(); }
+    });
+    syncCvLater();
+  }
+
+  /* ---------- collapsible option groups ----------
+     Collapse is a CLASS, never the hidden attribute. validateStep() ignores
+     members inside [hidden], so collapsing that way would silently let a
+     teacher past a required group. Errors force the panel open, otherwise the
+     message would render inside a collapsed box where nobody can read it. */
+  function bindCollapse(btnId, panelId, onToggle) {
+    const btn = document.getElementById(btnId), panel = document.getElementById(panelId);
+    if (!btn || !panel) return null;
+    const set = (open) => {
+      panel.classList.toggle("is-collapsed", !open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (onToggle) onToggle(open);
+    };
+    btn.addEventListener("click", () => set(panel.classList.contains("is-collapsed")));
+    return { open: () => set(true), close: () => set(false), isOpen: () => !panel.classList.contains("is-collapsed") };
+  }
+
+  const subjectsPanel = bindCollapse("subjectsToggle", "subjectsPanel");
+  const ctPanel = bindCollapse("ctToggle", "ctPanel");
+
+  /* Count + names of the chosen subjects, so a collapsed panel still shows the
+     answer and an open one gives feedback on a 19-item list. */
+  function updateSubjectsCount() {
+    const countEl = document.getElementById("subjectsCount");
+    const summaryEl = document.getElementById("subjectsSummary");
+    if (!countEl) return;
+    // filterSubjects() unticks anything the track hides, so :checked is already
+    // "chosen AND still applicable". Testing closest("[hidden]") here would read
+    // zero whenever the subjects step itself is off screen.
+    const picked = [...form.querySelectorAll('input[name="subjects"]:checked')];
+    if (!picked.length) {
+      countEl.textContent = T("f.subjectsPick");
+      if (summaryEl) { summaryEl.hidden = true; summaryEl.textContent = ""; }
+      return;
+    }
+    const key = picked.length === 1 ? "f.subjectsCount1" : picked.length === 2 ? "f.subjectsCount2" : "f.subjectsCount";
+    countEl.textContent = T(key).replace("{n}", picked.length);
+    if (summaryEl) {
+      summaryEl.textContent = picked.map(cb => (cb.parentElement.querySelector("span") || {}).textContent || cb.value)
+                                    .join(" · ");
+      summaryEl.hidden = false;
+    }
+  }
+  form.querySelectorAll('input[name="subjects"]').forEach(cb =>
+    cb.addEventListener("change", function () { updateSubjectsCount(); updateStrength(); })
+  );
+
   // salary -> "autre montant" reveals the custom amount field
   const salaryCustomWrap = document.getElementById("salary-custom-wrap");
   const salarySel = document.getElementById("salary_expectation");
@@ -213,9 +286,121 @@ document.addEventListener("DOMContentLoaded", () => {
     const anyCt = form.querySelector('input[name="contract_types"][data-ct-any]');
     if (!anyCt) return;
     const others = [...form.querySelectorAll('input[name="contract_types"]:not([data-ct-any])')];
-    const sync = () => others.forEach(c => { c.disabled = anyCt.checked; if (anyCt.checked) c.checked = false; });
-    anyCt.addEventListener("change", sync);
+    const ctToggleBtn = document.getElementById("ctToggle");
+    const sync = () => {
+      others.forEach(c => { c.disabled = anyCt.checked; if (anyCt.checked) c.checked = false; });
+      // nothing left to choose in there, so collapse it and stop offering it
+      if (anyCt.checked && ctPanel) ctPanel.close();
+      if (ctToggleBtn) ctToggleBtn.disabled = anyCt.checked;
+    };
+    anyCt.addEventListener("change", function () { sync(); updateStrength(); });
+    // picking a specific type contradicts "any" -> release it
+    others.forEach(c => c.addEventListener("change", function () {
+      if (c.checked && anyCt.checked) { anyCt.checked = false; sync(); }
+      updateStrength();
+    }));
     sync();
+  })();
+
+  /* ---------- profile strength ----------
+     A percentage that goes UP as the profile gets stronger reframes the form
+     from "questions left" into "something I am building", and naming the single
+     highest-value missing item is what actually gets work certificates and
+     photos uploaded. Weights are the value to a school, not the effort.
+
+     Fields that do not apply are excluded from the total, so a fresh graduate
+     with no experience can still reach 100%. */
+  const STRENGTH = [
+    { k: "first_name", w: 2 }, { k: "last_name", w: 2 }, { k: "age", w: 1 }, { k: "gender", w: 1 },
+    { k: "city", w: 2 }, { k: "neighborhood", w: 2 }, { k: "whatsapp", w: 3 }, { k: "email", w: 2 },
+    { k: "track", w: 2 }, { k: "diploma", w: 2 }, { k: "specialty", w: 2 },
+    { k: "university", w: 1, tip: "tip.university" },
+    { k: "lang_fr", w: 1, tip: "tip.langs" }, { k: "lang_en", w: 1, tip: "tip.langs" },
+    { k: "subjects", w: 4 }, { k: "levels", w: 3 }, { k: "institution_types", w: 3 },
+    { k: "schedule", w: 2 }, { k: "substitute", w: 2, tip: "tip.substitute" },
+    { k: "salary_expectation", w: 1 }, { k: "contract_types", w: 2 },
+    { k: "transport", w: 1 }, { k: "license", w: 1, tip: "tip.license" }, { k: "relocate", w: 1 },
+    { k: "has_experience", w: 2 },
+    { k: "exp_years", w: 1, needsExp: true },
+    { k: "schools", w: 2, tip: "tip.schools", needsExp: true },
+    { file: "cv", w: 8, tip: "tip.cv" },
+    { file: "work_cert", w: 5, tip: "tip.workCert", needsExp: true },
+    { file: "certs", w: 3, tip: "tip.certs" },
+    { file: "photo", w: 4, tip: "tip.photo" }
+  ];
+
+  function hasValue(item) {
+    if (item.file) {
+      const el = document.getElementById(item.file);
+      if (el && el.files && el.files.length) return true;
+      // promising the CV later is not a file, but it does unblock the profile
+      return item.file === "cv" && !!(cvLater && cvLater.checked);
+    }
+    const els = form.querySelectorAll('[name="' + item.k + '"]');
+    if (!els.length) return false;
+    if (els[0].type === "radio" || els[0].type === "checkbox")
+      return [...els].some(el => el.checked && !el.closest("[hidden]"));
+    return String(els[0].value || "").trim() !== "";
+  }
+
+  function updateStrength() {
+    const box = document.getElementById("strengthBox");
+    if (!box) return;
+    const expEl = form.querySelector('input[name="has_experience"]:checked');
+    const noExp = !!expEl && expEl.value !== "oui";
+    const items = STRENGTH.filter(it => !(it.needsExp && noExp));
+
+    let total = 0, got = 0, best = null;
+    items.forEach(it => {
+      total += it.w;
+      if (hasValue(it)) got += it.w;
+      else if (it.tip && (!best || it.w > best.w)) best = it;
+    });
+    const pct = total ? Math.round((got / total) * 100) : 0;
+
+    box.hidden = pct === 0;
+    document.getElementById("strengthFill").style.width = pct + "%";
+    document.getElementById("strengthPct").textContent = T("form.strength").replace("{n}", pct);
+    document.getElementById("strengthTip").textContent = best ? T(best.tip) : T("form.strengthFull");
+    box.classList.toggle("is-strong", pct >= 80);
+  }
+  form.addEventListener("input", updateStrength);
+  form.addEventListener("change", updateStrength);
+
+  /* ---------- save and finish later ----------
+     Writes the partial record, then hands the teacher their own resume link.
+     The token is the only guard on the record behind that link, so it is shown
+     to the visitor who owns it and never logged or put in a shareable place by
+     us -- copying it is their decision. */
+  (function () {
+    const btn = document.getElementById("saveLaterBtn");
+    const box = document.getElementById("resumeBox");
+    const linkEl = document.getElementById("resumeLink");
+    const copyBtn = document.getElementById("copyResume");
+    const waBtn = document.getElementById("waResume");
+    if (!btn || !box || !linkEl) return;
+
+    btn.addEventListener("click", function () {
+      savePartial(current);                       // non-blocking, same upsert as "next"
+      const url = buildResumeUrl();
+      linkEl.value = url;
+      if (waBtn) waBtn.href = "https://wa.me/?text=" + encodeURIComponent(T("wa.resumeMsg") + " " + url);
+      box.hidden = false;
+      track("SaveForLater", { step: current + 1, form_type: "teacher" });
+      try { linkEl.focus(); linkEl.select(); } catch (e) {}
+    });
+
+    // readonly, but Enter inside a form still submits it
+    linkEl.addEventListener("keydown", function (e) { if (e.key === "Enter") e.preventDefault(); });
+
+    if (copyBtn) copyBtn.addEventListener("click", function () {
+      const done = () => { copyBtn.textContent = T("btn.copied"); setTimeout(function () { copyBtn.textContent = T("btn.copyLink"); }, 2000); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText)
+          navigator.clipboard.writeText(linkEl.value).then(done, function () { linkEl.select(); });
+        else { linkEl.select(); document.execCommand("copy"); done(); }
+      } catch (e) { linkEl.select(); }
+    });
   })();
 
   // filter subjects by selected track (علمي / أدبي / أولي)
@@ -257,7 +442,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   form.querySelectorAll('input[name="track"]').forEach(r =>
-    r.addEventListener("change", function () { filterSubjects(); applyTrackUI(); })
+    // changing track clears subjects that no longer apply, so the count must follow
+    r.addEventListener("change", function () { filterSubjects(); applyTrackUI(); updateSubjectsCount(); updateStrength(); })
   );
 
   /* ---------- validation for current step ---------- */
@@ -339,6 +525,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (truthConsent && !truthConsent.checked) {
       ok = false;
       markError(truthConsent.closest(".field"), T("v.consent"));
+    }
+
+    /* An error message rendered inside a collapsed panel is invisible, so the
+       step would just refuse to advance with no reason on screen. Open it. */
+    if (!ok) {
+      stepEl.querySelectorAll(".collapsible.is-collapsed").forEach(p => {
+        const holder = p.closest(".field");
+        if (!holder || !holder.classList.contains("has-error")) return;
+        const btn = stepEl.querySelector('[aria-controls="' + p.id + '"]');
+        if (btn && !btn.disabled) btn.click();       // via the toggle, so aria-expanded stays true
+      });
     }
     return ok;
   }
@@ -447,6 +644,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data[k]) data[k] = [].concat(data[k], val).join(", ");  // multi-checkbox -> joined
       else data[k] = val;
     }
+    /* Always send cv_pending explicitly. An unticked checkbox is simply absent
+       from FormData, and the backend upsert keeps whatever the row already held,
+       so a teacher who ticked "I'll send it later" and then attached the CV
+       would have stayed flagged as pending forever. */
+    if (cvLater) data.cv_pending = cvLater.checked ? "oui" : "non";
     return data;
   }
 
@@ -631,8 +833,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     form.querySelectorAll('input[name="has_experience"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
     form.querySelectorAll('input[name="track"]').forEach(function (r) { if (r.checked) r.dispatchEvent(new Event("change")); });
+    if (cvLater) cvLater.dispatchEvent(new Event("change"));   // restores the released CV requirement
     filterSubjects();
     applyTrackUI();
+    updateSubjectsCount();
+    updateStrength();
   }
 
   /* ---------- submit ---------- */

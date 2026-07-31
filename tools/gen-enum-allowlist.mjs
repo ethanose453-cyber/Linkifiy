@@ -42,6 +42,16 @@ const SKIP = new Set([
    shows up in the "Rejected Values" tab instead of slipping through unnoticed --
    that is how the lang_ar submission was spotted. Drop an entry only once you
    are content to stop seeing it. */
+/* Values the HTML cannot show on its own. cv_pending is a single checkbox, so
+   the markup only reveals "oui" -- but the form deliberately sends an explicit
+   "non" when it is unticked, so that an earlier "oui" cannot survive the upsert
+   once the CV arrives. Without "non" here every such submission would be logged
+   as a violation. */
+const EXTRA_VALUES = {
+  teacher: { cv_pending: ["non", "oui"] },
+  school: {},
+};
+
 const RETIRED = {
   teacher: {
     lang_ar: ["aucune connaissance", "basique", "excellent", "intermediaire"],
@@ -77,6 +87,15 @@ for (const [file, family] of FORMS) {
     // a name used as both is treated as multi (the looser parse)
     kind[family][name] = kind[family][name] === "multi" ? "multi" : k;
   });
+}
+
+// values the markup cannot express are unioned in, and forced to single-match
+for (const family of ["teacher", "school"]) {
+  for (const [f, vals] of Object.entries(EXTRA_VALUES[family])) {
+    groups[family][f] = groups[family][f] || new Set();
+    vals.forEach(v => groups[family][f].add(v));
+    kind[family][f] = "single";
+  }
 }
 
 // retired fields are not in any HTML, so they are folded in after the scan

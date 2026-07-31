@@ -38,7 +38,14 @@ var HEADERS = [
   "diploma_other", "specialty", "university", "lang_ar", "lang_fr", "lang_en", "lang_es", "lang_de",
   "subjects", "subject_other_text", "levels", "institution_types", "early_role", "accompanist", "admin_position_other", "schedule", "substitute", "salary_expectation", "salary_custom", "contract_types",
   "has_experience", "exp_years", "last_inst", "last_role", "schools", "prev_employer_name", "prev_employer_phone",
-  "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
+  /* cv_pending = "oui" means the teacher asked to send the CV later. Their
+     profile is registered but incomplete, so it is the queue to chase on
+     WhatsApp rather than a lost visitor. The form always sends it explicitly,
+     "oui" or "non", because this is an upsert: an absent field would leave an
+     earlier "oui" standing after the CV finally arrived.
+     Safe to slot here -- the teacher tabs are written through a name->column map
+     (see ensureHeaders), not positionally like the Schools tab. */
+  "skills", "skill_other_text", "consent", "truth_consent", "CV_URL", "cv_pending", "CERTS_URL", "PHOTO_URL", "WORKCERT_URL", "verification",
   "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url", "nudge1_at", "nudge2_at", "nudge3_at", "welcomed", "wa_sent_at"
 ];
 
@@ -150,6 +157,7 @@ var ENUM_TEACHER = {
     admin_position: ["adjoint(e) du directeur / surveillant(e) general(e)", "autre poste administratif", "conseiller(ere) d'orientation / psychologue ou assistant(e) social(e)", "directeur(trice) general(e) / directeur(trice) pedagogique", "inspecteur(trice) / superviseur(e) pedagogique", "responsable rh ou inscriptions", "secretaire / agent administratif / receptionniste", "surveillant(e) general(e)", "technicien informatique / maintenance"],
     city: ["agadir", "ait melloul", "autre ville", "beni mellal", "berkane", "berrechid", "bouznika", "casablanca", "el jadida", "essaouira", "fes", "fquih ben salah", "inezgane", "kelaat sraghna", "kenitra", "khouribga", "ksar el kebir", "larache", "marrakech", "meknes", "mohammedia", "nador", "ouezzane", "oujda", "rabat", "safi", "sale", "sefrou", "settat", "sidi bennour", "sidi kacem", "sidi slimane", "skhirat", "tanger", "taroudant", "taza", "temara", "tetouan", "tiznit"],
     contract_types: ["auto-entrepreneur / freelance", "cdd (contrat a duree determinee)", "cdi (contrat a duree indeterminee)", "periode d'essai", "peu importe (tout type de contrat)", "remplacement temporaire", "stage / insertion", "temps partiel", "vacataire (a l'heure)"],
+    cv_pending: ["non", "oui"],
     diploma: ["autre", "bac+2", "baccalaureat", "doctorat", "ingenieur", "licence", "master", "niveau baccalaureat"],
     early_role: ["assistante enseignante / aide-educatrice", "enseignante / educatrice"],
     exp_years: ["entre 1 et 3 ans", "entre 4 et 5 ans", "moins d'un an", "plus de 5 ans"],

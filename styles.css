@@ -825,3 +825,89 @@ section[id] { scroll-margin-top: 84px; }
   .nav-links a { display: block; padding: 13px 2px; border-bottom: 1px solid var(--line); }
   .nav-links li:last-child a { border-bottom: 0; }
 }
+
+
+/* ===========================================================
+   Form completion aids
+   =========================================================== */
+
+/* expected time — sets the expectation before the first field */
+.form-eta {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin: 0 0 14px; font-size: .88rem; color: var(--ink-soft); font-weight: 600;
+}
+.form-eta svg { width: 15px; height: 15px; color: var(--teal); flex: none; }
+
+/* profile strength */
+.strength { margin-top: 14px; }
+.strength-bar { height: 6px; background: var(--bg-alt); border-radius: 999px; overflow: hidden; }
+.strength-bar span {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, #f59e0b, var(--teal));
+  border-radius: 999px; transition: width .35s ease;
+}
+.strength.is-strong .strength-bar span { background: linear-gradient(90deg, var(--teal), #16a34a); }
+.strength-text { text-align: center; margin: 7px 0 0; font-size: .86rem; color: var(--ink-soft); line-height: 1.5; }
+.strength-text strong { color: var(--teal-dark); }
+@media (prefers-reduced-motion: reduce) { .strength-bar span { transition: none; } }
+
+/* collapsible option groups (subjects, contract types).
+   Collapsed with max-height, NOT the hidden attribute: form.js only validates
+   members that are not inside [hidden], so hiding them would let a required
+   group be skipped. visibility keeps collapsed boxes out of the tab order. */
+.select-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  width: 100%; margin: 10px 0; padding: 11px 14px;
+  background: var(--bg-alt); border: 1.5px solid var(--line); border-radius: 12px;
+  font: inherit; font-weight: 700; color: var(--ink); cursor: pointer;
+  transition: border-color .18s ease, color .18s ease;
+}
+.select-toggle:hover:not(:disabled) { border-color: var(--teal); color: var(--teal-dark); }
+.select-toggle:disabled { opacity: .5; cursor: not-allowed; }
+.select-toggle .chev { width: 18px; height: 18px; flex: none; transition: transform .22s ease; }
+.select-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+.collapsible { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; max-height: 4000px; }
+.collapsible.is-collapsed { max-height: 0; opacity: 0; visibility: hidden; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .collapsible, .select-toggle .chev { transition: none; } }
+
+/* what has been picked, so a collapsed panel still shows the answer */
+.pick-summary {
+  margin: 0 0 10px; padding: 9px 12px;
+  background: rgba(20, 184, 166, .08); border-radius: 10px;
+  font-size: .85rem; font-weight: 600; color: var(--teal-dark); line-height: 1.6;
+}
+
+/* "I'll send my CV later" sits inside the file field */
+.check-inline { margin-top: 12px; }
+
+/* save and finish later */
+.save-later { margin-top: 16px; text-align: center; }
+.btn-link {
+  background: none; border: none; padding: 4px; font: inherit; font-weight: 700;
+  color: var(--teal-dark); text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.btn-link:hover { color: var(--teal); }
+.resume-box {
+  margin-top: 12px; padding: 16px; text-align: start;
+  background: var(--bg-alt); border: 1.5px solid var(--line); border-radius: 14px;
+}
+.resume-box p { margin: 0 0 10px; font-size: .88rem; font-weight: 600; color: var(--ink-soft); }
+.resume-box input {
+  width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px;
+  background: var(--bg); color: var(--ink); font-size: .85rem; direction: ltr; text-align: left;
+}
+.resume-actions { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.resume-actions .btn { flex: 1 1 auto; min-width: 140px; justify-content: center; }
+
+/* On a phone, a step holding 19 checkboxes pushes "Next" far below the fold.
+   Sticky keeps it reachable without scrolling back down. */
+@media (max-width: 640px) {
+  .form-nav {
+    position: sticky; bottom: 0; z-index: 5;
+    margin-top: 20px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, var(--bg) 65%, transparent);
+  }
+  .form-nav .btn { min-width: 0; flex: 1; }
+  .resume-actions .btn { min-width: 0; }
+}
