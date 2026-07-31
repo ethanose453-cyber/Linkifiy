@@ -129,10 +129,17 @@
 
         <!-- progress -->
         <div class="progress">
+          <p class="form-eta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> <span data-i18n="form.eta">3 دقائق تقريباً · يمكنك التوقف والعودة في أي وقت</span></p>
           <ol class="step-dots" id="stepDots" aria-hidden="true"></ol>
           <div class="progress-bar"><span id="progressFill"></span></div>
           <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span> · <span id="stepPct">17%</span></div>
           <p class="step-hint" id="stepHint"></p>
+          <!-- Profile strength: turns "more questions to answer" into "something
+               I am building", and names the single highest-value thing missing. -->
+          <div class="strength" id="strengthBox" hidden>
+            <div class="strength-bar"><span id="strengthFill"></span></div>
+            <p class="strength-text"><strong id="strengthPct">0%</strong> <span id="strengthTip"></span></p>
+          </div>
         </div>
 
         <form id="registerForm" novalidate enctype="multipart/form-data">
@@ -216,12 +223,6 @@
               </div>
             </div>
 
-            <div class="field file-field">
-              <label for="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span data-i18n="f.cv">السيرة الذاتية (CV)</span> <span class="req">*</span></label>
-              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
-              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 10MB. هذا الملف أساسي في ملفك.</small>
-            </div>
-
             <p class="step-consent-note">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
               <span><span data-i18n="s1.consentNote">بمواصلتك، أنت توافق على حفظ معلوماتك وعلى تواصلنا معك عبر واتساب أو البريد الإلكتروني لمساعدتك في إتمام تسجيلك. اطّلع على</span> <a href="privacy.html" target="_blank" rel="noopener" data-i18n="f.privacyLink">سياسة الخصوصية</a>.</span>
@@ -290,6 +291,24 @@
               </div>
             </div>
 
+            <!-- The CV used to be the last field of step 1. A required upload on
+                 the very first screen loses every teacher who is on a phone
+                 without the file to hand -- and it loses them BEFORE we hold a
+                 single field, so there is nobody to follow up with. Here we
+                 already have their name, phone and city, and the cv_pending
+                 escape hatch records the ones to chase on WhatsApp instead of
+                 letting them abandon. -->
+            <div class="field file-field">
+              <label for="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span data-i18n="f.cv">السيرة الذاتية (CV)</span> <span class="req">*</span></label>
+              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
+              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 10MB. هذا الملف أساسي في ملفك.</small>
+              <label class="check check-inline">
+                <input type="checkbox" id="cv_later" name="cv_pending" value="oui" />
+                <span data-i18n="f.cvLater">ما عندي السيرة الذاتية دابا — غادي نصيفطها من بعد</span>
+              </label>
+              <small class="hint" data-i18n="hint.cvLater">غادي نكمّلو تسجيلك، ونتواصلو معاك عبر واتساب باش تصيفط السيرة الذاتية. ملفك ما كيوصلش للمؤسسات حتى توصلنا.</small>
+            </div>
+
             <div class="field file-field">
               <label for="certs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="f.certs">شواهد إضافية (اختياري)</span></label>
               <input type="file" id="certs" name="certs" accept=".pdf,.jpg,.jpeg,.png" multiple />
@@ -307,6 +326,16 @@
             <div class="field">
               <span class="label"><span data-i18n="f.subjects">المواد / اللغات التي تريد تدريسها</span> <span class="req">*</span></span>
               <small class="hint subjects-hint" data-i18n="hint.subjects">المواد معروضة بناءً على توجهك العام. غيّر التوجه في الخطوة السابقة لتتغيّر.</small>
+              <!-- Collapsible so a 19-item grid stops reading as a wall, and so
+                   the count is always in view. Collapsing uses a CLASS, never
+                   the hidden attribute: validateStep() only considers members
+                   that are not inside [hidden], so hiding them that way would
+                   let a teacher skip a required group entirely. -->
+              <button type="button" class="select-toggle" id="subjectsToggle" aria-expanded="true" aria-controls="subjectsPanel">
+                <span id="subjectsCount" data-i18n="f.subjectsPick">اختر المواد</span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <p class="pick-summary" id="subjectsSummary" hidden></p>
               <!-- Subjects are filtered by the chosen track (see filterSubjects in
                    form.js), which matches any group listed in data-group.
 
@@ -321,9 +350,16 @@
                    scientific teacher sees their own subjects on top with the
                    literary ones underneath, and a literary teacher opens on the
                    languages. -->
-              <div class="check-grid">
+              <div class="check-grid collapsible" id="subjectsPanel">
                 <!-- sciences: scientific track only -->
-                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="mathematiques" /> <span data-i18n="sub.math">الرياضيات</span></label>
+                <!-- The required marker rides the first member, the same way
+                     levels and institution_types do. validateGroup() reads the
+                     attribute without caring whether that member is visible, so
+                     the group stays enforced on tracks that hide maths. Until
+                     now the label showed a * but no box carried required, so a
+                     teacher could pass this step with no subject at all -- the
+                     one field the whole matching depends on. -->
+                <label class="check" data-group="علمي"><input type="checkbox" name="subjects" required value="mathematiques" /> <span data-i18n="sub.math">الرياضيات</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="physique-chimie" /> <span data-i18n="sub.pc">الفيزياء والكيمياء</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="sciences de la vie et de la terre" /> <span data-i18n="sub.svt">علوم الحياة والأرض</span></label>
                 <label class="check" data-group="علمي"><input type="checkbox" name="subjects" value="geologie" /> <span data-i18n="sub.geo">الجيولوجيا</span></label>
@@ -443,9 +479,12 @@
             </div>
 
             <div class="field">
-              <span class="label"><span data-i18n="f.license">هل تتوفر على رخصة قيادة؟</span> <span class="req">*</span></span>
+              <!-- No longer required: it almost always repeats the answer above
+                   (a teacher with a car has a licence), so demanding it only
+                   added a step-blocking question without adding information. -->
+              <span class="label"><span data-i18n="f.license">هل تتوفر على رخصة قيادة؟</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></span>
               <div class="radio-row">
-                <label class="pill"><input type="radio" name="license" required value="permis voiture" /> <span data-i18n="lic.car">رخصة سيارة</span></label>
+                <label class="pill"><input type="radio" name="license" value="permis voiture" /> <span data-i18n="lic.car">رخصة سيارة</span></label>
                 <label class="pill"><input type="radio" name="license" value="permis moto" /> <span data-i18n="lic.moto">رخصة دراجة</span></label>
                 <label class="pill"><input type="radio" name="license" value="aucun permis" /> <span data-i18n="lic.none">لا أملك</span></label>
               </div>
@@ -490,8 +529,18 @@
 
             <div class="field">
               <span class="label"><span data-i18n="f.contracts">أنواع العقود التي تقبلها</span> <span class="req">*</span></span>
+              <!-- Most teachers pick "لا يهم", so the eight specific types start
+                   collapsed behind a toggle instead of adding eight boxes to the
+                   step. Same class-based collapse as the subjects grid, for the
+                   same validation reason. -->
               <div class="check-grid">
                 <label class="check"><input type="checkbox" name="contract_types" value="peu importe (tout type de contrat)" data-ct-any required /> <span data-i18n="ct.any">لا يهم — أي نوع عقد</span></label>
+              </div>
+              <button type="button" class="select-toggle" id="ctToggle" aria-expanded="false" aria-controls="ctPanel">
+                <span data-i18n="f.contractsPick">أو حدّد أنواع العقود التي تقبلها</span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div class="check-grid collapsible is-collapsed" id="ctPanel">
                 <label class="check"><input type="checkbox" name="contract_types" value="cdi (contrat a duree indeterminee)" /> <span data-i18n="ct.cdi">CDI — غير محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="cdd (contrat a duree determinee)" /> <span data-i18n="ct.cdd">CDD — محدد المدة</span></label>
                 <label class="check"><input type="checkbox" name="contract_types" value="periode d'essai" /> <span data-i18n="ct.essai">عقد تجريبي (Période d'essai)</span></label>
@@ -565,6 +614,22 @@
             <button type="button" class="btn btn-ghost" id="prevBtn" hidden data-i18n="btn.prev">السابق</button>
             <button type="button" class="btn btn-primary" id="nextBtn" data-i18n="btn.next">التالي</button>
             <button type="submit" class="btn btn-primary" id="submitBtn" hidden><span data-i18n="btn.submit">إرسال وإنشاء الملف</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+          </div>
+
+          <!-- The resume link already existed, but only ever reached a teacher
+               through a retargeting message. Surfacing it turns "I left" into
+               "I'll come back". No name attribute on the link field: it sits
+               inside the form and FormData would otherwise submit it. -->
+          <div class="save-later">
+            <button type="button" class="btn-link" id="saveLaterBtn" data-i18n="btn.saveLater">احفظ وأكمل من بعد</button>
+            <div class="resume-box" id="resumeBox" hidden>
+              <p data-i18n="form.resumeIntro">تم حفظ ما أدخلته. احتفظ بهذا الرابط لتُكمل من نفس المكان:</p>
+              <input type="text" id="resumeLink" readonly aria-label="رابط الاستئناف" />
+              <div class="resume-actions">
+                <button type="button" class="btn btn-ghost" id="copyResume" data-i18n="btn.copyLink">انسخ الرابط</button>
+                <a class="btn wa-btn" id="waResume" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> <span data-i18n="btn.waResume">أرسله لي على واتساب</span></a>
+              </div>
+            </div>
           </div>
 
           <div id="formStatus" class="form-status" hidden></div>
