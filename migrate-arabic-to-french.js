@@ -145,6 +145,14 @@ const MAPPING = {
   "الرياضيات": "mathematiques",
   "الفيزياء والكيمياء": "physique-chimie",
   "علوم الحياة والأرض": "sciences de la vie et de la terre",
+  "الجيولوجيا": "geologie",
+  "geologie": "geologie",
+  "علم النفس": "psychologie",
+  "psychologie": "psychologie",
+  /* Variants already sitting in the sheet, reported by auditUnknowns(). */
+  "histoire": "histoire-geographie",
+  "physique": "physique-chimie",
+  "education physique et sport": "education physique et sportive",
   "المعلوميات": "informatique",
   // Technical-stream subjects. Added after a teacher could not find his
   // specialty and abandoned the form. Identity entries keep auditUnknowns()
@@ -489,27 +497,25 @@ function unknownFragments(raw) {
   if (translateOne(raw) !== null) return [];
   if (parseMulti(raw)) return [];
 
-  var s = toCanonical(String(raw).trim());
-  var unknown = [], pos = 0, guard = 0;
+  /* Split on the real wire separator only.
 
-  while (pos < s.length && guard++ < 500) {
-    var m = matchAt(s, pos);
-    if (m) {
-      pos += m.key.length;
-      var next = eatSeparator(s, pos);
-      if (next !== -1) { pos = next; continue; }
-      if (pos >= s.length) break;
-    }
-    // Unrecognized run: report it up to the next separator and continue.
-    var iComma = s.indexOf(",", pos);
-    var iNl = s.indexOf("\n", pos);
-    var cut = (iComma === -1) ? iNl : (iNl === -1 ? iComma : Math.min(iComma, iNl));
-    var chunk = ((cut === -1) ? s.substring(pos) : s.substring(pos, cut)).trim();
-    if (chunk !== "") unknown.push(chunk);
-    if (cut === -1) break;
-    pos = cut + 1;
+     The previous version scanned character by character with matchAt(), which
+     invented names: a cell holding "histoire" was reported as "istoire",
+     because the known-value index spans every column and the gender value "h"
+     matched its first letter. That sends you hunting for a value that is not in
+     the sheet.
+
+     matchAt() is still correct inside parseMulti(), where a match must be
+     followed by a separator. It is the wrong tool for reporting. */
+  var s = String(raw).trim();
+  var parts = (s.indexOf(", ") !== -1) ? s.split(", ") : [s];
+  var out = [];
+  for (var i = 0; i < parts.length; i++) {
+    var p = parts[i].trim();
+    if (p !== "" && translateOne(p) === null) out.push(toCanonical(p));
   }
-  return unknown;
+  // Nothing isolated -> report the whole cell rather than nothing at all.
+  return out.length ? out : [toCanonical(s)];
 }
 
 /* ===== PHONE COLUMNS =====

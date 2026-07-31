@@ -108,14 +108,55 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // budget = "other" -> reveal custom amount field
-  var budgetSel = document.getElementById("budget");
+  /* ---------- pay period drives the amount bands ----------
+     A language centre pays 60 dh an hour, a school 5000 dh a month, and some
+     settle per semester or per year. Offering one monthly list to all of them
+     produced a budget column that could not be compared with anything, so each
+     band carries the period it belongs to (data-period) and only the matching
+     ones are offered. Options with no data-period ("لا يهم", "مبلغ آخر") always
+     apply. */
+  var payPeriodSel     = document.getElementById("pay_period");
+  var budgetSel        = document.getElementById("budget");
   var budgetCustomWrap = document.getElementById("budget-custom-wrap");
-  if (budgetSel && budgetCustomWrap) {
-    budgetSel.addEventListener("change", function () {
-      budgetCustomWrap.hidden = budgetSel.value !== "مبلغ آخر";
-    });
+  var budgetUnitEl     = document.getElementById("budget_custom_unit");
+
+  var PERIOD_UNIT_KEY = {
+    "بالساعة": "s.unit.hour",
+    "بالشهر": "s.unit.month",
+    "كل 6 أشهر": "s.unit.semester",
+    "بالسنة": "s.unit.year"
+  };
+  function T(k) { return (typeof window.t === "function") ? window.t(k) : k; }
+
+  function syncBudgetCustom() {
+    if (budgetCustomWrap && budgetSel) budgetCustomWrap.hidden = budgetSel.value !== "مبلغ آخر";
   }
+  function syncBudgetUnit() {
+    if (!budgetUnitEl || !payPeriodSel) return;
+    budgetUnitEl.textContent = T(PERIOD_UNIT_KEY[payPeriodSel.value] || "s.unit.month");
+  }
+  function syncBudgetOptions() {
+    if (!payPeriodSel || !budgetSel) return;
+    var period = payPeriodSel.value || "بالشهر";
+    var stillValid = false;
+    [].slice.call(budgetSel.options).forEach(function (o) {
+      if (!o.value) return;                       // leave the "اختر" placeholder alone
+      var p = o.getAttribute("data-period");
+      var show = !p || p === period;
+      o.hidden = !show;
+      o.disabled = !show;                         // Safari ignores hidden on <option>
+      if (show && o.value === budgetSel.value) stillValid = true;
+    });
+    // switching the period must not leave a band from the previous one selected
+    if (budgetSel.value && !stillValid) budgetSel.value = "";
+    syncBudgetCustom();
+    syncBudgetUnit();
+  }
+
+  if (payPeriodSel) payPeriodSel.addEventListener("change", syncBudgetOptions);
+  if (budgetSel) budgetSel.addEventListener("change", syncBudgetCustom);
+  document.addEventListener("linkify:lang", syncBudgetUnit);   // unit is set by JS, not data-i18n
+  syncBudgetOptions();
 
   // contract "لا يهم" -> selecting it clears + disables the specific contract types
   var anyCt = document.querySelector('input[name="contract_types"][data-ct-any]');
@@ -253,6 +294,10 @@ document.addEventListener("DOMContentLoaded", function () {
       else if (first.type === "checkbox") { var vals = String(val).split(",").map(function (s) { return s.trim(); }); els.forEach(function (c) { if (vals.indexOf(c.value) !== -1) c.checked = true; }); }
       else { first.value = val; }
     });
+    // Restored values must re-run the conditional logic, otherwise a resumed
+    // lead shows the monthly bands next to an hourly period, and "مبلغ آخر"
+    // comes back with its amount field still hidden.
+    syncBudgetOptions();
   }
 
   /* ---------- navigation ---------- */

@@ -26,7 +26,7 @@ var CONFIG = {
   SITE_URL_DEFAULT: "https://linkify.ma",
   NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
   MAX_FIELD_LEN: 5000,
-  MAX_FILE_BYTES: 6 * 1024 * 1024,
+  MAX_FILE_BYTES: 11 * 1024 * 1024,   // 10MB client limit + base64 rounding headroom
   RL_PER_SID: 40,
   RL_GLOBAL: 2000,
   RL_WINDOW_SEC: 60
@@ -51,7 +51,12 @@ var SCHOOL_HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt",
   "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
   "subject", "subject_other", "level", "degree", "need_type", "work_type", "budget", "budget_custom", "contract_types", "min_experience", "prefer_local", "notes",
-  "pricing_pref", "resume_url", "source", "usage_consent"
+  "pricing_pref", "resume_url", "source", "usage_consent",
+  /* pay_period tells you what "budget" is per: hour, month, 6 months or year.
+     Without it "24000-36000" is unreadable. Appended at the END on purpose --
+     rows are written positionally and only the header row is ever rewritten, so
+     inserting it next to "budget" would shift every existing lead's columns. */
+  "pay_period"
 ];
 var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
 
@@ -151,23 +156,23 @@ var ENUM_TEACHER = {
     gender: ["f", "h"],
     has_experience: ["non (nouveau diplome)", "oui"],
     institution_types: ["centre de formation professionnelle", "centre de langues", "centre de soutien scolaire", "creche", "creche / prescolaire", "ecole privee", "etablissement d'enseignement superieur prive", "prescolaire (maternelle)"],
-    lang_en: ["aucune connaissance", "basique", "excellent", "intermediaire"],
     lang_ar: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_fr: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_en: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_fr: ["aucune connaissance", "basique", "excellent", "intermediaire"],
     levels: ["college", "creche (moins de 3 ans)", "enseignement superieur", "formation des adultes / formation continue", "grande section (5-6 ans)", "lycee", "moyenne section (4-5 ans)", "petite section (3-4 ans)", "prescolaire (3-5 ans)", "primaire"],
     license: ["aucun permis", "permis moto", "permis voiture"],
     relocate: ["non, ma ville uniquement", "oui, tout a fait pret", "selon l'offre et les avantages"],
     salary_expectation: ["2000-3500", "4000-6000", "7000-9000", "autre montant", "peu importe"],
     schedule: ["heures supplementaires / seances ponctuelles", "temps partiel", "temps plein", "tout ce qui precede"],
-    subjects: ["anglais", "animation culturelle et eveil artistique", "arabe uniquement", "arts plastiques et visuels", "ateliers pedagogiques et innovation", "autre matiere", "education islamique", "education musicale", "education physique et sportive", "francais", "gestion et comptabilite", "histoire-geographie", "informatique", "langue allemande", "langue anglaise", "langue arabe", "langue espagnole", "langue francaise", "mathematiques", "philosophie", "photographie et audiovisuel", "physique-chimie", "sciences de l'ingenieur", "sciences de la vie et de la terre", "technologie", "theatre et arts de la scene"],
+    subjects: ["anglais", "animation culturelle et eveil artistique", "arabe uniquement", "arts plastiques et visuels", "ateliers pedagogiques et innovation", "autre matiere", "education islamique", "education musicale", "education physique et sportive", "francais", "geologie", "gestion et comptabilite", "histoire-geographie", "informatique", "langue allemande", "langue anglaise", "langue arabe", "langue espagnole", "langue francaise", "mathematiques", "philosophie", "photographie et audiovisuel", "physique-chimie", "psychologie", "sciences de l'ingenieur", "sciences de la vie et de la terre", "technologie", "theatre et arts de la scene"],
     substitute: ["non", "oui, disponible pour remplacement urgent", "oui, selon les circonstances"],
     track: ["education artistique et culturelle", "education prescolaire et educatrices", "litteraire / sciences humaines", "scientifique / technique"],
     transport: ["aucun moyen de transport", "oui, moto", "oui, voiture"]
 };
 var ENUM_SCHOOL = {
-    budget: ["2000-3500", "4000-6000", "7000-9000", "لا يهم", "مبلغ آخر"],
+    budget: ["100-150", "12000-21000", "150+", "2000-3500", "24000-36000", "24000-42000", "30-60", "4000-6000", "42000-54000", "48000-72000", "60-100", "7000-9000", "84000-108000", "لا يهم", "مبلغ آخر"],
     city: ["آسفي", "آيت ملول", "أكادير", "إنزكان", "الجديدة", "الدار البيضاء", "الرباط", "الصخيرات", "الصويرة", "العرائش", "الفقيه بن صالح", "القصر الكبير", "القنيطرة", "المحمدية", "الناضور", "برشيد", "بركان", "بني ملال", "بوزنيقة", "تارودانت", "تازة", "تطوان", "تمارة", "تيزنيت", "خريبكة", "سطات", "سلا", "سيدي بنور", "سيدي سليمان", "سيدي قاسم", "صفرو", "طنجة", "فاس", "قلعة السراغنة", "مدينة أخرى", "مراكش", "مكناس", "وجدة", "وزان"],
     contract_types: ["CDD (محدد المدة)", "CDI (غير محدد المدة)", "بالتوقيت / بالساعة", "تدريب / إدماج", "تعويض مؤقت", "دوام جزئي", "عقد تجريبي", "لا يهم (أي نوع عقد)", "مقاول ذاتي / Freelance"],
     degree: ["إجازة", "باكالوريا", "دبلوم (سنتان)", "دكتوراه", "لا يهم", "ماستر", "مهندس"],
@@ -175,6 +180,7 @@ var ENUM_SCHOOL = {
     level: ["إعدادي", "ابتدائي", "تعليم أولي", "تكوين", "ثانوي تأهيلي", "حضانة", "دعم", "روض", "لغات"],
     min_experience: ["3 سنوات فأكثر", "5 سنوات فأكثر", "سنة فأكثر"],
     need_type: ["أريد تجربة الخدمة", "بداية السنة الدراسية", "خلال هذا الشهر", "فورية"],
+    pay_period: ["بالساعة", "بالسنة", "بالشهر", "كل 6 أشهر"],
     prefer_local: ["لا يهم", "نعم، مفضّل"],
     role: ["سكرتير(ة)", "صاحب(ة) المؤسسة", "مدير(ة)", "مسؤول(ة) تربوي(ة)", "مفتش(ة)", "منسق(ة)", "موارد بشرية"],
     subject: ["إطار إداري آخر", "الإسبانية", "الاجتماعيات", "التربية الإسلامية", "التربية البدنية والرياضية", "التربية الفنية والثقافية", "التعليم الأولي", "الدعم واللغات", "الرياضيات", "الفرنسية", "الفلسفة", "الفيزياء والكيمياء", "اللغة الإنجليزية", "اللغة العربية", "المعلوميات", "تقني معلوميات / صيانة", "حارس(ة) عام", "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال", "علوم الحياة والأرض", "مادة أخرى", "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)", "مسؤول(ة) الموارد البشرية أو التسجيل", "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)", "مفتش(ة) / مشرف(ة) تربوي(ة)", "نائب(ة) المدير / ناظر(ة) المؤسسة"],
@@ -785,6 +791,9 @@ function saveFile(folder, fileObj, baseName) {
 var LOCKDOWN_TOKEN_KEY = "uploadLockdownToken";
 var LOCKDOWN_DONE_KEY  = "uploadLockdownDone";   // cumulative count across passes
 var LOCKDOWN_BUDGET_MS = 4.5 * 60 * 1000;        // stop well before the 6-minute kill
+var AUDIT_TOKEN_KEY    = "uploadAuditToken";     // the audit is resumable too
+var AUDIT_SEEN_KEY     = "uploadAuditSeen";
+var AUDIT_PUB_KEY      = "uploadAuditPublic";
 
 function isPubliclyShared(file) {
   try {
@@ -793,31 +802,58 @@ function isPubliclyShared(file) {
   } catch (e) { return false; }
 }
 
-/* Changes nothing. Counts how many uploads are readable by anyone with the URL. */
+/* Changes nothing. Counts how many uploads are readable by anyone with the URL.
+
+   Resumable, for the same reason the sweep is: reading the sharing state costs
+   one Drive call per file, so a single pass cannot reach the end of a few
+   thousand files before Apps Script stops it. The first version silently
+   reported only what it managed to reach -- it said "1270 scanned" for a folder
+   holding roughly twice that, which looks like a complete answer and is not.
+
+   Re-run until it logs DONE. Counts accumulate across passes. */
 function auditUploadSharing() {
   var started = Date.now();
-  var it = getFolder().getFiles();
-  var total = 0, pub = 0, examples = [];
+  var store = PropertiesService.getScriptProperties();
+  var token = store.getProperty(AUDIT_TOKEN_KEY);
+  var seen  = parseInt(store.getProperty(AUDIT_SEEN_KEY) || "0", 10);
+  var pub   = parseInt(store.getProperty(AUDIT_PUB_KEY)  || "0", 10);
+
+  var it = token ? DriveApp.continueFileIterator(token) : getFolder().getFiles();
+  var examples = [];
 
   while (it.hasNext()) {
     if (Date.now() - started > LOCKDOWN_BUDGET_MS) {
-      Logger.log("Stopped early after " + total + " files (time limit). Counts so far:");
-      break;
+      store.setProperty(AUDIT_TOKEN_KEY, it.getContinuationToken());
+      store.setProperty(AUDIT_SEEN_KEY, String(seen));
+      store.setProperty(AUDIT_PUB_KEY, String(pub));
+      Logger.log("Paused to stay inside the time limit -- counts so far:");
+      Logger.log("  scanned : " + seen);
+      Logger.log("  PUBLIC  : " + pub);
+      Logger.log("  private : " + (seen - pub));
+      Logger.log("");
+      Logger.log("  NOT FINISHED -- run auditUploadSharing() again to continue.");
+      return;
     }
     var f = it.next();
-    total++;
+    seen++;
     if (isPubliclyShared(f)) {
       pub++;
       if (examples.length < 5) examples.push(f.getName());
     }
   }
 
-  Logger.log("Files scanned : " + total);
-  Logger.log("PUBLIC        : " + pub + "   (readable by anyone with the link)");
-  Logger.log("private       : " + (total - pub));
-  if (examples.length) Logger.log("examples      : " + examples.join(", "));
-  Logger.log(pub ? "\nRun lockDownUploads() to make these private."
-                 : "\nNothing to fix.");
+  store.deleteProperty(AUDIT_TOKEN_KEY);
+  store.deleteProperty(AUDIT_SEEN_KEY);
+  store.deleteProperty(AUDIT_PUB_KEY);
+
+  Logger.log("DONE -- every file in the folder was checked.");
+  Logger.log("  scanned : " + seen);
+  Logger.log("  PUBLIC  : " + pub + "   (readable by anyone with the link)");
+  Logger.log("  private : " + (seen - pub));
+  if (examples.length) Logger.log("  examples: " + examples.join(", "));
+  Logger.log("");
+  Logger.log(pub ? "  Run startUploadLockdown() to make these private."
+                 : "  Nothing to fix. Every upload is private.");
 }
 
 /* Schedules the sweep to run itself until it finishes, then stop.
@@ -916,11 +952,14 @@ function stillScheduled() {
    the sweep from the beginning again. */
 function resetUploadLockdown() {
   var store = PropertiesService.getScriptProperties();
-  store.deleteProperty(LOCKDOWN_TOKEN_KEY);
-  store.deleteProperty(LOCKDOWN_DONE_KEY);
-  stopUploadLockdown();
-  Logger.log("Progress reset and any schedule removed.");
-  Logger.log("The next lockDownUploads() starts from the first file.");
+  [LOCKDOWN_TOKEN_KEY, LOCKDOWN_DONE_KEY,
+   AUDIT_TOKEN_KEY, AUDIT_SEEN_KEY, AUDIT_PUB_KEY].forEach(function (k) {
+    store.deleteProperty(k);
+  });
+  var removed = stopUploadLockdown();
+  Logger.log("Progress reset for both the sweep and the audit.");
+  if (removed) Logger.log("WARNING: this also CANCELLED the running sweep.");
+  Logger.log("Run startUploadLockdown() to start again from the first file.");
 }
 
 
