@@ -37,6 +37,20 @@ const SKIP = new Set([
   "budget_custom","usage_consent",
 ]);
 
+/* Retired fields: gone from every form, but pages cached in a visitor's browser
+   still submit them. Keeping their allow-list is the only reason a stale client
+   shows up in the "Rejected Values" tab instead of slipping through unnoticed --
+   that is how the lang_ar submission was spotted. Drop an entry only once you
+   are content to stop seeing it. */
+const RETIRED = {
+  teacher: {
+    lang_ar: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+  },
+  school: {},
+};
+
 const groups = { teacher: {}, school: {} };
 const kind   = { teacher: {}, school: {} };   // field -> "single" | "multi"
 
@@ -63,6 +77,15 @@ for (const [file, family] of FORMS) {
     // a name used as both is treated as multi (the looser parse)
     kind[family][name] = kind[family][name] === "multi" ? "multi" : k;
   });
+}
+
+// retired fields are not in any HTML, so they are folded in after the scan
+for (const family of ["teacher", "school"]) {
+  for (const [f, vals] of Object.entries(RETIRED[family])) {
+    if (groups[family][f]) { console.log(`  NOTE ${f} is back on a form -- drop it from RETIRED`); continue; }
+    groups[family][f] = new Set(vals);
+    kind[family][f] = "single";
+  }
 }
 
 let unsafe = 0;

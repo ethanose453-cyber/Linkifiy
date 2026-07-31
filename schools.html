@@ -352,20 +352,45 @@
                 </select>
               </div>
             </div>
+            <!-- Pay period drives which amount bands are offered below. Centres
+                 pay by the hour, schools by the month, and some settle per
+                 semester or per year, so a single monthly list forced everyone
+                 into numbers that did not describe what they actually pay.
+                 data-period is filtered by syncBudgetOptions() in schools.js. -->
             <div class="grid-2">
               <div class="field">
-                <label for="budget" data-i18n="s.f.budget">الأجر الشهري الذي أنتم مستعدون لدفعه (درهم)</label>
+                <label for="pay_period" data-i18n="s.f.payPeriod">الأداء يكون…</label>
+                <select id="pay_period" name="pay_period">
+                  <option value="بالساعة" data-i18n="pp.hour">بالساعة</option>
+                  <option value="بالشهر" selected data-i18n="pp.month">بالشهر</option>
+                  <option value="كل 6 أشهر" data-i18n="pp.semester">كل 6 أشهر</option>
+                  <option value="بالسنة" data-i18n="pp.year">بالسنة</option>
+                </select>
+                <small class="hint" data-i18n="s.hint.payPeriod">اختاروا الوتيرة أولاً — المبالغ المقترحة تتغيّر على حسابها.</small>
+              </div>
+              <div class="field">
+                <label for="budget" data-i18n="s.f.budget">المبلغ الذي أنتم مستعدون لدفعه (درهم)</label>
                 <select id="budget" name="budget">
                   <option value="" disabled selected data-i18n="s.opt.choose">اختر</option>
-                  <option value="2000-3500" data-i18n="sal.r1">2000 – 3500 درهم</option>
-                  <option value="4000-6000" data-i18n="sal.r2">4000 – 6000 درهم</option>
-                  <option value="7000-9000" data-i18n="sal.r3">7000 – 9000 درهم</option>
+                  <option value="30-60" data-period="بالساعة" data-i18n="sal.h1">30 – 60 درهم/ساعة</option>
+                  <option value="60-100" data-period="بالساعة" data-i18n="sal.h2">60 – 100 درهم/ساعة</option>
+                  <option value="100-150" data-period="بالساعة" data-i18n="sal.h3">100 – 150 درهم/ساعة</option>
+                  <option value="150+" data-period="بالساعة" data-i18n="sal.h4">أكثر من 150 درهم/ساعة</option>
+                  <option value="2000-3500" data-period="بالشهر" data-i18n="sal.r1">2000 – 3500 درهم</option>
+                  <option value="4000-6000" data-period="بالشهر" data-i18n="sal.r2">4000 – 6000 درهم</option>
+                  <option value="7000-9000" data-period="بالشهر" data-i18n="sal.r3">7000 – 9000 درهم</option>
+                  <option value="12000-21000" data-period="كل 6 أشهر" data-i18n="sal.s1">12000 – 21000 درهم</option>
+                  <option value="24000-36000" data-period="كل 6 أشهر" data-i18n="sal.s2">24000 – 36000 درهم</option>
+                  <option value="42000-54000" data-period="كل 6 أشهر" data-i18n="sal.s3">42000 – 54000 درهم</option>
+                  <option value="24000-42000" data-period="بالسنة" data-i18n="sal.y1">24000 – 42000 درهم</option>
+                  <option value="48000-72000" data-period="بالسنة" data-i18n="sal.y2">48000 – 72000 درهم</option>
+                  <option value="84000-108000" data-period="بالسنة" data-i18n="sal.y3">84000 – 108000 درهم</option>
                   <option value="لا يهم" data-i18n="sal.any">لا يهم</option>
                   <option value="مبلغ آخر" data-i18n="sal.other">مبلغ آخر (حدّده)</option>
                 </select>
               </div>
               <div class="field conditional" id="budget-custom-wrap" hidden>
-                <label for="budget_custom" data-i18n="f.salaryCustom">حدّد المبلغ (درهم/الشهر)</label>
+                <label for="budget_custom"><span data-i18n="s.f.budgetCustom">حدّد المبلغ</span> (<span id="budget_custom_unit">درهم/الشهر</span>)</label>
                 <input type="number" id="budget_custom" name="budget_custom" min="0" step="100" inputmode="numeric" />
               </div>
             </div>

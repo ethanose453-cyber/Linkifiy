@@ -51,7 +51,12 @@ var SCHOOL_HEADERS = [
   "submissionId", "status", "currentStep", "createdAt", "updatedAt",
   "school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "email",
   "subject", "subject_other", "level", "degree", "need_type", "work_type", "budget", "budget_custom", "contract_types", "min_experience", "prefer_local", "notes",
-  "pricing_pref", "resume_url", "source", "usage_consent"
+  "pricing_pref", "resume_url", "source", "usage_consent",
+  /* pay_period tells you what "budget" is per: hour, month, 6 months or year.
+     Without it "24000-36000" is unreadable. Appended at the END on purpose --
+     rows are written positionally and only the header row is ever rewritten, so
+     inserting it next to "budget" would shift every existing lead's columns. */
+  "pay_period"
 ];
 var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
 
@@ -151,23 +156,23 @@ var ENUM_TEACHER = {
     gender: ["f", "h"],
     has_experience: ["non (nouveau diplome)", "oui"],
     institution_types: ["centre de formation professionnelle", "centre de langues", "centre de soutien scolaire", "creche", "creche / prescolaire", "ecole privee", "etablissement d'enseignement superieur prive", "prescolaire (maternelle)"],
-    lang_en: ["aucune connaissance", "basique", "excellent", "intermediaire"],
     lang_ar: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
-  lang_fr: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_de: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_en: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_es: ["aucune connaissance", "basique", "excellent", "intermediaire"],
+    lang_fr: ["aucune connaissance", "basique", "excellent", "intermediaire"],
     levels: ["college", "creche (moins de 3 ans)", "enseignement superieur", "formation des adultes / formation continue", "grande section (5-6 ans)", "lycee", "moyenne section (4-5 ans)", "petite section (3-4 ans)", "prescolaire (3-5 ans)", "primaire"],
     license: ["aucun permis", "permis moto", "permis voiture"],
     relocate: ["non, ma ville uniquement", "oui, tout a fait pret", "selon l'offre et les avantages"],
     salary_expectation: ["2000-3500", "4000-6000", "7000-9000", "autre montant", "peu importe"],
     schedule: ["heures supplementaires / seances ponctuelles", "temps partiel", "temps plein", "tout ce qui precede"],
-    subjects: ["anglais", "animation culturelle et eveil artistique", "arabe uniquement", "arts plastiques et visuels", "ateliers pedagogiques et innovation", "autre matiere", "education islamique", "education musicale", "education physique et sportive", "francais", "gestion et comptabilite", "histoire-geographie", "informatique", "langue allemande", "langue anglaise", "langue arabe", "langue espagnole", "langue francaise", "mathematiques", "philosophie", "photographie et audiovisuel", "physique-chimie", "sciences de l'ingenieur", "sciences de la vie et de la terre", "technologie", "theatre et arts de la scene"],
+    subjects: ["anglais", "animation culturelle et eveil artistique", "arabe uniquement", "arts plastiques et visuels", "ateliers pedagogiques et innovation", "autre matiere", "education islamique", "education musicale", "education physique et sportive", "francais", "geologie", "gestion et comptabilite", "histoire-geographie", "informatique", "langue allemande", "langue anglaise", "langue arabe", "langue espagnole", "langue francaise", "mathematiques", "philosophie", "photographie et audiovisuel", "physique-chimie", "psychologie", "sciences de l'ingenieur", "sciences de la vie et de la terre", "technologie", "theatre et arts de la scene"],
     substitute: ["non", "oui, disponible pour remplacement urgent", "oui, selon les circonstances"],
     track: ["education artistique et culturelle", "education prescolaire et educatrices", "litteraire / sciences humaines", "scientifique / technique"],
     transport: ["aucun moyen de transport", "oui, moto", "oui, voiture"]
 };
 var ENUM_SCHOOL = {
-    budget: ["2000-3500", "4000-6000", "7000-9000", "لا يهم", "مبلغ آخر"],
+    budget: ["100-150", "12000-21000", "150+", "2000-3500", "24000-36000", "24000-42000", "30-60", "4000-6000", "42000-54000", "48000-72000", "60-100", "7000-9000", "84000-108000", "لا يهم", "مبلغ آخر"],
     city: ["آسفي", "آيت ملول", "أكادير", "إنزكان", "الجديدة", "الدار البيضاء", "الرباط", "الصخيرات", "الصويرة", "العرائش", "الفقيه بن صالح", "القصر الكبير", "القنيطرة", "المحمدية", "الناضور", "برشيد", "بركان", "بني ملال", "بوزنيقة", "تارودانت", "تازة", "تطوان", "تمارة", "تيزنيت", "خريبكة", "سطات", "سلا", "سيدي بنور", "سيدي سليمان", "سيدي قاسم", "صفرو", "طنجة", "فاس", "قلعة السراغنة", "مدينة أخرى", "مراكش", "مكناس", "وجدة", "وزان"],
     contract_types: ["CDD (محدد المدة)", "CDI (غير محدد المدة)", "بالتوقيت / بالساعة", "تدريب / إدماج", "تعويض مؤقت", "دوام جزئي", "عقد تجريبي", "لا يهم (أي نوع عقد)", "مقاول ذاتي / Freelance"],
     degree: ["إجازة", "باكالوريا", "دبلوم (سنتان)", "دكتوراه", "لا يهم", "ماستر", "مهندس"],
@@ -175,6 +180,7 @@ var ENUM_SCHOOL = {
     level: ["إعدادي", "ابتدائي", "تعليم أولي", "تكوين", "ثانوي تأهيلي", "حضانة", "دعم", "روض", "لغات"],
     min_experience: ["3 سنوات فأكثر", "5 سنوات فأكثر", "سنة فأكثر"],
     need_type: ["أريد تجربة الخدمة", "بداية السنة الدراسية", "خلال هذا الشهر", "فورية"],
+    pay_period: ["بالساعة", "بالسنة", "بالشهر", "كل 6 أشهر"],
     prefer_local: ["لا يهم", "نعم، مفضّل"],
     role: ["سكرتير(ة)", "صاحب(ة) المؤسسة", "مدير(ة)", "مسؤول(ة) تربوي(ة)", "مفتش(ة)", "منسق(ة)", "موارد بشرية"],
     subject: ["إطار إداري آخر", "الإسبانية", "الاجتماعيات", "التربية الإسلامية", "التربية البدنية والرياضية", "التربية الفنية والثقافية", "التعليم الأولي", "الدعم واللغات", "الرياضيات", "الفرنسية", "الفلسفة", "الفيزياء والكيمياء", "اللغة الإنجليزية", "اللغة العربية", "المعلوميات", "تقني معلوميات / صيانة", "حارس(ة) عام", "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال", "علوم الحياة والأرض", "مادة أخرى", "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)", "مسؤول(ة) الموارد البشرية أو التسجيل", "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)", "مفتش(ة) / مشرف(ة) تربوي(ة)", "نائب(ة) المدير / ناظر(ة) المؤسسة"],
