@@ -1,228 +1,842 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-title-key="fac.meta.title">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#126cb4" />
+  <script>(function(){try{var t=localStorage.getItem('linkify-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <script>(function(){try{var p=new URLSearchParams(location.search).get('lang');var l=p||localStorage.getItem('linkify-lang');if(l==='fr'||l==='en'){document.documentElement.setAttribute('lang',l);document.documentElement.setAttribute('dir','ltr');}}catch(e){}})();</script>
+  <!-- Meta Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init','2406345689890898');
+    fbq('track','PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=2406345689890898&ev=PageView&noscript=1" alt="" /></noscript>
+  <!-- End Meta Pixel -->
   <title>انضم إلى شبكة مؤطري Linkify</title>
-  <meta name="description" content="انضم إلى شبكة مؤطري Linkify وقدّم Workshops تعليمية وتفاعلية داخل المؤسسات التعليمية الخاصة." />
-  <link rel="canonical" href="https://linkify.ma/facilitators" />
+  <meta name="description" content="انضم إلى شبكة مؤطري Linkify وقدّم Workshops تعليمية وتفاعلية داخل المؤسسات التعليمية الخاصة. سجّل مجاناً في دقائق." />
 
   <meta property="og:title" content="انضم إلى شبكة مؤطري Linkify" />
   <meta property="og:description" content="حوّل خبرتك ومهاراتك إلى Workshops داخل المؤسسات التعليمية الخاصة." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://linkify.ma/facilitators" />
   <meta property="og:site_name" content="Linkify.ma" />
   <meta property="og:locale" content="ar_MA" />
+  <meta property="og:url" content="https://linkify.ma/facilitators" />
+  <meta property="og:image" content="https://linkify.ma/og-image.png" />
+  <meta property="og:image:secure_url" content="https://linkify.ma/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Linkify.ma" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="انضم إلى شبكة مؤطري Linkify" />
+  <meta name="twitter:description" content="حوّل خبرتك ومهاراتك إلى Workshops داخل المؤسسات التعليمية الخاصة." />
+  <meta name="twitter:image" content="https://linkify.ma/og-image.png" />
 
+  <link rel="canonical" href="https://linkify.ma/facilitators" />
+  <link rel="alternate" hreflang="ar" href="https://linkify.ma/facilitators?lang=ar" />
+  <link rel="alternate" hreflang="fr" href="https://linkify.ma/facilitators?lang=fr" />
+  <link rel="alternate" hreflang="en" href="https://linkify.ma/facilitators?lang=en" />
+  <link rel="alternate" hreflang="x-default" href="https://linkify.ma/facilitators" />
+  <meta property="og:locale:alternate" content="fr_FR" />
+  <meta property="og:locale:alternate" content="en_US" />
+
+  <!-- root-absolute asset paths: this page lives under /facilitators/ -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="shortcut icon" href="/favicon-48x48.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
-
-  <style>
-    :root {
-      --brand: #126cb4;
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --text: #172033;
-      --muted: #667085;
-      --line: #e5e7eb;
-      --header-h: 68px;
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      font-family: "Tajawal", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    body {
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow: hidden;
-    }
-
-    .topbar {
-      height: var(--header-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 0 24px;
-      background: rgba(255,255,255,.97);
-      border-bottom: 1px solid var(--line);
-      box-shadow: 0 1px 8px rgba(16,24,40,.04);
-      position: relative;
-      z-index: 10;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-    }
-
-    .brand img {
-      width: 120px;
-      max-height: 42px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .official {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      white-space: nowrap;
-    }
-
-    .official svg {
-      width: 17px;
-      height: 17px;
-      color: var(--brand);
-      flex: 0 0 auto;
-    }
-
-    .frame-shell {
-      position: relative;
-      width: 100%;
-      height: calc(100vh - var(--header-h));
-      height: calc(100dvh - var(--header-h));
-      background: var(--bg);
-    }
-
-    .facilitator-frame {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      display: block;
-      background: var(--bg);
-    }
-
-    .loader {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      background: var(--bg);
-      z-index: 2;
-      transition: opacity .25s ease, visibility .25s ease;
-    }
-
-    .loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-
-    .loader-card {
-      min-width: 250px;
-      padding: 22px 28px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 12px 36px rgba(16,24,40,.08);
-    }
-
-    .spinner {
-      width: 30px;
-      height: 30px;
-      margin: 0 auto 12px;
-      border: 3px solid #e5eef7;
-      border-top-color: var(--brand);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    .loader-card strong { display: block; margin-bottom: 4px; }
-    .loader-card span { color: var(--muted); font-size: 13px; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 640px) {
-      :root { --header-h: 60px; }
-      .topbar { padding: 0 14px; }
-      .brand img { width: 104px; }
-      .official { font-size: 11px; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "PASTE_CLOUDFLARE_TOKEN"}'></script>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="https://linkify.ma" aria-label="العودة إلى Linkify.ma">
-      <img src="/logo-light.png" alt="Linkify.ma" />
-    </a>
-
-    <div class="official" aria-label="النموذج الرسمي لشبكة مؤطري Linkify">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-      </svg>
-      <span>النموذج الرسمي لشبكة مؤطري Linkify</span>
-    </div>
+  <!-- ============ HEADER ============ -->
+  <header class="site-header">
+    <nav class="nav container">
+      <a href="/#top" class="brand" aria-label="Linkify">
+        <span class="brand-logo" role="img" aria-label="Linkify"></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#register" data-i18n="nav.register">سجّل</a></li>
+        <li><a href="#how" data-i18n="nav.how">آلية العمل</a></li>
+        <li><a href="#why" data-i18n="nav.why">لماذا Linkify</a></li>
+        <li><a href="/index.html" data-i18n="a.nav.teachers">للأساتذة</a></li>
+        <li><a href="/schools.html" data-i18n="nav.schools">للمؤسسات</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button id="langToggle" class="lang-toggle" type="button" aria-label="Language / اللغة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span id="langLabel">AR</span></button>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="تبديل الوضع الليلي / النهاري"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+        <a href="#register" class="btn btn-primary btn-sm" data-i18n="nav.cta">سجّل مجاناً</a>
+        <button id="navToggle" class="nav-toggle" type="button" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      </div>
+    </nav>
   </header>
 
-  <main class="frame-shell">
-    <div class="loader" id="frameLoader" aria-live="polite">
-      <div class="loader-card">
-        <div class="spinner" aria-hidden="true"></div>
-        <strong>جاري تحميل استمارة التسجيل</strong>
-        <span>Linkify Facilitator Network</span>
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <span class="badge" data-i18n="fac.hero.badge">انضم إلى شبكة مؤطري Linkify</span>
+          <h1 data-i18n="fac.hero.h1">حوّل خبرتك إلى Workshops تعليمية داخل المؤسسات القريبة منك.</h1>
+          <p class="lead" data-i18n="fac.hero.lead">
+            تربط Linkify المؤطرين المتخصصين بالمؤسسات التعليمية الخاصة التي تبحث عن Workshops تفاعلية. أنشئ ملفك مرة واحدة، ودع المؤسسات تصل إليك.
+          </p>
+          <div class="hero-cta">
+            <a href="#register" class="btn btn-primary btn-lg" data-i18n="hero.cta">أنشئ ملفك الآن ↓</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="match-stage" id="matchStage">
+            <svg class="match-beams" id="matchBeams" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#126cb4" />
+                  <stop offset="1" stop-color="#6366f1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <span class="match-label match-label-l" data-i18n="match.left">المؤسسات</span>
+            <span class="match-label match-label-r" data-i18n="fac.match.right">المؤطرون</span>
+            <div class="match-core"><span class="core-aura"></span><img class="core-icon" src="/icon.png" alt="" /></div>
+            <div class="match-caption">
+              <span class="cap-dot"></span>
+              <span class="cap-text"><strong data-i18n="match.title">مطابقة ذكية</strong><span class="sub" data-i18n="match.sub">نربط الكفاءة بالفرصة الأقرب</span></span>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <iframe
-      id="facilitatorFrame"
-      class="facilitator-frame"
-      title="استمارة التسجيل في شبكة مؤطري Linkify"
-      loading="eager"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allow="clipboard-write"
-    ></iframe>
+    <!-- ============ REGISTRATION FORM ============ -->
+    <section id="register" class="section form-section">
+      <div class="container form-wrap">
+        <header class="form-head">
+          <h2 class="section-title" data-i18n="fac.form.title">أنشئ ملف مؤطّر — مجاناً</h2>
+          <p class="section-sub" data-i18n="fac.form.sub">
+            املأ ملفك كمؤطّر في دقائق، ودع المؤسسات القريبة منك تصل إليك. كل خطوة قصيرة.
+          </p>
+        </header>
+
+        <!-- progress -->
+        <div class="progress">
+          <p class="form-eta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> <span data-i18n="form.eta">3 دقائق تقريباً · يمكنك التوقف والعودة في أي وقت</span></p>
+          <ol class="step-dots" id="stepDots" aria-hidden="true"></ol>
+          <div class="progress-bar"><span id="progressFill"></span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span> · <span id="stepPct">17%</span></div>
+          <p class="step-hint" id="stepHint"></p>
+          <!-- Profile strength: names the single highest-value missing item. -->
+          <div class="strength" id="strengthBox" hidden>
+            <div class="strength-bar"><span id="strengthFill"></span></div>
+            <p class="strength-text"><strong id="strengthPct">0%</strong> <span id="strengthTip"></span></p>
+          </div>
+        </div>
+
+        <form id="registerForm" novalidate enctype="multipart/form-data">
+
+          <!-- honeypot: hidden from humans; bots that fill it are rejected -->
+          <div class="hp-field" aria-hidden="true">
+            <label for="website">Website</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <!-- marks this submission as a Facilitator profile (backend routing) -->
+          <input type="hidden" name="profile_type" value="facilitator" />
+
+          <!-- ===== STEP 1: المعلومات الأساسية ===== -->
+          <fieldset class="form-step is-active" data-step="1">
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span data-i18n="fac.s1.legend">المعلومات الأساسية</span></legend>
+
+            <div class="field">
+              <label for="full_name"><span data-i18n="fac.f.fullName">الاسم الكامل</span> <span class="req">*</span></label>
+              <input type="text" id="full_name" name="full_name" required autocomplete="name" />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="whatsapp"><span data-i18n="fac.f.whatsapp">رقم WhatsApp</span> <span class="req">*</span></label>
+                <input type="tel" id="whatsapp" name="whatsapp" required inputmode="tel" placeholder="06xxxxxxxx" autocomplete="tel" />
+              </div>
+              <div class="field">
+                <label for="email"><span data-i18n="f.email">البريد الإلكتروني</span> <span class="req">*</span></label>
+                <input type="email" id="email" name="email" required autocomplete="email" placeholder="example@email.com" />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="age" data-i18n="f.age">العمر</label>
+                <input type="number" id="age" name="age" min="16" max="90" inputmode="numeric" />
+              </div>
+              <div class="field">
+                <label for="city"><span data-i18n="f.city">المدينة</span> <span class="req">*</span></label>
+                <!-- CITY CONVENTION: the live facilitator Google form used a short
+                     city list (Rabat, Salé, Kénitra, Témara, Skhirat, Casablanca,
+                     Mohammedia + مدينة أخرى). We deliberately use the FULL teacher
+                     city list here with lowercase-ascii-fr option values + an
+                     "autre ville" reveal, so facilitator city data matches teacher
+                     data across tabs and the enum generator stays consistent.
+                     This DEVIATES from the live form's short list on purpose. -->
+                <select id="city" name="city" required>
+                  <option value="" disabled selected data-i18n="ph.city">اختر مدينتك</option>
+                  <option value="kenitra" data-i18n="city.kenitra">القنيطرة</option><option value="sale" data-i18n="city.sale">سلا</option><option value="rabat" data-i18n="city.rabat">الرباط</option><option value="temara" data-i18n="city.temara">تمارة</option>
+                  <option value="skhirat" data-i18n="city.skhirat">الصخيرات</option><option value="bouznika" data-i18n="city.bouznika">بوزنيقة</option><option value="mohammedia" data-i18n="city.mohammedia">المحمدية</option><option value="casablanca" data-i18n="city.casa">الدار البيضاء</option>
+                  <option value="tanger" data-i18n="city.tanger">طنجة</option><option value="tetouan" data-i18n="city.tetouan">تطوان</option><option value="larache" data-i18n="city.larache">العرائش</option><option value="ksar el kebir" data-i18n="city.ksarkebir">القصر الكبير</option>
+                  <option value="sidi slimane" data-i18n="city.sidislimane">سيدي سليمان</option><option value="sidi kacem" data-i18n="city.sidikacem">سيدي قاسم</option><option value="ouezzane" data-i18n="city.ouezzane">وزان</option><option value="meknes" data-i18n="city.meknes">مكناس</option>
+                  <option value="fes" data-i18n="city.fes">فاس</option><option value="sefrou" data-i18n="city.sefrou">صفرو</option><option value="taza" data-i18n="city.taza">تازة</option><option value="oujda" data-i18n="city.oujda">وجدة</option>
+                  <option value="berkane" data-i18n="city.berkane">بركان</option><option value="nador" data-i18n="city.nador">الناضور</option><option value="khouribga" data-i18n="city.khouribga">خريبكة</option><option value="beni mellal" data-i18n="city.benimellal">بني ملال</option>
+                  <option value="fquih ben salah" data-i18n="city.fkihbensalah">الفقيه بن صالح</option><option value="settat" data-i18n="city.settat">سطات</option><option value="berrechid" data-i18n="city.berrechid">برشيد</option><option value="el jadida" data-i18n="city.eljadida">الجديدة</option>
+                  <option value="sidi bennour" data-i18n="city.sidibennour">سيدي بنور</option><option value="safi" data-i18n="city.safi">آسفي</option><option value="essaouira" data-i18n="city.essaouira">الصويرة</option><option value="marrakech" data-i18n="city.marrakech">مراكش</option>
+                  <option value="kelaat sraghna" data-i18n="city.kelaa">قلعة السراغنة</option><option value="agadir" data-i18n="city.agadir">أكادير</option><option value="inezgane" data-i18n="city.inezgane">إنزكان</option><option value="ait melloul" data-i18n="city.aitmelloul">آيت ملول</option>
+                  <option value="taroudant" data-i18n="city.taroudant">تارودانت</option><option value="tiznit" data-i18n="city.tiznit">تيزنيت</option>
+                  <option value="autre ville" data-i18n="opt.cityOther">مدينة أخرى</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field conditional" id="city-other-wrap" hidden>
+                <label for="city_other"><span data-i18n="f.cityOther">اسم مدينتك</span> <span class="req">*</span></label>
+                <input type="text" id="city_other" name="city_other" />
+              </div>
+              <div class="field">
+                <label for="neighborhood" data-i18n="fac.f.neighborhood">الحي / المنطقة</label>
+                <input type="text" id="neighborhood" name="neighborhood" data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="portfolio_url" data-i18n="fac.f.portfolio">LinkedIn / Portfolio / صفحة مهنية</label>
+              <input type="url" id="portfolio_url" name="portfolio_url" inputmode="url" placeholder="https://..." />
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent_contact" name="consent_contact" value="oui" required />
+                <span><span data-i18n="fac.f.consentContact">أوافق على حفظ المعلومات التي أدخلها والتواصل معي بخصوص فرص التأطير، حتى في حالة عدم إكمال التسجيل.</span><span class="req"> *</span></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 2: التخصص ===== -->
+          <fieldset class="form-step" data-step="2" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg><span data-i18n="fac.s2.legend">التخصص والمجالات</span></legend>
+
+            <div class="field">
+              <span class="label"><span data-i18n="fac.f.domains">المجالات التي تستطيع تأطير Workshops فيها</span></span>
+              <small class="hint" data-i18n="fac.hint.domains">اختر كل المجالات التي تتقنها — يمكنك اختيار أكثر من واحد.</small>
+              <!-- Long (17-item) checkbox group as a counted collapsible dropdown
+                   that starts CLOSED (is-collapsed). Collapse is a CLASS, never the
+                   hidden attribute, so validateGroup never skips a required member;
+                   errors force the panel open (see facilitators-form.js). -->
+              <button type="button" class="select-toggle" id="domainsToggle" aria-expanded="false" aria-controls="domainsPanel">
+                <span id="domainsCount" data-i18n="fac.f.domainsPick">اختر المجالات</span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <p class="pick-summary" id="domainsSummary" hidden></p>
+              <div class="check-grid collapsible is-collapsed" id="domainsPanel">
+                <label class="check"><input type="checkbox" name="workshop_domains" value="robotics" /> <span data-i18n="fac.dom.robotics">Robotics</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="artificial intelligence (ai)" /> <span data-i18n="fac.dom.ai">Artificial Intelligence (AI)</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="coding / programming" /> <span data-i18n="fac.dom.coding">Coding / Programming</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="public speaking" /> <span data-i18n="fac.dom.speaking">فن الخطابة / Public Speaking</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="debate" /> <span data-i18n="fac.dom.debate">المناظرة / Debate</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="theatre" /> <span data-i18n="fac.dom.theatre">المسرح / Theatre</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="entrepreneurship" /> <span data-i18n="fac.dom.entrepreneurship">التربية المقاولاتية / Entrepreneurship</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="mental math" /> <span data-i18n="fac.dom.mentalmath">الحساب الذهني / Mental Math</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="leadership" /> <span data-i18n="fac.dom.leadership">Leadership</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="communication skills" /> <span data-i18n="fac.dom.communication">Communication Skills</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="creativity & innovation" /> <span data-i18n="fac.dom.creativity">Creativity &amp; Innovation</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="problem solving" /> <span data-i18n="fac.dom.problemsolving">Problem Solving</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="science experiments" /> <span data-i18n="fac.dom.science">Science Experiments</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="financial literacy" /> <span data-i18n="fac.dom.finance">Financial Literacy</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="art / drawing / crafts" /> <span data-i18n="fac.dom.art">Art / Drawing / Crafts</span></label>
+                <label class="check"><input type="checkbox" name="workshop_domains" value="photography / video" /> <span data-i18n="fac.dom.photo">Photography / Video</span></label>
+                <label class="check"><input type="checkbox" id="workshop_domain_other" name="workshop_domains" value="autre domaine" /> <span data-i18n="fac.dom.other">مجال آخر (حدّده)</span></label>
+              </div>
+            </div>
+
+            <div class="field conditional" id="domain-other-wrap" hidden>
+              <label for="workshop_domain_other_text"><span data-i18n="fac.f.domainOther">اذكر المجال الآخر</span> <span class="req">*</span></label>
+              <input type="text" id="workshop_domain_other_text" name="workshop_domain_other" />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="top_3_domains"><span data-i18n="fac.f.top3">ما هي أقوى 3 مجالات لديك؟</span> <span class="req">*</span></label>
+                <input type="text" id="top_3_domains" name="top_3_domains" required data-i18n-ph="fac.ph.top3" placeholder="مثال: Robotics, AI, Coding" />
+              </div>
+              <div class="field">
+                <label for="ready_now_specialty"><span data-i18n="fac.f.readyNow">المجال الذي تستطيع تقديم Workshop فيه حالياً بأعلى جودة</span> <span class="req">*</span></label>
+                <input type="text" id="ready_now_specialty" name="ready_now_specialty" required />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="years_experience"><span data-i18n="fac.f.yearsExp">سنوات الخبرة في التأطير</span> <span class="req">*</span></label>
+                <select id="years_experience" name="years_experience" required>
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="لا توجد خبرة سابقة" data-i18n="fac.yx.none">لا توجد خبرة سابقة</option>
+                  <option value="أقل من سنة" data-i18n="fac.yx.lt1">أقل من سنة</option>
+                  <option value="1-2 سنوات" data-i18n="fac.yx.1to2">1-2 سنوات</option>
+                  <option value="3-5 سنوات" data-i18n="fac.yx.3to5">3-5 سنوات</option>
+                  <option value="أكثر من 5 سنوات" data-i18n="fac.yx.gt5">أكثر من 5 سنوات</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="workshops_done" data-i18n="fac.f.workshopsDone">تقريباً، كم Workshop سبق لك تأطيرها؟</label>
+                <select id="workshops_done" name="workshops_done">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="0" data-i18n="fac.wd.0">0</option>
+                  <option value="1-5" data-i18n="fac.wd.1to5">1-5</option>
+                  <option value="6-20" data-i18n="fac.wd.6to20">6-20</option>
+                  <option value="21-50" data-i18n="fac.wd.21to50">21-50</option>
+                  <option value="أكثر من 50" data-i18n="fac.wd.gt50">أكثر من 50</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.languages">اللغات التي تستطيع تقديم Workshop بها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="workshop_languages" value="الدارجة المغربية" /> <span data-i18n="fac.lang.darija">الدارجة المغربية</span></label>
+                <label class="check"><input type="checkbox" name="workshop_languages" value="العربية" /> <span data-i18n="fac.lang.arabic">العربية</span></label>
+                <label class="check"><input type="checkbox" name="workshop_languages" value="الفرنسية" /> <span data-i18n="fac.lang.french">الفرنسية</span></label>
+                <label class="check"><input type="checkbox" name="workshop_languages" value="الإنجليزية" /> <span data-i18n="fac.lang.english">الإنجليزية</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="workshop_example" data-i18n="fac.f.example">أعطنا مثالاً على Workshop سبق لك تقديمها أو تستطيع تقديمها</label>
+              <textarea id="workshop_example" name="workshop_example" rows="3"></textarea>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 3: الخبرة والفئات العمرية ===== -->
+          <fieldset class="form-step" data-step="3" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-i18n="fac.s3.legend">الخبرة والفئات العمرية</span></legend>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.pastVenues">أين سبق لك التأطير؟</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="past_venues" value="مدارس خاصة" /> <span data-i18n="fac.pv.privateSchools">مدارس خاصة</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="مدارس عمومية" /> <span data-i18n="fac.pv.publicSchools">مدارس عمومية</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="جمعيات" /> <span data-i18n="fac.pv.associations">جمعيات</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="مراكز تكوين" /> <span data-i18n="fac.pv.trainingCenters">مراكز تكوين</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="مراكز لغات" /> <span data-i18n="fac.pv.languageCenters">مراكز لغات</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="مخيمات" /> <span data-i18n="fac.pv.camps">مخيمات</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="events" /> <span data-i18n="fac.pv.events">Events</span></label>
+                <label class="check"><input type="checkbox" name="past_venues" value="جامعات" /> <span data-i18n="fac.pv.universities">جامعات</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="past_institutions" data-i18n="fac.f.pastInstitutions">اذكر بعض المؤسسات أو المشاريع التي سبق لك العمل معها</label>
+              <input type="text" id="past_institutions" name="past_institutions" />
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.ageGroups">الفئات العمرية التي يمكنك تأطيرها</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="age_groups" value="4-6 سنوات" /> <span data-i18n="fac.ag.4to6">4–6 سنوات</span></label>
+                <label class="check"><input type="checkbox" name="age_groups" value="7-9 سنوات" /> <span data-i18n="fac.ag.7to9">7–9 سنوات</span></label>
+                <label class="check"><input type="checkbox" name="age_groups" value="10-12 سنة" /> <span data-i18n="fac.ag.10to12">10–12 سنة</span></label>
+                <label class="check"><input type="checkbox" name="age_groups" value="13-15 سنة" /> <span data-i18n="fac.ag.13to15">13–15 سنة</span></label>
+                <label class="check"><input type="checkbox" name="age_groups" value="16-18 سنة" /> <span data-i18n="fac.ag.16to18">16–18 سنة</span></label>
+                <label class="check"><input type="checkbox" name="age_groups" value="طلبة الجامعة" /> <span data-i18n="fac.ag.university">طلبة الجامعة</span></label>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="age_group_best" data-i18n="fac.f.ageGroupBest">ما الفئة العمرية التي ترتاح معها أكثر؟</label>
+                <input type="text" id="age_group_best" name="age_group_best" />
+              </div>
+              <div class="field">
+                <label for="max_participants" data-i18n="fac.f.maxParticipants">ما أكبر عدد من المشاركين تستطيع تأطيره بجودة؟</label>
+                <select id="max_participants" name="max_participants">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="أقل من 10" data-i18n="fac.mp.lt10">أقل من 10</option>
+                  <option value="10-15" data-i18n="fac.mp.10to15">10-15</option>
+                  <option value="16-20" data-i18n="fac.mp.16to20">16-20</option>
+                  <option value="21-25" data-i18n="fac.mp.21to25">21-25</option>
+                  <option value="26-30" data-i18n="fac.mp.26to30">26-30</option>
+                  <option value="أكثر من 30" data-i18n="fac.mp.gt30">أكثر من 30</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 4: التوفر والتنقل ===== -->
+          <fieldset class="form-step" data-step="4" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span data-i18n="fac.s4.legend">التوفر والتنقل</span></legend>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.availableDays">الأيام التي تكون متاحاً فيها عادة</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="available_days" value="الإثنين" /> <span data-i18n="fac.day.mon">الإثنين</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="الثلاثاء" /> <span data-i18n="fac.day.tue">الثلاثاء</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="الأربعاء" /> <span data-i18n="fac.day.wed">الأربعاء</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="الخميس" /> <span data-i18n="fac.day.thu">الخميس</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="الجمعة" /> <span data-i18n="fac.day.fri">الجمعة</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="السبت" /> <span data-i18n="fac.day.sat">السبت</span></label>
+                <label class="check"><input type="checkbox" name="available_days" value="الأحد" /> <span data-i18n="fac.day.sun">الأحد</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.availablePeriods">الفترات المتاحة</span>
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="available_periods" value="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                <label class="check"><input type="checkbox" name="available_periods" value="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                <label class="check"><input type="checkbox" name="available_periods" value="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                <label class="check"><input type="checkbox" name="available_periods" value="متاح طوال اليوم" /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="available_holidays" data-i18n="fac.f.holidays">هل أنت متاح خلال العطل المدرسية؟</label>
+                <select id="available_holidays" name="available_holidays">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="أحياناً" data-i18n="fac.opt.sometimes">أحياناً</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="workshops_per_week" data-i18n="fac.f.perWeek">كم Workshop تقريباً ترغب في تقديمها أسبوعياً؟</label>
+                <select id="workshops_per_week" name="workshops_per_week">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="1" data-i18n="fac.pw.1">1</option>
+                  <option value="2" data-i18n="fac.pw.2">2</option>
+                  <option value="3-4" data-i18n="fac.pw.3to4">3-4</option>
+                  <option value="5+" data-i18n="fac.pw.5plus">5+</option>
+                  <option value="حسب المتاح" data-i18n="fac.pw.available">حسب المتاح</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="workshops_per_day" data-i18n="fac.f.perDay">كم Workshop يمكنك تقديمها في يوم واحد؟</label>
+                <select id="workshops_per_day" name="workshops_per_day">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="1" data-i18n="fac.pd.1">1</option>
+                  <option value="2" data-i18n="fac.pd.2">2</option>
+                  <option value="3" data-i18n="fac.pd.3">3</option>
+                  <option value="أكثر من 3" data-i18n="fac.pd.gt3">أكثر من 3</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="transport" data-i18n="fac.f.transport">وسيلة النقل الخاصة بك</label>
+                <select id="transport" name="transport">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="سيارة" data-i18n="fac.tr.car">سيارة</option>
+                  <option value="دراجة نارية" data-i18n="fac.tr.moto">دراجة نارية</option>
+                  <option value="لا أتوفر على وسيلة نقل خاصة" data-i18n="fac.tr.none">لا أتوفر على وسيلة نقل خاصة</option>
+                  <option value="أخرى" data-i18n="fac.tr.other">أخرى</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="label" data-i18n="fac.f.workCities">المدن التي تستطيع العمل فيها</span>
+              <!-- work_cities keeps the SAME lowercase-ascii-fr value convention as
+                   the city select above (deviates from the live form's short list). -->
+              <div class="check-grid">
+                <label class="check"><input type="checkbox" name="work_cities" value="rabat" /> <span data-i18n="city.rabat">الرباط</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="sale" /> <span data-i18n="city.sale">سلا</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="kenitra" /> <span data-i18n="city.kenitra">القنيطرة</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="temara" /> <span data-i18n="city.temara">تمارة</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="skhirat" /> <span data-i18n="city.skhirat">الصخيرات</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="casablanca" /> <span data-i18n="city.casa">الدار البيضاء</span></label>
+                <label class="check"><input type="checkbox" name="work_cities" value="mohammedia" /> <span data-i18n="city.mohammedia">المحمدية</span></label>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="max_commute" data-i18n="fac.f.maxCommute">أقصى مدة تنقل تناسبك عادة</label>
+                <select id="max_commute" name="max_commute">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="15 دقيقة" data-i18n="fac.mc.15">15 دقيقة</option>
+                  <option value="30 دقيقة" data-i18n="fac.mc.30">30 دقيقة</option>
+                  <option value="45 دقيقة" data-i18n="fac.mc.45">45 دقيقة</option>
+                  <option value="ساعة" data-i18n="fac.mc.60">ساعة</option>
+                  <option value="أكثر من ساعة" data-i18n="fac.mc.gt60">أكثر من ساعة</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="notice_needed" data-i18n="fac.f.notice">كم تحتاج من إشعار مسبق لتأكيد مشاركتك في Workshop؟</label>
+                <select id="notice_needed" name="notice_needed">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="24 ساعة" data-i18n="fac.nt.24">24 ساعة</option>
+                  <option value="48 ساعة" data-i18n="fac.nt.48">48 ساعة</option>
+                  <option value="3 أيام" data-i18n="fac.nt.3days">3 أيام</option>
+                  <option value="أسبوع" data-i18n="fac.nt.week">أسبوع</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="multi_same_city" data-i18n="fac.f.multiSameCity">إذا وفرت لك Linkify ما بين 2 و3 Workshops في نفس المدينة وفي نفس اليوم، هل يناسبك؟</label>
+              <select id="multi_same_city" name="multi_same_city">
+                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                <option value="نعم جداً" data-i18n="fac.msc.yesVery">نعم جداً</option>
+                <option value="نعم حسب المسافة" data-i18n="fac.msc.yesDistance">نعم حسب المسافة</option>
+                <option value="لا" data-i18n="fac.opt.no">لا</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 5: التعويض والمعدات ===== -->
+          <fieldset class="form-step" data-step="5" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span data-i18n="fac.s5.legend">التعويض والمعدات</span></legend>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="pay_per_workshop" data-i18n="fac.f.payPerWorkshop">التعويض المناسب لـWorkshop مدتها 1.5–2 ساعة (درهم)</label>
+                <input type="number" id="pay_per_workshop" name="pay_per_workshop" min="0" step="50" inputmode="numeric" />
+              </div>
+              <div class="field">
+                <label for="pay_full_service" data-i18n="fac.f.payFullService">إذا وفرت Linkify المؤسسة والمحتوى والمواد والجدولة، التعويض المناسب لكل Workshop (درهم)</label>
+                <input type="number" id="pay_full_service" name="pay_full_service" min="0" step="50" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="pay_full_day_3" data-i18n="fac.f.payFullDay3">إذا وفرت لك Linkify 3 Workshops في نفس اليوم، التعويض الإجمالي المناسب لذلك اليوم (درهم)</label>
+              <input type="number" id="pay_full_day_3" name="pay_full_day_3" min="0" step="50" inputmode="numeric" />
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="has_equipment" data-i18n="fac.f.hasEquipment">هل تتوفر حالياً على معدات تستعملها في Workshops؟</label>
+                <select id="has_equipment" name="has_equipment">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+              <div class="field conditional" id="equipment-list-wrap" hidden>
+                <label for="equipment_list" data-i18n="fac.f.equipmentList">إذا كانت لديك معدات، اذكرها</label>
+                <input type="text" id="equipment_list" name="equipment_list" data-i18n-ph="fac.ph.equipmentList" placeholder="Robotics kits، Laptop، أدوات فنية..." />
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="has_laptop" data-i18n="fac.f.hasLaptop">هل لديك Laptop شخصي؟</label>
+                <select id="has_laptop" name="has_laptop">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="can_use_linkify_equipment" data-i18n="fac.f.canUseLinkifyEquip">هل تستطيع العمل بمعدات توفرها Linkify؟</label>
+                <select id="can_use_linkify_equipment" name="can_use_linkify_equipment">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="حسب نوع المعدات" data-i18n="fac.cule.depends">حسب نوع المعدات</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="prep_time" data-i18n="fac.f.prepTime">إذا وفرنا لك المحتوى والمواد جاهزة، كم من الوقت تحتاج عادة للتحضير قبل Workshop؟</label>
+              <select id="prep_time" name="prep_time">
+                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                <option value="أقل من 30 دقيقة" data-i18n="fac.pt.lt30">أقل من 30 دقيقة</option>
+                <option value="30-60 دقيقة" data-i18n="fac.pt.30to60">30-60 دقيقة</option>
+                <option value="1-2 ساعة" data-i18n="fac.pt.1to2h">1-2 ساعة</option>
+                <option value="أكثر من ساعتين" data-i18n="fac.pt.gt2h">أكثر من ساعتين</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <!-- ===== STEP 6: الجودة والملف المهني (short close) ===== -->
+          <fieldset class="form-step" data-step="6" hidden>
+            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 8l6 .9-4.5 4.4 1 6.2L12 16.8 6.5 19.5l1-6.2L3 8.9 9 8z"/></svg><span data-i18n="fac.s6.legend">الجودة والملف المهني</span></legend>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="ready_demo"><span data-i18n="fac.f.readyDemo">هل أنت مستعد لإجراء Demo قصير مدته 15–20 دقيقة قبل اعتمادك؟</span> <span class="req">*</span></label>
+                <select id="ready_demo" name="ready_demo" required>
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="accept_evaluation" data-i18n="fac.f.acceptEval">هل توافق على تقييم Workshop من طرف Linkify والمؤسسة؟</label>
+                <select id="accept_evaluation" name="accept_evaluation">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="accept_guide" data-i18n="fac.f.acceptGuide">هل يناسبك العمل وفق Workshop Guide ومعايير جودة تحددها Linkify؟</label>
+                <select id="accept_guide" name="accept_guide">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="حسب workshop" data-i18n="fac.ag2.depends">حسب Workshop</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="can_repeat_quality" data-i18n="fac.f.canRepeat">هل يمكنك تقديم نفس Workshop لعدة مؤسسات مع الحفاظ على الجودة؟</label>
+                <select id="can_repeat_quality" name="can_repeat_quality">
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                  <option value="لا" data-i18n="fac.opt.no">لا</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="cancel_notice" data-i18n="fac.f.cancelNotice">إذا تعذر عليك الحضور إلى Workshop مؤكدة، كم من الوقت قبل موعدها تستطيع إبلاغ Linkify؟</label>
+              <select id="cancel_notice" name="cancel_notice">
+                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                <option value="أكثر من 72 ساعة قبل موعد workshop" data-i18n="fac.cn.gt72">أكثر من 72 ساعة قبل موعد Workshop</option>
+                <option value="بين 48 و72 ساعة" data-i18n="fac.cn.48to72">بين 48 و72 ساعة</option>
+                <option value="بين 24 و48 ساعة" data-i18n="fac.cn.24to48">بين 24 و48 ساعة</option>
+                <option value="أقل من 24 ساعة" data-i18n="fac.cn.lt24">أقل من 24 ساعة</option>
+              </select>
+            </div>
+
+            <p class="field-group-title" data-i18n="fac.f.proposeTitle">اقترح Workshop واحدة تتقنها</p>
+            <div class="grid-2">
+              <div class="field">
+                <label for="proposed_workshop_name" data-i18n="fac.f.pwName">اسم Workshop</label>
+                <input type="text" id="proposed_workshop_name" name="proposed_workshop_name" />
+              </div>
+              <div class="field">
+                <label for="proposed_workshop_age" data-i18n="fac.f.pwAge">الفئة العمرية المناسبة</label>
+                <input type="text" id="proposed_workshop_age" name="proposed_workshop_age" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="proposed_workshop_duration" data-i18n="fac.f.pwDuration">المدة المقترحة</label>
+              <input type="text" id="proposed_workshop_duration" name="proposed_workshop_duration" data-i18n-ph="fac.ph.pwDuration" placeholder="مثال: 90 دقيقة" />
+            </div>
+            <div class="field">
+              <label for="proposed_workshop_goal" data-i18n="fac.f.pwGoal">ما الهدف الرئيسي من Workshop؟</label>
+              <textarea id="proposed_workshop_goal" name="proposed_workshop_goal" rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label for="proposed_workshop_activities" data-i18n="fac.f.pwActivities">ماذا سيفعل المشاركون أثناء Workshop؟</label>
+              <textarea id="proposed_workshop_activities" name="proposed_workshop_activities" rows="2"></textarea>
+            </div>
+            <div class="field">
+              <label for="proposed_workshop_materials" data-i18n="fac.f.pwMaterials">ما المعدات أو المواد التي تحتاجها؟</label>
+              <textarea id="proposed_workshop_materials" name="proposed_workshop_materials" rows="2"></textarea>
+            </div>
+
+            <!-- files -->
+            <div class="field file-field">
+              <label for="cv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span data-i18n="f.cv">السيرة الذاتية (CV)</span> <span class="req">*</span></label>
+              <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required />
+              <small class="hint" data-i18n="hint.cv">بصيغة PDF أو Word · أقصى حجم 10MB. هذا الملف أساسي في ملفك.</small>
+              <label class="check check-inline">
+                <input type="checkbox" id="cv_later" name="cv_pending" value="oui" />
+                <span data-i18n="f.cvLater">ما عندي السيرة الذاتية دابا — غادي نصيفطها من بعد</span>
+              </label>
+              <small class="hint" data-i18n="hint.cvLater">غادي نكمّلو تسجيلك، ونتواصلو معاك عبر واتساب باش تصيفط السيرة الذاتية. ملفك ما كيوصلش للمؤسسات حتى توصلنا.</small>
+            </div>
+
+            <div class="field file-field">
+              <label for="photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span data-i18n="fac.f.photo">صورة شخصية</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
+              <input type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
+              <small class="hint" data-i18n="hint.photo">اختيارية، لكنها مهمة جداً — فهي أول ما تراه المؤسسة في ملفك. أقصى حجم 10MB.</small>
+            </div>
+
+            <div class="field file-field">
+              <label for="certificate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg><span data-i18n="fac.f.certificate">شهادة أو Certificate مرتبطة بمجال التأطير</span> <span class="optional" data-i18n="opt.optional">(اختياري)</span></label>
+              <input type="file" id="certificate" name="certificate" accept=".pdf,.jpg,.jpeg,.png" multiple />
+              <small class="hint" data-i18n="fac.hint.certificate">شهادات أو Certificates تُثبت خبرتك في مجال التأطير. يمكنك رفع أكثر من ملف (أقصى حجم 10MB لكل ملف).</small>
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent_data" name="consent_data" value="oui" required />
+                <span><span data-i18n="fac.f.consentData">أوافق على حفظ واستعمال بياناتي للتواصل معي ومطابقتي مع فرص التأطير المناسبة.</span><span class="req"> *</span></span>
+              </label>
+            </div>
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent_truth" name="consent_truth" value="oui" required />
+                <span><span data-i18n="fac.f.consentTruth">أؤكد أن المعلومات التي قدمتها صحيحة.</span><span class="req"> *</span></span>
+              </label>
+            </div>
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent_no_guarantee" name="consent_no_guarantee" value="oui" required />
+                <span><span data-i18n="fac.f.consentNoGuarantee">أفهم أن التسجيل في شبكة Linkify لا يعني ضمان Workshops أو دخل ثابت.</span><span class="req"> *</span></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- ===== NAV + STATUS ===== -->
+          <div class="form-nav">
+            <button type="button" class="btn btn-ghost" id="prevBtn" hidden data-i18n="btn.prev">السابق</button>
+            <button type="button" class="btn btn-primary" id="nextBtn" data-i18n="btn.next">التالي</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" hidden><span data-i18n="btn.submit">إرسال وإنشاء الملف</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+          </div>
+
+          <!-- save and finish later -->
+          <div class="save-later">
+            <button type="button" class="btn-link" id="saveLaterBtn" data-i18n="btn.saveLater">احفظ وأكمل من بعد</button>
+            <div class="resume-box" id="resumeBox" hidden>
+              <p data-i18n="form.resumeIntro">تم حفظ ما أدخلته. احتفظ بهذا الرابط لتُكمل من نفس المكان:</p>
+              <input type="text" id="resumeLink" readonly aria-label="رابط الاستئناف" />
+              <div class="resume-actions">
+                <button type="button" class="btn btn-ghost" id="copyResume" data-i18n="btn.copyLink">انسخ الرابط</button>
+                <a class="btn wa-btn" id="waResume" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg> <span data-i18n="btn.waResume">أرسله لي على واتساب</span></a>
+              </div>
+            </div>
+          </div>
+
+          <div id="formStatus" class="form-status" hidden></div>
+        </form>
+
+        <!-- success screen -->
+        <div id="successScreen" class="success-screen" hidden>
+          <div class="success-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+          <h3 data-i18n="fac.ok.title">تهانينا! تم تسجيلك في شبكة مؤطري Linkify.</h3>
+          <p data-i18n="fac.ok.body">سنتواصل معك عبر الواتساب أو البريد الإلكتروني عند توفّر فرصة تأطير تناسبك.</p>
+          <div class="share-block">
+            <p class="share-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span data-i18n="fac.ok.share">تعرف مؤطرين قد تفيدهم المنصة؟ شارك معهم الرابط:</span></p>
+            <a id="waShare" class="btn wa-btn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> <span data-i18n="ok.wa">شارك عبر واتساب</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title" data-i18n="how.title">كيف تعمل Linkify</h2>
+        <p class="section-sub" data-i18n="how.sub">ثلاث خطوات بسيطة، دون تعقيد.</p>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><h3 data-i18n="how.1t">أنشئ ملفك</h3><p data-i18n="fac.how.1b">أدخل معلوماتك كمؤطّر مرة واحدة: المجالات، الخبرة، الفئات العمرية، والتوفر.</p></div>
+          <div class="step"><div class="step-num">2</div><h3 data-i18n="how.2t">نوصلك بالأقرب إليك</h3><p data-i18n="fac.how.2b">تجد المؤسسات التعليمية القريبة منك ملفك عند بحثها عن مؤطرين لـWorkshops.</p></div>
+          <div class="step"><div class="step-num">3</div><h3 data-i18n="how.3t">تواصل مباشر</h3><p data-i18n="how.3b">تتواصل معك المؤسسة المهتمة مباشرة. القرار النهائي دائماً بيدك.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WHY ============ -->
+    <section id="why" class="section">
+      <div class="container">
+        <h2 class="section-title" data-i18n="why.title">لماذا Linkify</h2>
+        <div class="features">
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span><h3 data-i18n="why.1t">القُرب الجغرافي</h3><p data-i18n="fac.why.1b">نركّز على فرص التأطير القريبة منك — وقت أقل في الطريق، وWorkshops أكثر.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg></span><h3 data-i18n="fac.why.2t">مجاني للمؤطرين</h3><p data-i18n="fac.why.2b">إنشاء الملف والظهور للمؤسسات مجاني بالكامل.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></span><h3 data-i18n="fac.why.3t">ملف مهني منظّم</h3><p data-i18n="fac.why.3b">مجالاتك وخبرتك وWorkshops التي تقترحها في مكان واحد.</p></div>
+          <div class="feature"><span class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span><h3 data-i18n="why.4t">بياناتك محمية</h3><p data-i18n="why.4b">نشارك معلوماتك فقط بعد موافقتك، ومع المؤسسات الشريكة لا غير.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SCHOOLS CTA ============ -->
+    <section class="section schools-cta">
+      <div class="container">
+        <div class="schools-cta-box">
+          <div class="schools-cta-text">
+            <h2 data-i18n="sc.title">هل أنت مؤسسة تعليمية؟</h2>
+            <p data-i18n="fac.sc.body">مؤسسة تبحث عن مؤطرين لـWorkshops تفاعلية؟ احصل على قائمة قصيرة من المؤطرين حسب المجال والمدينة والتوفر.</p>
+          </div>
+          <a href="/schools.html" class="btn btn-primary btn-lg" data-i18n="sc.cta">مساحة المؤسسات ←</a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <script>
-    (function () {
-      var WEB_APP = 'https://script.google.com/macros/s/AKfycby85kSHqUNl_Df0kmK7KClT74_HA_xqO9YgzfmBGlirkIDhUye2vgXUNZMlpt7cmGoE/exec';
-      var frame = document.getElementById('facilitatorFrame');
-      var loader = document.getElementById('frameLoader');
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="/#top" class="brand"><img src="/logo-dark.png" alt="Linkify" class="footer-logo" /></a>
+        <p class="footer-tag" data-i18n="foot.tag">نربط الكفاءات التربوية بالفرص القريبة منها.</p>
+      </div>
+      <div class="footer-contact">
+        <a href="mailto:contact@linkify.ma">contact@linkify.ma</a>
+        <span data-i18n="foot.made">صُنع بالمغرب 🇲🇦</span>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <span>© <span id="year"></span> Linkify.ma — <span data-i18n="foot.rights">جميع الحقوق محفوظة.</span></span>
+    </div>
+  </footer>
 
-      try {
-        var incoming = new URLSearchParams(window.location.search);
-        var target = new URL(WEB_APP);
+  <!-- back to top -->
+  <button id="toTop" class="to-top" type="button" aria-label="العودة إلى الأعلى"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></button>
 
-        incoming.forEach(function (value, key) {
-          target.searchParams.set(key, value);
+  <!-- Lenis smooth scroll -->
+  <script type="module">
+    import Lenis from 'https://unpkg.com/lenis@1.3.25/dist/lenis.mjs';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) {
+      var lenis = new Lenis({ lerp: 0.085, smoothWheel: true, wheelMultiplier: 1, touchMultiplier: 1.6 });
+      window.lenis = lenis;
+      function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+      document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+        a.addEventListener('click', function (e) {
+          var id = a.getAttribute('href');
+          if (id === '#' || id === '#top') { e.preventDefault(); lenis.scrollTo(0); return; }
+          var target = document.querySelector(id);
+          if (target) { e.preventDefault(); lenis.scrollTo(target, { offset: -72 }); }
         });
-
-        if (!target.searchParams.get('source')) {
-          target.searchParams.set('source', 'linkify.ma/facilitators');
-        }
-
-        frame.src = target.toString();
-      } catch (e) {
-        frame.src = WEB_APP + '?source=linkify.ma%2Ffacilitators';
-      }
-
-      frame.addEventListener('load', function () {
-        loader.classList.add('hidden');
       });
+    }
+  </script>
 
-      setTimeout(function () {
-        loader.classList.add('hidden');
-      }, 7000);
+  <script src="/i18n.js" defer></script>
+  <script src="/hero-match.js" defer></script>
+  <script src="/interactions.js" defer></script>
+  <script src="/facilitators-form.js" defer></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    (function () {
+      var t = document.getElementById('navToggle'), h = document.querySelector('.site-header');
+      if (t && h) {
+        t.addEventListener('click', function () { h.classList.toggle('menu-open'); });
+        h.querySelectorAll('.nav-links a').forEach(function (a) { a.addEventListener('click', function () { h.classList.remove('menu-open'); }); });
+      }
+    })();
+    (function () {
+      var KEY = 'linkify-theme', root = document.documentElement, btn = document.getElementById('themeToggle');
+      function effective() {
+        var t = root.getAttribute('data-theme');
+        return t ? t : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      }
+      var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+      var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+      function setIcon() { if (btn) btn.innerHTML = effective() === 'dark' ? SUN : MOON; }
+      setIcon();
+      var animTimer;
+      if (btn) btn.addEventListener('click', function () {
+        var next = effective() === 'dark' ? 'light' : 'dark';
+        root.classList.add('theme-anim');
+        clearTimeout(animTimer);
+        animTimer = setTimeout(function () { root.classList.remove('theme-anim'); }, 500);
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        setIcon();
+        btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin');
+      });
     })();
   </script>
 </body>
