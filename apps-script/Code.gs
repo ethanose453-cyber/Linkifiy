@@ -67,6 +67,50 @@ var SCHOOL_HEADERS = [
 ];
 var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "contact_name", "role", "phone", "subject", "level", "need_type", "work_type"];
 
+/* ============ FACILITATORS (workshop facilitators) ============
+   Facilitator registrations go to their OWN "Facilitators" tab in the SAME
+   spreadsheet as the teachers. Like the teacher/admin tabs -- and UNLIKE the
+   positional Schools tab -- rows are written through a name->column MAP
+   (ensureHeadersFor/findRow/appendRow/updateRow), so the column ORDER in
+   FAC_HEADERS is forgiving: adding a field later just appends a header, it never
+   shifts existing rows. Carry cv_pending here for the same reason as teachers
+   (the form always sends "oui"/"non" so an upsert cannot leave a stale "oui").
+   File URLs live in CV_URL / PHOTO_URL / CERTIFICATE_URL. */
+var FAC_SHEET = "Facilitators";
+var FAC_HEADERS = [
+  "submittedAt", "full_name", "whatsapp", "email", "age", "city", "city_other", "neighborhood",
+  "portfolio_url", "profile_type", "consent_contact",
+  "workshop_domains", "workshop_domain_other", "top_3_domains", "ready_now_specialty",
+  "years_experience", "workshops_done", "past_venues", "past_institutions",
+  "age_groups", "age_group_best", "max_participants", "workshop_languages", "workshop_example",
+  "available_days", "available_periods", "available_holidays", "workshops_per_week", "workshops_per_day",
+  "transport", "work_cities", "max_commute", "multi_same_city", "notice_needed",
+  "pay_per_workshop", "pay_full_service", "pay_full_day_3",
+  "has_equipment", "equipment_list", "has_laptop", "can_use_linkify_equipment",
+  "prep_time", "ready_demo", "accept_evaluation", "accept_guide", "can_repeat_quality", "cancel_notice",
+  "proposed_workshop_name", "proposed_workshop_age", "proposed_workshop_duration",
+  "proposed_workshop_goal", "proposed_workshop_activities", "proposed_workshop_materials",
+  "consent_data", "consent_truth", "consent_no_guarantee",
+  "CV_URL", "cv_pending", "PHOTO_URL", "CERTIFICATE_URL", "verification",
+  "submissionId", "status", "currentStep", "createdAt", "updatedAt", "resume_url",
+  "nudge1_at", "nudge2_at", "nudge3_at", "welcomed", "wa_sent_at"
+];
+/* Non-partial (final submit) required set. Mirrors the client-side required
+   fields recorded in FEAT-002 (full_name/whatsapp/email/city/consent_contact +
+   top_3_domains/ready_now_specialty/years_experience + ready_demo + the three
+   final consents). The CV file is required too, unless cv_pending === "oui"
+   (the "I'll send it later" escape hatch); that is checked separately in
+   validateFacilitator because it depends on the uploaded file, not a text field. */
+var FAC_REQUIRED = ["full_name", "whatsapp", "email", "city", "consent_contact",
+  "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
+  "consent_data", "consent_truth", "consent_no_guarantee"];
+
+/* Facilitator file inputs -> URL columns, kept SEPARATE from the teacher
+   FILE_FIELDS/ALLOWED_EXT maps so neither can affect the other. `certificate`
+   accepts multiple files (joined with ", " like the teacher work_cert). */
+var FAC_FILE_FIELDS = { cv: "CV_URL", photo: "PHOTO_URL", certificate: "CERTIFICATE_URL" };
+var FAC_ALLOWED_EXT = { cv: ["pdf", "doc", "docx"], photo: ["jpg", "jpeg", "png"], certificate: ["pdf", "jpg", "jpeg", "png"] };
+
 /* Arabic WhatsApp message parts, Base64 (UTF-8). Decoded lazily in msg_(). */
 var MSG_B64 = {
   GREET_PRE: "2LPZhNin2YUg",
@@ -194,8 +238,52 @@ var ENUM_SCHOOL = {
     subject: ["إطار إداري آخر", "الإسبانية", "الاجتماعيات", "التربية الإسلامية", "التربية البدنية والرياضية", "التربية الفنية والثقافية", "التعليم الأولي", "الدعم واللغات", "الرياضيات", "الفرنسية", "الفلسفة", "الفيزياء والكيمياء", "اللغة الإنجليزية", "اللغة العربية", "المعلوميات", "تقني معلوميات / صيانة", "حارس(ة) عام", "سكرتير(ة) / موظف(ة) إداري / مسؤول(ة) استقبال", "علوم الحياة والأرض", "مادة أخرى", "مدير(ة) عام / مدير(ة) تربوي (بيداغوجي)", "مسؤول(ة) الموارد البشرية أو التسجيل", "مستشار(ة) في التوجيه / أخصائي(ة) نفسي(ة) أو اجتماعي(ة)", "مفتش(ة) / مشرف(ة) تربوي(ة)", "نائب(ة) المدير / ناظر(ة) المؤسسة"],
     work_type: ["تعويض مؤقت", "دوام جزئي", "دوام كامل", "ساعات محددة"]
 };
-/* Fields whose wire value is a ", "-joined list of options. */
-var ENUM_MULTI = { subjects: 1, levels: 1, institution_types: 1, early_role: 1, contract_types: 1, admin_position: 1 };
+/* Facilitator allow-list (generated from facilitators/index.html by
+   tools/gen-enum-allowlist.mjs, same as ENUM_TEACHER/ENUM_SCHOOL). Purely-Arabic
+   options are stored verbatim; Latin/mixed labels use lowercase-ascii-fr values.
+   Two values keep an intentional lowercase Latin word ("حسب workshop",
+   "أكثر من 72 ساعة قبل موعد workshop") because collectData lowercases them on the
+   wire -- they MUST stay byte-identical here. Regenerate whenever an option
+   changes on the facilitator form. */
+var ENUM_FACILITATOR = {
+    accept_evaluation: ["لا", "نعم"],
+    accept_guide: ["حسب workshop", "لا", "نعم"],
+    age_groups: ["10-12 سنة", "13-15 سنة", "16-18 سنة", "4-6 سنوات", "7-9 سنوات", "طلبة الجامعة"],
+    available_days: ["الأحد", "الأربعاء", "الإثنين", "الثلاثاء", "الجمعة", "الخميس", "السبت"],
+    available_holidays: ["أحياناً", "لا", "نعم"],
+    available_periods: ["بعد الظهر", "صباحاً", "متاح طوال اليوم", "مساءً"],
+    can_repeat_quality: ["لا", "نعم"],
+    can_use_linkify_equipment: ["حسب نوع المعدات", "لا", "نعم"],
+    cancel_notice: ["أقل من 24 ساعة", "أكثر من 72 ساعة قبل موعد workshop", "بين 24 و48 ساعة", "بين 48 و72 ساعة"],
+    city: ["agadir", "ait melloul", "autre ville", "beni mellal", "berkane", "berrechid", "bouznika", "casablanca", "el jadida", "essaouira", "fes", "fquih ben salah", "inezgane", "kelaat sraghna", "kenitra", "khouribga", "ksar el kebir", "larache", "marrakech", "meknes", "mohammedia", "nador", "ouezzane", "oujda", "rabat", "safi", "sale", "sefrou", "settat", "sidi bennour", "sidi kacem", "sidi slimane", "skhirat", "tanger", "taroudant", "taza", "temara", "tetouan", "tiznit"],
+    cv_pending: ["non", "oui"],
+    has_equipment: ["لا", "نعم"],
+    has_laptop: ["لا", "نعم"],
+    max_commute: ["15 دقيقة", "30 دقيقة", "45 دقيقة", "أكثر من ساعة", "ساعة"],
+    max_participants: ["10-15", "16-20", "21-25", "26-30", "أقل من 10", "أكثر من 30"],
+    multi_same_city: ["لا", "نعم جداً", "نعم حسب المسافة"],
+    notice_needed: ["24 ساعة", "3 أيام", "48 ساعة", "أسبوع"],
+    past_venues: ["events", "جامعات", "جمعيات", "مخيمات", "مدارس خاصة", "مدارس عمومية", "مراكز تكوين", "مراكز لغات"],
+    prep_time: ["1-2 ساعة", "30-60 دقيقة", "أقل من 30 دقيقة", "أكثر من ساعتين"],
+    ready_demo: ["لا", "نعم"],
+    transport: ["أخرى", "دراجة نارية", "سيارة", "لا أتوفر على وسيلة نقل خاصة"],
+    work_cities: ["casablanca", "kenitra", "mohammedia", "rabat", "sale", "skhirat", "temara"],
+    workshop_domains: ["art / drawing / crafts", "artificial intelligence (ai)", "autre domaine", "coding / programming", "communication skills", "creativity & innovation", "debate", "entrepreneurship", "financial literacy", "leadership", "mental math", "photography / video", "problem solving", "public speaking", "robotics", "science experiments", "theatre"],
+    workshop_languages: ["الإنجليزية", "الدارجة المغربية", "العربية", "الفرنسية"],
+    workshops_done: ["0", "1-5", "21-50", "6-20", "أكثر من 50"],
+    workshops_per_day: ["1", "2", "3", "أكثر من 3"],
+    workshops_per_week: ["1", "2", "3-4", "5+", "حسب المتاح"],
+    years_experience: ["1-2 سنوات", "3-5 سنوات", "أقل من سنة", "أكثر من 5 سنوات", "لا توجد خبرة سابقة"]
+};
+/* Fields whose wire value is a ", "-joined list of options. Facilitator multi
+   groups are added here so enumViolations splits them correctly; none of their
+   values contains ", " (the generator's UNSAFE check confirms this), so the
+   plain split is safe. The teacher/school multi fields are unchanged. */
+var ENUM_MULTI = {
+  subjects: 1, levels: 1, institution_types: 1, early_role: 1, contract_types: 1, admin_position: 1,
+  workshop_domains: 1, past_venues: 1, age_groups: 1, workshop_languages: 1,
+  available_days: 1, available_periods: 1, work_cities: 1
+};
 
 function enumStrict() { return prop("ENUM_STRICT") === "true"; }
 
@@ -267,6 +355,7 @@ function doPost(e) {
       return json({ status: "ignored" });
     }
     if (data.formType === "school") { return handleSchoolPost(data); }
+    if (data.formType === "facilitator" || data.profile_type === "facilitator") { return handleFacilitatorPost(data); }
     var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
     if (rateLimited("sid_" + sid, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) {
       return json({ status: "rate_limited" });
@@ -390,6 +479,7 @@ function doGet(e) {
     return json({ status: "rate_limited" });
   }
   if (e.parameter.t === "s") return schoolResume(token);   // schools resume
+  if (e.parameter.t === "f") return facilitatorResume(token);   // facilitators resume
   try {
     var sheet = (e.parameter.t === "a") ? getAdminSheet() : getSheet();
     var map = ensureHeaders(sheet);
@@ -689,17 +779,36 @@ function getAdminSheet() {
   }
   return sh;
 }
+// Facilitator submissions live in their OWN tab, separate from teachers/admin.
+// Map-based (name->column) like the teacher/admin tabs, so FAC_HEADERS order is
+// forgiving (contrast the positional Schools tab).
+function getFacilitatorSheet() {
+  var ss = getSpreadsheet();
+  var sh = ss.getSheetByName(FAC_SHEET);
+  if (!sh) sh = ss.insertSheet(FAC_SHEET);
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, FAC_HEADERS.length).setValues([FAC_HEADERS]);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
 // Route a submission to the right tab based on its profile type.
 function getSheetFor(data) {
+  if (data && data.profile_type === "facilitator") return getFacilitatorSheet();
   return (data && data.profile_type === "administration") ? getAdminSheet() : getSheet();
 }
 
-function ensureHeaders(sheet) {
+/* ensureHeaders was teacher-specific (it hard-coded HEADERS). To support the
+   Facilitators tab without touching the many teacher/admin callers, the logic is
+   factored into ensureHeadersFor(sheet, headers) and ensureHeaders() now simply
+   passes HEADERS -- so every existing caller behaves EXACTLY as before, while
+   the facilitator path can pass FAC_HEADERS. */
+function ensureHeadersFor(sheet, headers) {
   var lastCol = Math.max(sheet.getLastColumn(), 1);
   var header = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var map = {};
   header.forEach(function (h, i) { if (h !== "" && h !== null) map[String(h)] = i + 1; });
-  var missing = HEADERS.filter(function (h) { return !map[h]; });
+  var missing = headers.filter(function (h) { return !map[h]; });
   if (missing.length) {
     var start = sheet.getLastColumn() + 1;
     sheet.getRange(1, start, 1, missing.length).setValues([missing]);
@@ -707,6 +816,9 @@ function ensureHeaders(sheet) {
     sheet.setFrozenRows(1);
   }
   return map;
+}
+function ensureHeaders(sheet) {
+  return ensureHeadersFor(sheet, HEADERS);
 }
 
 function findRow(sheet, map, sid) {
@@ -1186,6 +1298,182 @@ function createTrigger() {
     if (t.getHandlerFunction() === "processAbandoners") ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger("processAbandoners").timeBased().everyHours(1).create();
+}
+
+
+/* ============ FACILITATORS (workshop facilitators) ============
+   Same progressive-save engine as teachers, but its OWN tab + header map +
+   allow-list + file maps. Partial saves upsert by submissionId; the resume link
+   (?resume=SID&t=f) reconnects the visitor. Files upload to Drive PRIVATELY via
+   the shared saveFile(). Teacher/admin/school paths are untouched. */
+function validateFacilitator(data, isPartial) {
+  var errors = [];
+  var emailRe = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+  var phoneRe = /^(?:\+212|212|0)[567]\d{8}$/;
+  if (data.email && !emailRe.test(String(data.email))) errors.push("email");
+  if (data.whatsapp && !phoneRe.test(String(data.whatsapp).replace(/[\s\-().]/g, ""))) errors.push("whatsapp");
+  if (data.age !== undefined && data.age !== "") {
+    var a = parseInt(data.age, 10);
+    if (isNaN(a) || a < 16 || a > 80) errors.push("age");
+  }
+  if (data.currentStep !== undefined && data.currentStep !== null && data.currentStep !== "") {
+    var st = parseInt(data.currentStep, 10);
+    if (isNaN(st) || st < 0 || st > 10) errors.push("currentStep");
+  }
+  if (!isPartial) {
+    FAC_REQUIRED.forEach(function (f) {
+      if (!data[f] || String(data[f]).trim() === "") errors.push("missing:" + f);
+    });
+    // CV is required on final submit unless the visitor ticked "I'll send it later".
+    var cvLater = String(data.cv_pending || "").trim() === "oui";
+    var hasCv = (data.files && data.files.cv && data.files.cv.data) ||
+                (data.CV_URL && String(data.CV_URL).indexOf("http") === 0);
+    if (!cvLater && !hasCv) errors.push("missing:cv");
+  }
+  return errors;
+}
+
+function handleFacilitatorPost(data) {
+  var sid = sanitizeToken(data.submissionId) || (Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10));
+  if (rateLimited("fac_" + sid, CONFIG.RL_PER_SID, CONFIG.RL_WINDOW_SEC)) return json({ status: "rate_limited" });
+
+  var isPartial = (data.partial === true) || (data.status === "partial");
+  var errors = validateFacilitator(data, isPartial);
+  if (errors.length) return json({ status: "invalid", fields: errors });
+
+  /* Enumerated fields must come from the lists the form offers. Runs for partial
+     saves too -- a partial write pollutes the same columns. Log-only until the
+     ENUM_STRICT script property is "true". */
+  var enumBad = enumViolations(data, ENUM_FACILITATOR);
+  if (enumBad.length) {
+    var enforce = enumStrict();
+    recordRejectedValues(sid, "facilitator", enumBad, enforce);
+    if (enforce) return json({ status: "invalid", fields: violationFields(enumBad) });
+  }
+
+  var now = new Date();
+  var record = {};
+  FAC_HEADERS.forEach(function (h) {
+    if (Object.prototype.hasOwnProperty.call(data, h)) record[h] = sanitizeCell(data[h]);
+  });
+  record.submissionId = sid;
+  record.status = isPartial ? "partial" : "complete";
+  if (data.currentStep !== undefined && data.currentStep !== null) {
+    record.currentStep = clampInt(data.currentStep, 0, 10, 0);
+  }
+  record.updatedAt = now.toISOString();
+  if (!isPartial) record.submittedAt = now.toISOString();
+  record.resume_url = safeResumeUrl(data.resumeUrl, sid);
+
+  // Upload files to Drive OUTSIDE the lock (Drive I/O is slow). Facilitator maps
+  // only, so teacher uploads are unaffected. `certificate` may be multiple files.
+  if (data.files) {
+    var folder = getFolder();
+    Object.keys(FAC_FILE_FIELDS).forEach(function (field) {
+      var f = data.files[field];
+      if (!f) return;
+      if (Object.prototype.toString.call(f) === "[object Array]") {
+        var urls = [];
+        for (var j = 0; j < f.length && j < 5; j++) {
+          var item = f[j];
+          if (item && item.data && validateFacFile(field, item).ok) {
+            try { urls.push(saveFile(folder, item, sid + "_" + field + "_" + j)); } catch (upErr) {}
+          }
+        }
+        if (urls.length) record[FAC_FILE_FIELDS[field]] = urls.join(", ");
+      } else if (f.data) {
+        if (validateFacFile(field, f).ok) {
+          try { record[FAC_FILE_FIELDS[field]] = saveFile(folder, f, sid + "_" + field); } catch (upErr2) {}
+        }
+      }
+    });
+  }
+
+  // verification tier: a certificate counts as documentary evidence.
+  var hasCert = record.CERTIFICATE_URL && String(record.CERTIFICATE_URL).indexOf("http") === 0;
+  record.verification = hasCert ? "docs" : "self";
+
+  var welcomeInfo = null;
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(30000); } catch (err) {}
+  try {
+    var sheet = getFacilitatorSheet();
+    var map = ensureHeadersFor(sheet, FAC_HEADERS);
+    var rowIndex = findRow(sheet, map, sid);
+    if (rowIndex > 0) {
+      updateRow(sheet, map, rowIndex, record);
+    } else {
+      record.createdAt = now.toISOString();
+      appendRow(sheet, map, record);
+    }
+    if (!isPartial && map["welcomed"]) {
+      var savedRow = (rowIndex > 0) ? rowIndex : findRow(sheet, map, sid);
+      if (savedRow > 0 && !sheet.getRange(savedRow, map["welcomed"]).getValue()) {
+        var rv = sheet.getRange(savedRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+        welcomeInfo = {
+          name: cell(rv, map, "full_name") || "",
+          phone: normalizePhone(cell(rv, map, "whatsapp")),
+          email: cell(rv, map, "email")
+        };
+        sheet.getRange(savedRow, map["welcomed"]).setValue(now);
+      }
+    }
+  } finally {
+    try { lock.releaseLock(); } catch (e2) {}
+  }
+
+  if (!isPartial) {
+    try { notifyFacilitator(record); } catch (mailErr) {}
+    if (welcomeInfo) {
+      try { queueWelcome(welcomeInfo.name, welcomeInfo.phone); } catch (qErr) {}
+      if (welcomeInfo.email && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(welcomeInfo.email))) {
+        try { sendMail(String(welcomeInfo.email), msg_("SUBJ_WELCOME"), buildWelcomeMessage(welcomeInfo.name)); } catch (eErr) {}
+      }
+    }
+  }
+  return json({ status: isPartial ? "partial" : "success" });
+}
+
+// Facilitator file gate, kept separate from validateFile so the teacher
+// ALLOWED_EXT map is never consulted for facilitator uploads (and vice versa).
+function validateFacFile(field, f) {
+  try {
+    var name = String(f.name || "");
+    var ext = name.indexOf(".") >= 0 ? name.split(".").pop().toLowerCase() : "";
+    var allowed = FAC_ALLOWED_EXT[field] || [];
+    if (allowed.indexOf(ext) === -1) return { ok: false, reason: "type" };
+    var bytes = Math.floor(String(f.data).length * 3 / 4);
+    if (bytes > CONFIG.MAX_FILE_BYTES) return { ok: false, reason: "size" };
+    return { ok: true };
+  } catch (e) { return { ok: false, reason: "error" }; }
+}
+
+function notifyFacilitator(record) {
+  var to = prop("NOTIFY_EMAIL");
+  if (!to) return;
+  var subject = "New Linkify FACILITATOR: " + (record.full_name || record.submissionId);
+  var lines = [];
+  FAC_HEADERS.forEach(function (h) {
+    if (record[h] !== undefined && record[h] !== "") lines.push(h + ": " + record[h]);
+  });
+  MailApp.sendEmail(to, subject, lines.join("\n"));
+}
+
+function facilitatorResume(token) {
+  try {
+    var sheet = getFacilitatorSheet();
+    var map = ensureHeadersFor(sheet, FAC_HEADERS);
+    var rowIndex = findRow(sheet, map, token);
+    if (rowIndex < 1) return json({ status: "notfound" });
+    var values = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var record = {};
+    Object.keys(map).forEach(function (h) {
+      if (/_URL$/.test(h)) return; // never expose stored file links via the public resume endpoint
+      var v = values[map[h] - 1];
+      if (v !== "" && v !== null && v !== undefined) record[h] = v;
+    });
+    return json({ status: "found", record: record });
+  } catch (err) { return json({ status: "error" }); }
 }
 
 
