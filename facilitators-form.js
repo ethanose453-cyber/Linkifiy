@@ -678,12 +678,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const submitLabel = submitBtn.textContent;
     submitBtn.disabled = true; prevBtn.disabled = true;
     submitBtn.textContent = T("st.sending");
     setStatus("loading", T("st.uploading"));
     track("FormSubmitAttempt", { form_type: "facilitator" });
 
     let _submitFileIds = [];
+
+    // Undo an optimistic success when the server rejected this final submit as "invalid".
+    // Restores the form/progress, re-enables the nav, re-persists the SID so the entered data
+    // is not lost, rolls back any files marked sent on this attempt (so a corrected resubmit
+    // re-sends them), and surfaces an error instead of a false success screen.
+    function revertSuccessInvalid() {
+      try { localStorage.setItem(SID_KEY, SUBMISSION_ID); } catch (e) {}
+      rollbackFiles(_submitFileIds);
+      successScreen.hidden = true;
+      form.hidden = false;
+      var pg = document.querySelector(".progress");
+      if (pg) pg.hidden = false;
+      submitBtn.disabled = false; prevBtn.disabled = false;
+      submitBtn.textContent = submitLabel;
+      _trkSubmitted = false;
+      track("FormSubmitError", { form_type: "facilitator" });
+      setStatus("error", T("st.error"));
+      if (window.lenis) window.lenis.scrollTo(form, { offset: -120 });
+      else form.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     // Completion payload: all text fields + consents, marked complete.
     const payload = collectData();
@@ -694,14 +715,24 @@ document.addEventListener("DOMContentLoaded", () => {
     payload.currentStep = total - 1;
     payload.resumeUrl = buildResumeUrl();
 
-    // (1) GUARANTEED capture — light, text-only "complete" save with keepalive.
+    // (1) GUARANTEED capture — light, text-only "complete" save.
+    // We keep the optimistic, non-blocking UX (success is shown right away in step 3),
+    // but we still READ the response: a server "invalid" means the row was rejected
+    // (e.g. the age-range rule, or a future ENUM_STRICT refusal), so we must NOT leave the
+    // user on a false success screen. On "invalid" we revert to the form and show an error,
+    // mirroring administration-form.js which throws on invalid. Non-"invalid" outcomes
+    // (success/duplicate/ignored/error/network) keep the always-optimistic behaviour.
     try {
       fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-        keepalive: true
-      }).catch(function () {});
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        return res.text();
+      }).then(function (txt) {
+        let j = null; try { j = JSON.parse(txt); } catch (e) {}
+        if (j && j.status === "invalid") revertSuccessInvalid();
+      }).catch(function () { /* network error: stay optimistic, background upload retries */ });
     } catch (e) {}
 
     // (2) Upload any files not already sent. Background with retries; never blocks success.
@@ -719,7 +750,12 @@ document.addEventListener("DOMContentLoaded", () => {
               body: heavyBody
             });
             let r = null; try { r = await res.json(); } catch (e) {}
-            if (!r || !r.status || r.status === "success" || r.status === "duplicate" || r.status === "ignored" || r.status === "invalid") return;
+            // A server "invalid" is NOT success: the record was rejected server-side, so the
+            // files were not attached to any row. Do not treat it as terminal — stop retrying
+            // (retrying an identical invalid payload cannot succeed) and roll back the sent-file
+            // marks so a later corrected save/submit re-sends them instead of silently dropping.
+            if (r && r.status === "invalid") { rollbackFiles(_submitFileIds); return; }
+            if (!r || !r.status || r.status === "success" || r.status === "duplicate" || r.status === "ignored") return;
           } catch (e) {}
           if (attempt < 3) await new Promise(function (res) { setTimeout(res, attempt * 1500); });
         }
