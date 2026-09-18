@@ -83,7 +83,7 @@ var FAC_HEADERS = [
   "workshop_domains", "workshop_domain_other", "top_3_domains", "ready_now_specialty",
   "years_experience", "workshops_done", "past_venues", "past_institutions",
   "age_groups", "age_group_best", "max_participants", "workshop_languages", "workshop_example",
-  "available_days", "available_periods", "available_holidays", "workshops_per_week", "workshops_per_day",
+  "available_days", "availability", "available_holidays", "workshops_per_week", "workshops_per_day",
   "transport", "work_cities", "max_commute", "multi_same_city", "notice_needed",
   "pay_per_workshop", "pay_full_service", "pay_full_day_3",
   "has_equipment", "equipment_list", "has_laptop", "can_use_linkify_equipment",
@@ -252,7 +252,6 @@ var ENUM_FACILITATOR = {
     age_groups: ["10-12 سنة", "13-15 سنة", "16-18 سنة", "4-6 سنوات", "7-9 سنوات", "طلبة الجامعة"],
     available_days: ["الأحد", "الأربعاء", "الإثنين", "الثلاثاء", "الجمعة", "الخميس", "السبت"],
     available_holidays: ["أحياناً", "لا", "نعم"],
-    available_periods: ["بعد الظهر", "صباحاً", "متاح طوال اليوم", "مساءً"],
     can_repeat_quality: ["لا", "نعم"],
     can_use_linkify_equipment: ["حسب نوع المعدات", "لا", "نعم"],
     cancel_notice: ["أقل من 24 ساعة", "أكثر من 72 ساعة قبل موعد workshop", "بين 24 و48 ساعة", "بين 48 و72 ساعة"],
@@ -281,7 +280,7 @@ var ENUM_FACILITATOR = {
 var ENUM_MULTI = {
   subjects: 1, levels: 1, institution_types: 1, early_role: 1, contract_types: 1, admin_position: 1,
   workshop_domains: 1, past_venues: 1, age_groups: 1, workshop_languages: 1,
-  available_days: 1, available_periods: 1, work_cities: 1
+  available_days: 1, work_cities: 1
 };
 
 function enumStrict() { return prop("ENUM_STRICT") === "true"; }
