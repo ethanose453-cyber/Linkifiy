@@ -66,6 +66,7 @@
         <li><a href="#how" data-i18n="nav.how">آلية العمل</a></li>
         <li><a href="#why" data-i18n="nav.why">لماذا Linkify</a></li>
         <li><a href="/index.html" data-i18n="a.nav.teachers">للأساتذة</a></li>
+        <li><a href="/administration.html" data-i18n="a.nav.admin">الأطر الإدارية</a></li>
         <li><a href="/schools.html" data-i18n="nav.schools">للمؤسسات</a></li>
       </ul>
       <div class="nav-actions">
@@ -409,28 +410,15 @@
                 </select>
               </div>
               <div class="field">
-                <label for="workshops_per_week" data-i18n="fac.f.perWeek">كم Workshop تقريباً ترغب في تقديمها أسبوعياً؟</label>
-                <select id="workshops_per_week" name="workshops_per_week">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="1" data-i18n="fac.pw.1">1</option>
-                  <option value="2" data-i18n="fac.pw.2">2</option>
-                  <option value="3-4" data-i18n="fac.pw.3to4">3-4</option>
-                  <option value="5+" data-i18n="fac.pw.5plus">5+</option>
-                  <option value="حسب المتاح" data-i18n="fac.pw.available">حسب المتاح</option>
-                </select>
+                <label for="workshops_per_week"><span data-i18n="fac.f.perWeek">كم Workshop تقريباً ترغب في تقديمها أسبوعياً؟</span> <span class="req">*</span></label>
+                <input type="number" id="workshops_per_week" name="workshops_per_week" min="0" inputmode="numeric" required />
               </div>
             </div>
 
             <div class="grid-2">
               <div class="field">
-                <label for="workshops_per_day" data-i18n="fac.f.perDay">كم Workshop يمكنك تقديمها في يوم واحد؟</label>
-                <select id="workshops_per_day" name="workshops_per_day">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="1" data-i18n="fac.pd.1">1</option>
-                  <option value="2" data-i18n="fac.pd.2">2</option>
-                  <option value="3" data-i18n="fac.pd.3">3</option>
-                  <option value="أكثر من 3" data-i18n="fac.pd.gt3">أكثر من 3</option>
-                </select>
+                <label for="workshops_per_day"><span data-i18n="fac.f.perDay">كم Workshop يمكنك تقديمها في يوم واحد؟</span> <span class="req">*</span></label>
+                <input type="number" id="workshops_per_day" name="workshops_per_day" min="0" inputmode="numeric" required />
               </div>
               <div class="field">
                 <label for="transport" data-i18n="fac.f.transport">وسيلة النقل الخاصة بك</label>
