@@ -235,6 +235,129 @@ document.addEventListener("DOMContentLoaded", () => {
     cb.addEventListener("change", function () { updateDomainsCount(); updateStrength(); })
   );
 
+  /* ---------- per-day availability picker ----------
+     Ticking a day (input[name=available_days]) reveals a per-day period
+     sub-group beneath it; unticking hides + clears it. Within each day,
+     "متاح طوال اليوم" (data-fac-allday) is mutually exclusive with the three
+     specific periods (mirrors the data-ct-any pattern in form.js, but scoped
+     per day and independent across days). The picker collapses into ONE
+     structured free-text field written to input[name=availability].
+
+     SERIALIZATION FORMAT (single `availability` field):
+       - day-blocks joined by ' | ' (space-pipe-space)
+       - within a day: 'DAY: p1، p2' where periods are joined by '، '
+         (Arabic comma U+060C + space)
+       - a ticked day with NO period chosen is OMITTED from the string
+       Example: 'الإثنين: صباحاً، بعد الظهر | الأربعاء: متاح طوال اليوم'
+     This string never contains ', ' (ASCII comma-space), so it can never
+     collide with the ENUM_MULTI ', '-split on the backend. */
+  var rebuildAvailability = function () {};
+  var applyAvailabilityString = function () {};
+  (function () {
+    var DAY_SEP = " | ", PERIOD_SEP = "، ";   // '، ' = U+060C + space (see comment above)
+    var dayBoxes = [].slice.call(form.querySelectorAll('input[name="available_days"]'));
+    if (!dayBoxes.length) return;
+    var hidden = form.querySelector('input[name="availability"]');
+
+    function subGroup(day) {
+      return form.querySelector('[data-day-periods="' + (window.CSS && CSS.escape ? CSS.escape(day) : day) + '"]');
+    }
+    function periodInputs(day) {
+      return [].slice.call(form.querySelectorAll('input[data-day="' + (window.CSS && CSS.escape ? CSS.escape(day) : day) + '"][data-period]'));
+    }
+    function allDayInput(day) {
+      return form.querySelector('input[data-day="' + (window.CSS && CSS.escape ? CSS.escape(day) : day) + '"][data-fac-allday]');
+    }
+
+    // Reveal/clear a day's sub-group when its day box toggles.
+    function syncDayVisibility(box) {
+      var grp = subGroup(box.value);
+      if (!grp) return;
+      grp.classList.toggle("is-collapsed", !box.checked);
+      if (!box.checked) {
+        periodInputs(box.value).forEach(function (p) { p.checked = false; p.disabled = false; });
+      }
+    }
+
+    // Per-day all-day exclusion (mirrors data-ct-any, scoped to one day).
+    function syncExclusion(day) {
+      var allday = allDayInput(day);
+      if (!allday) return;
+      var others = periodInputs(day).filter(function (p) { return !p.hasAttribute("data-fac-allday"); });
+      others.forEach(function (p) {
+        p.disabled = allday.checked;
+        if (allday.checked) p.checked = false;
+      });
+    }
+
+    // Read the DOM and write the single serialized string into the hidden input.
+    rebuildAvailability = function () {
+      if (!hidden) return;
+      var blocks = [];
+      dayBoxes.forEach(function (box) {
+        if (!box.checked) return;
+        var periods = periodInputs(box.value)
+          .filter(function (p) { return p.checked; })
+          .map(function (p) { return p.getAttribute("data-period"); });
+        if (!periods.length) return;                 // ticked day with no period -> omitted
+        blocks.push(box.value + ": " + periods.join(PERIOD_SEP));
+      });
+      hidden.value = blocks.join(DAY_SEP);
+    };
+
+    dayBoxes.forEach(function (box) {
+      box.addEventListener("change", function () {
+        syncDayVisibility(box);
+        rebuildAvailability();
+        updateStrength();
+      });
+      // wire every period input for this day
+      periodInputs(box.value).forEach(function (p) {
+        p.addEventListener("change", function () {
+          if (p.hasAttribute("data-fac-allday")) {
+            syncExclusion(box.value);
+          } else if (p.checked) {
+            // picking a specific period contradicts all-day -> release it
+            var allday = allDayInput(box.value);
+            if (allday && allday.checked) { allday.checked = false; syncExclusion(box.value); }
+          }
+          rebuildAvailability();
+          updateStrength();
+        });
+      });
+      // reflect any pre-checked state on init
+      syncDayVisibility(box);
+      syncExclusion(box.value);
+    });
+
+    /* Parse a serialized availability string and re-tick the matching boxes,
+       revealing sub-groups and restoring the exclusion state. Unknown day or
+       period tokens are skipped. Used by prefill(). */
+    applyAvailabilityString = function (str) {
+      if (!str) return;
+      String(str).split(DAY_SEP).forEach(function (block) {
+        var idx = block.indexOf(": ");
+        if (idx === -1) return;
+        var day = block.slice(0, idx).trim();
+        var rest = block.slice(idx + 2);
+        var box = dayBoxes.filter(function (b) { return b.value === day; })[0];
+        if (!box) return;                            // unknown day token -> skip
+        box.checked = true;
+        syncDayVisibility(box);
+        rest.split(PERIOD_SEP).forEach(function (per) {
+          per = per.trim();
+          if (!per) return;
+          var input = periodInputs(day).filter(function (p) { return p.getAttribute("data-period") === per; })[0];
+          if (input) input.checked = true;           // unknown period token -> skip
+        });
+        syncExclusion(day);
+      });
+      rebuildAvailability();
+    };
+
+    rebuildAvailability();                           // init the hidden field once
+  })();
+
   /* ---------- profile strength ----------
      Weights = value to Linkify. cv, top_3_domains, ready_now_specialty and
      workshop_domains carry the most weight; photo/certificate are medium.
@@ -253,8 +376,8 @@ document.addEventListener("DOMContentLoaded", () => {
     { k: "past_venues", w: 1 }, { k: "past_institutions", w: 1 },
     { k: "age_groups", w: 2, tip: "fac.tip.ageGroups" }, { k: "age_group_best", w: 1 },
     { k: "max_participants", w: 1 },
-    { k: "available_days", w: 2, tip: "fac.tip.availableDays" },
-    { k: "available_periods", w: 1 }, { k: "available_holidays", w: 1 },
+    { k: "availability", w: 2, tip: "fac.tip.availableDays" },
+    { k: "available_holidays", w: 1 },
     { k: "workshops_per_week", w: 1 }, { k: "workshops_per_day", w: 1 },
     { k: "transport", w: 1 }, { k: "work_cities", w: 2, tip: "fac.tip.workCities" },
     { k: "max_commute", w: 1 }, { k: "multi_same_city", w: 1 }, { k: "notice_needed", w: 1 },
@@ -463,7 +586,8 @@ document.addEventListener("DOMContentLoaded", () => {
     whatsapp: 1, age: 1, pay_per_workshop: 1, pay_full_service: 1, pay_full_day_3: 1,
     workshops_per_week: 1, workshops_per_day: 1,
     consent_contact: 1, consent_data: 1, consent_truth: 1, consent_no_guarantee: 1,
-    cv_pending: 1, profile_type: 1, website: 1
+    cv_pending: 1, profile_type: 1, website: 1,
+    availability: 1   // structured free-text (Arabic day/period tokens + ' | ' / '، '); keep verbatim
   };
   const PHONE_FIELDS = { whatsapp: 1 };
 
@@ -659,6 +783,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const dcb = document.getElementById("workshop_domain_other");
     if (dcb) dcb.dispatchEvent(new Event("change"));
     if (cvLater) cvLater.dispatchEvent(new Event("change"));
+    /* availability is a structured string, not a plain checkbox group: parse it
+       so the day + per-day period boxes re-tick, sub-groups reveal, and the
+       all-day exclusion state is restored. This also rewrites the hidden input. */
+    if (rec.availability) applyAvailabilityString(rec.availability);
     updateDomainsCount();
     updateStrength();
   }

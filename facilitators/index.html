@@ -376,27 +376,95 @@
           <fieldset class="form-step" data-step="4" hidden>
             <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span data-i18n="fac.s4.legend">التوفر والتنقل</span></legend>
 
+            <!-- Per-day availability: ticking a day reveals the four period choices
+                 scoped to THAT day beneath it. The day checkboxes stay named
+                 available_days (enumerated, ', '-joined). The per-day period inputs
+                 are UNNAMED (data-day/data-period only) so FormData never sees them;
+                 a change handler in facilitators-form.js serializes the whole picker
+                 into the single hidden input[name=availability]. -->
             <div class="field">
               <span class="label" data-i18n="fac.f.availableDays">الأيام التي تكون متاحاً فيها عادة</span>
-              <div class="check-grid">
-                <label class="check"><input type="checkbox" name="available_days" value="الإثنين" /> <span data-i18n="fac.day.mon">الإثنين</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="الثلاثاء" /> <span data-i18n="fac.day.tue">الثلاثاء</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="الأربعاء" /> <span data-i18n="fac.day.wed">الأربعاء</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="الخميس" /> <span data-i18n="fac.day.thu">الخميس</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="الجمعة" /> <span data-i18n="fac.day.fri">الجمعة</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="السبت" /> <span data-i18n="fac.day.sat">السبت</span></label>
-                <label class="check"><input type="checkbox" name="available_days" value="الأحد" /> <span data-i18n="fac.day.sun">الأحد</span></label>
+              <p class="step-hint" data-i18n="fac.f.availabilityHint">اختر الفترات لكل يوم</p>
+              <div class="fac-availability">
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الإثنين" data-day="الإثنين" /> <span data-i18n="fac.day.mon">الإثنين</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الإثنين">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الإثنين" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الإثنين" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الإثنين" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الإثنين" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الثلاثاء" data-day="الثلاثاء" /> <span data-i18n="fac.day.tue">الثلاثاء</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الثلاثاء">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الثلاثاء" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الثلاثاء" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الثلاثاء" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الثلاثاء" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الأربعاء" data-day="الأربعاء" /> <span data-i18n="fac.day.wed">الأربعاء</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الأربعاء">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأربعاء" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأربعاء" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأربعاء" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأربعاء" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الخميس" data-day="الخميس" /> <span data-i18n="fac.day.thu">الخميس</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الخميس">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الخميس" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الخميس" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الخميس" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الخميس" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الجمعة" data-day="الجمعة" /> <span data-i18n="fac.day.fri">الجمعة</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الجمعة">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الجمعة" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الجمعة" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الجمعة" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الجمعة" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="السبت" data-day="السبت" /> <span data-i18n="fac.day.sat">السبت</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="السبت">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="السبت" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="السبت" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="السبت" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="السبت" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
+                <div class="fac-day">
+                  <label class="check"><input type="checkbox" name="available_days" value="الأحد" data-day="الأحد" /> <span data-i18n="fac.day.sun">الأحد</span></label>
+                  <div class="fac-day-periods collapsible is-collapsed" data-day-periods="الأحد">
+                    <div class="fac-period-chips">
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأحد" data-period="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأحد" data-period="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأحد" data-period="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
+                      <label class="fac-period-chip"><input type="checkbox" data-day="الأحد" data-period="متاح طوال اليوم" data-fac-allday /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div class="field">
-              <span class="label" data-i18n="fac.f.availablePeriods">الفترات المتاحة</span>
-              <div class="check-grid">
-                <label class="check"><input type="checkbox" name="available_periods" value="صباحاً" /> <span data-i18n="fac.per.morning">صباحاً</span></label>
-                <label class="check"><input type="checkbox" name="available_periods" value="بعد الظهر" /> <span data-i18n="fac.per.afternoon">بعد الظهر</span></label>
-                <label class="check"><input type="checkbox" name="available_periods" value="مساءً" /> <span data-i18n="fac.per.evening">مساءً</span></label>
-                <label class="check"><input type="checkbox" name="available_periods" value="متاح طوال اليوم" /> <span data-i18n="fac.per.allday">متاح طوال اليوم</span></label>
-              </div>
+              <input type="hidden" name="availability" value="" />
             </div>
 
             <div class="grid-2">

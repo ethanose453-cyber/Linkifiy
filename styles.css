@@ -406,6 +406,32 @@ textarea { resize: vertical; }
 .check input { accent-color: var(--teal); width: 18px; height: 18px; flex: none; }
 .check:has(input:checked) { border-color: var(--teal); background: var(--tint); }
 
+/* facilitator per-day availability: minimal inline period chips (scoped, additive) */
+.fac-availability .fac-period-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-block-start: 8px; margin-inline-start: 26px;
+}
+.fac-availability .fac-period-chip {
+  display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
+  font-weight: 600; font-size: .86rem; color: var(--ink-soft);
+  transition: all .15s ease; user-select: none;
+}
+.fac-availability .fac-period-chip:hover { border-color: var(--teal); }
+.fac-availability .fac-period-chip input {
+  accent-color: var(--teal); width: 14px; height: 14px; flex: none; margin: 0;
+}
+.fac-availability .fac-period-chip:has(input:checked) {
+  border-color: var(--teal); background: var(--tint); color: var(--teal-dark);
+}
+.fac-availability .fac-period-chip:has(input:disabled) {
+  opacity: .45; cursor: not-allowed;
+}
+:root[data-theme="dark"] .fac-availability .fac-period-chip:has(input:checked) { color: #d6e8fb; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .fac-availability .fac-period-chip:has(input:checked) { color: #d6e8fb; }
+}
+
 /* languages — 2 columns side by side (auto-collapses to 1 on narrow screens) so the block looks short & quick */
 .lang-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-bottom: 22px; }
 .lang-row {
