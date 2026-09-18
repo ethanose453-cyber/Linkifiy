@@ -51,6 +51,7 @@ const SKIP = new Set([
   // workshops_per_day are now free-typed number inputs (not selects), so the
   // scan drops them automatically -- they are numbers, never enums.
   "full_name","portfolio_url",
+  "availability",                             // free-form structured per-day text, never an enum
   "workshops_per_week","workshops_per_day",
   "top_3_domains","ready_now_specialty","past_institutions","age_group_best",
   "workshop_example","equipment_list","workshop_domain_other",
