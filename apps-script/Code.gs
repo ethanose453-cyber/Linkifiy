@@ -103,6 +103,7 @@ var FAC_HEADERS = [
    validateFacilitator because it depends on the uploaded file, not a text field. */
 var FAC_REQUIRED = ["full_name", "whatsapp", "email", "city", "consent_contact",
   "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
+  "workshops_per_week", "workshops_per_day",
   "consent_data", "consent_truth", "consent_no_guarantee"];
 
 /* Facilitator file inputs -> URL columns, kept SEPARATE from the teacher
@@ -271,8 +272,6 @@ var ENUM_FACILITATOR = {
     workshop_domains: ["art / drawing / crafts", "artificial intelligence (ai)", "autre domaine", "coding / programming", "communication skills", "creativity & innovation", "debate", "entrepreneurship", "financial literacy", "leadership", "mental math", "photography / video", "problem solving", "public speaking", "robotics", "science experiments", "theatre"],
     workshop_languages: ["الإنجليزية", "الدارجة المغربية", "العربية", "الفرنسية"],
     workshops_done: ["0", "1-5", "21-50", "6-20", "أكثر من 50"],
-    workshops_per_day: ["1", "2", "3", "أكثر من 3"],
-    workshops_per_week: ["1", "2", "3-4", "5+", "حسب المتاح"],
     years_experience: ["1-2 سنوات", "3-5 سنوات", "أقل من سنة", "أكثر من 5 سنوات", "لا توجد خبرة سابقة"]
 };
 /* Fields whose wire value is a ", "-joined list of options. Facilitator multi

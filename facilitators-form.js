@@ -452,6 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
      Free-typed values are stored lowercase ASCII to stay matchable. Excluded:
        - whatsapp                                : normalized to +212 instead
        - age / pay_per_workshop / pay_full_service / pay_full_day_3 : numbers
+       - workshops_per_week / workshops_per_day  : free-typed numbers (required)
        - consent_* (contact/data/truth/no_guarantee), cv_pending    : fixed markers
        - profile_type                            : backend routing key
        - website                                 : honeypot, must stay untouched
@@ -460,6 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
      byte-identical — the enum allow-list matches them verbatim. */
   const NO_LOWER = {
     whatsapp: 1, age: 1, pay_per_workshop: 1, pay_full_service: 1, pay_full_day_3: 1,
+    workshops_per_week: 1, workshops_per_day: 1,
     consent_contact: 1, consent_data: 1, consent_truth: 1, consent_no_guarantee: 1,
     cv_pending: 1, profile_type: 1, website: 1
   };

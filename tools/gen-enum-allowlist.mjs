@@ -43,12 +43,15 @@ const SKIP = new Set([
   // facilitator free text / numbers / files / tokens / consents (never enums).
   // NOTE: whatsapp, email, age, city_other, neighborhood are already skipped
   // above (shared field names). The enum fields (city, years_experience,
-  // workshops_done, max_participants, available_holidays, workshops_per_week,
-  // workshops_per_day, transport, max_commute, notice_needed, multi_same_city,
-  // has_equipment, has_laptop, can_use_linkify_equipment, prep_time, ready_demo,
-  // accept_evaluation, accept_guide, can_repeat_quality, cancel_notice, and the
-  // multi groups) are intentionally NOT skipped so they are captured.
+  // workshops_done, max_participants, available_holidays, transport, max_commute,
+  // notice_needed, multi_same_city, has_equipment, has_laptop,
+  // can_use_linkify_equipment, prep_time, ready_demo, accept_evaluation,
+  // accept_guide, can_repeat_quality, cancel_notice, and the multi groups) are
+  // intentionally NOT skipped so they are captured. workshops_per_week and
+  // workshops_per_day are now free-typed number inputs (not selects), so the
+  // scan drops them automatically -- they are numbers, never enums.
   "full_name","portfolio_url",
+  "workshops_per_week","workshops_per_day",
   "top_3_domains","ready_now_specialty","past_institutions","age_group_best",
   "workshop_example","equipment_list","workshop_domain_other",
   "proposed_workshop_name","proposed_workshop_age","proposed_workshop_duration",
