@@ -79,6 +79,7 @@ var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "conta
 var FAC_SHEET = "Facilitators";
 var FAC_HEADERS = [
   "submittedAt", "full_name", "whatsapp", "email", "age", "city", "city_other", "neighborhood",
+  "diploma", "diploma_other",
   "portfolio_url", "profile_type", "consent_contact",
   "workshop_domains", "workshop_domain_other", "top_3_domains", "ready_now_specialty",
   "years_experience", "workshops_done", "past_venues", "past_institutions",
@@ -86,6 +87,7 @@ var FAC_HEADERS = [
   "available_days", "availability", "available_holidays", "workshops_per_week", "workshops_per_day",
   "transport", "work_cities", "max_commute", "multi_same_city", "notice_needed",
   "pay_per_workshop", "pay_full_service", "pay_full_day_3",
+  "auto_entrepreneur",
   "has_equipment", "equipment_list", "has_laptop", "can_use_linkify_equipment",
   "prep_time", "ready_demo", "accept_evaluation", "accept_guide", "can_repeat_quality", "cancel_notice",
   "proposed_workshop_name", "proposed_workshop_age", "proposed_workshop_duration",
@@ -102,7 +104,8 @@ var FAC_HEADERS = [
    (the "I'll send it later" escape hatch); that is checked separately in
    validateFacilitator because it depends on the uploaded file, not a text field. */
 var FAC_REQUIRED = ["full_name", "whatsapp", "email", "city", "consent_contact",
-  "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
+  "diploma", "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
+  "auto_entrepreneur",
   "workshops_per_week", "workshops_per_day",
   "consent_data", "consent_truth", "consent_no_guarantee"];
 
@@ -250,6 +253,7 @@ var ENUM_FACILITATOR = {
     accept_evaluation: ["لا", "نعم"],
     accept_guide: ["حسب workshop", "لا", "نعم"],
     age_groups: ["10-12 سنة", "13-15 سنة", "16-18 سنة", "4-6 سنوات", "7-9 سنوات", "طلبة الجامعة"],
+    auto_entrepreneur: ["لا", "نعم"],
     available_days: ["الأحد", "الأربعاء", "الإثنين", "الثلاثاء", "الجمعة", "الخميس", "السبت"],
     available_holidays: ["أحياناً", "لا", "نعم"],
     can_repeat_quality: ["لا", "نعم"],
@@ -257,6 +261,7 @@ var ENUM_FACILITATOR = {
     cancel_notice: ["أقل من 24 ساعة", "أكثر من 72 ساعة قبل موعد workshop", "بين 24 و48 ساعة", "بين 48 و72 ساعة"],
     city: ["agadir", "ait melloul", "autre ville", "beni mellal", "berkane", "berrechid", "bouznika", "casablanca", "el jadida", "essaouira", "fes", "fquih ben salah", "inezgane", "kelaat sraghna", "kenitra", "khouribga", "ksar el kebir", "larache", "marrakech", "meknes", "mohammedia", "nador", "ouezzane", "oujda", "rabat", "safi", "sale", "sefrou", "settat", "sidi bennour", "sidi kacem", "sidi slimane", "skhirat", "tanger", "taroudant", "taza", "temara", "tetouan", "tiznit"],
     cv_pending: ["non", "oui"],
+    diploma: ["autre", "bac+2", "baccalaureat", "doctorat", "ingenieur", "licence", "master", "niveau baccalaureat"],
     has_equipment: ["لا", "نعم"],
     has_laptop: ["لا", "نعم"],
     max_commute: ["15 دقيقة", "30 دقيقة", "45 دقيقة", "أكثر من ساعة", "ساعة"],
