@@ -374,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
      is always reachable. */
   const STRENGTH = [
     { k: "full_name", w: 2 }, { k: "whatsapp", w: 3 }, { k: "email", w: 2 },
-    { k: "age", w: 1 }, { k: "city", w: 2 }, { k: "neighborhood", w: 1 },
+    { k: "age", w: 1 }, { k: "gender", w: 1 }, { k: "city", w: 2 }, { k: "neighborhood", w: 1 },
     { k: "diploma", w: 2 },
     { k: "portfolio_url", w: 1, tip: "fac.tip.portfolio" },
     { k: "workshop_domains", w: 6, tip: "fac.tip.domains" },
