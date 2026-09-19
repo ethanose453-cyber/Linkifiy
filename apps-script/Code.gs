@@ -78,7 +78,7 @@ var SCHOOL_REQUIRED = ["school_name", "institution_type", "city", "area", "conta
    File URLs live in CV_URL / PHOTO_URL / CERTIFICATE_URL. */
 var FAC_SHEET = "Facilitators";
 var FAC_HEADERS = [
-  "submittedAt", "full_name", "whatsapp", "email", "age", "city", "city_other", "neighborhood",
+  "submittedAt", "full_name", "whatsapp", "email", "age", "gender", "city", "city_other", "neighborhood",
   "diploma", "diploma_other",
   "portfolio_url", "profile_type", "consent_contact",
   "workshop_domains", "workshop_domain_other", "top_3_domains", "ready_now_specialty",
@@ -103,7 +103,7 @@ var FAC_HEADERS = [
    final consents). The CV file is required too, unless cv_pending === "oui"
    (the "I'll send it later" escape hatch); that is checked separately in
    validateFacilitator because it depends on the uploaded file, not a text field. */
-var FAC_REQUIRED = ["full_name", "whatsapp", "email", "city", "consent_contact",
+var FAC_REQUIRED = ["full_name", "whatsapp", "email", "gender", "city", "consent_contact",
   "diploma", "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
   "auto_entrepreneur",
   "workshops_per_week", "workshops_per_day",
@@ -262,6 +262,7 @@ var ENUM_FACILITATOR = {
     city: ["agadir", "ait melloul", "autre ville", "beni mellal", "berkane", "berrechid", "bouznika", "casablanca", "el jadida", "essaouira", "fes", "fquih ben salah", "inezgane", "kelaat sraghna", "kenitra", "khouribga", "ksar el kebir", "larache", "marrakech", "meknes", "mohammedia", "nador", "ouezzane", "oujda", "rabat", "safi", "sale", "sefrou", "settat", "sidi bennour", "sidi kacem", "sidi slimane", "skhirat", "tanger", "taroudant", "taza", "temara", "tetouan", "tiznit"],
     cv_pending: ["non", "oui"],
     diploma: ["autre", "bac+2", "baccalaureat", "doctorat", "ingenieur", "licence", "master", "niveau baccalaureat"],
+    gender: ["f", "h"],
     has_equipment: ["لا", "نعم"],
     has_laptop: ["لا", "نعم"],
     max_commute: ["15 دقيقة", "30 دقيقة", "45 دقيقة", "أكثر من ساعة", "ساعة"],
