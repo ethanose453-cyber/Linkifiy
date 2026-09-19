@@ -1332,6 +1332,27 @@ function validateFacilitator(data, isPartial) {
     var hasCv = (data.files && data.files.cv && data.files.cv.data) ||
                 (data.CV_URL && String(data.CV_URL).indexOf("http") === 0);
     if (!cvLater && !hasCv) errors.push("missing:cv");
+
+    /* Availability time is REQUIRED per ticked day (availability itself stays
+       optional). available_days is the ', '-joined day list; availability is the
+       serialized picker (day-blocks ' | ', 'DAY: p1، p2'). A day the visitor
+       ticked but left without a period is OMITTED from availability, so any
+       available_days entry with no matching day-block (with >=1 period) fails.
+       Mirrors the client-side fac.v.dayNeedsTime rule (defence in depth). */
+    var pickedDays = String(data.available_days || "")
+      .split(", ").map(function (d) { return d.trim(); }).filter(function (d) { return d; });
+    if (pickedDays.length) {
+      var timedDays = {};
+      String(data.availability || "").split(" | ").forEach(function (block) {
+        var idx = block.indexOf(": ");
+        if (idx === -1) return;
+        var day = block.slice(0, idx).trim();
+        var periods = block.slice(idx + 2).split("، ").filter(function (p) { return p.trim(); });
+        if (day && periods.length) timedDays[day] = true;
+      });
+      var missingTime = pickedDays.some(function (d) { return !timedDays[d]; });
+      if (missingTime) errors.push("availability");
+    }
   }
   return errors;
 }

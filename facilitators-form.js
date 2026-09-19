@@ -520,6 +520,26 @@ document.addEventListener("DOMContentLoaded", () => {
       if (c && c.required && !c.checked) { ok = false; markError(c.closest(".field"), T("v.consent")); }
     });
 
+    /* Availability: time is REQUIRED per ticked day (availability itself stays
+       optional — zero days ticked is valid). Every ticked available_days day
+       must have >=1 of its data-day/data-period inputs checked; otherwise block
+       and flag the availability field. The period panel is revealed (not
+       collapsed) whenever its day is ticked, so the error renders visibly. */
+    (function () {
+      var dayBoxes = [].slice.call(stepEl.querySelectorAll('input[name="available_days"]'));
+      if (!dayBoxes.length) return;
+      dayBoxes.forEach(function (box) {
+        if (!box.checked) return;
+        var day = box.value;
+        var periods = [].slice.call(stepEl.querySelectorAll(
+          'input[data-day="' + (window.CSS && CSS.escape ? CSS.escape(day) : day) + '"][data-period]'));
+        if (!periods.some(function (p) { return p.checked; })) {
+          ok = false;
+          markError(box.closest(".field"), T("fac.v.dayNeedsTime"));
+        }
+      });
+    })();
+
     /* Force open any collapsed panel that now holds an error, so the message
        is visible (it would otherwise render inside a collapsed box). */
     if (!ok) {
