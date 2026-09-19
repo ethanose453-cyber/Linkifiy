@@ -138,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- conditional logic ---------- */
   const cityOther     = document.getElementById("city-other-wrap");
   const domainOther   = document.getElementById("domain-other-wrap");
+  const diplomaOther  = document.getElementById("diploma-other-wrap");
   const equipmentWrap = document.getElementById("equipment-list-wrap");
 
   function toggle(el, show) {
@@ -169,6 +170,14 @@ document.addEventListener("DOMContentLoaded", () => {
     domainOtherCb.addEventListener("change", function () { syncDomainOther(); updateDomainsCount(); updateStrength(); });
     syncDomainOther();
   }
+
+  // diploma -> "autre" reveals the free-text "other diploma" field (mirrors teacher form)
+  const diplomaSel = document.getElementById("diploma");
+  if (diplomaSel && diplomaOther) diplomaSel.addEventListener("change", e => {
+    const inp = document.getElementById("diploma_other");
+    if (inp) inp.dataset.req = "1";
+    toggle(diplomaOther, e.target.value === "autre");
+  });
 
   // has_equipment -> reveal the equipment list when "نعم"
   const hasEquip = document.getElementById("has_equipment");
@@ -366,6 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const STRENGTH = [
     { k: "full_name", w: 2 }, { k: "whatsapp", w: 3 }, { k: "email", w: 2 },
     { k: "age", w: 1 }, { k: "city", w: 2 }, { k: "neighborhood", w: 1 },
+    { k: "diploma", w: 2 },
     { k: "portfolio_url", w: 1, tip: "fac.tip.portfolio" },
     { k: "workshop_domains", w: 6, tip: "fac.tip.domains" },
     { k: "top_3_domains", w: 5, tip: "fac.tip.top3" },
@@ -381,7 +391,8 @@ document.addEventListener("DOMContentLoaded", () => {
     { k: "workshops_per_week", w: 1 }, { k: "workshops_per_day", w: 1 },
     { k: "transport", w: 1 }, { k: "work_cities", w: 2, tip: "fac.tip.workCities" },
     { k: "max_commute", w: 1 }, { k: "multi_same_city", w: 1 }, { k: "notice_needed", w: 1 },
-    { k: "pay_per_workshop", w: 1 }, { k: "has_equipment", w: 1 }, { k: "has_laptop", w: 1 },
+    { k: "pay_per_workshop", w: 1 }, { k: "auto_entrepreneur", w: 1 },
+    { k: "has_equipment", w: 1 }, { k: "has_laptop", w: 1 },
     { k: "can_use_linkify_equipment", w: 1 }, { k: "prep_time", w: 1 },
     { k: "ready_demo", w: 2 }, { k: "accept_evaluation", w: 1 }, { k: "accept_guide", w: 1 },
     { k: "can_repeat_quality", w: 1 }, { k: "cancel_notice", w: 1 },
@@ -776,7 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     // re-run conditional logic so restored values reveal the right fields
-    ["city", "has_equipment"].forEach(function (id) {
+    ["city", "has_equipment", "diploma"].forEach(function (id) {
       const el = document.getElementById(id);
       if (el) el.dispatchEvent(new Event("change"));
     });

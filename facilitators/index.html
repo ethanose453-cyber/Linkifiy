@@ -210,6 +210,22 @@
               </div>
             </div>
 
+            <div class="grid-2">
+              <div class="field">
+                <label for="diploma"><span data-i18n="f.diploma">أعلى شهادة حصلت عليها</span> <span class="req">*</span></label>
+                <select id="diploma" name="diploma" required>
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="niveau baccalaureat" data-i18n="dp.bacLevel">مستوى بكالوريا</option><option value="baccalaureat" data-i18n="dp.bac">بكالوريا</option><option value="bac+2" data-i18n="dp.dut">دبلوم سنتين</option>
+                  <option value="licence" data-i18n="dp.lic">إجازة</option><option value="master" data-i18n="dp.master">ماستر</option><option value="ingenieur" data-i18n="dp.eng">مهندس</option><option value="doctorat" data-i18n="dp.phd">دكتوراه</option>
+                  <option value="autre" data-i18n="dp.other">غير ذلك</option>
+                </select>
+              </div>
+              <div class="field conditional" id="diploma-other-wrap" hidden>
+                <label for="diploma_other"><span data-i18n="f.diplomaOther">اذكر اسم الشهادة</span> <span class="req">*</span></label>
+                <input type="text" id="diploma_other" name="diploma_other" />
+              </div>
+            </div>
+
             <div class="field">
               <label for="portfolio_url" data-i18n="fac.f.portfolio">LinkedIn / Portfolio / صفحة مهنية</label>
               <input type="url" id="portfolio_url" name="portfolio_url" inputmode="url" placeholder="https://..." />
@@ -613,6 +629,15 @@
                 <option value="30-60 دقيقة" data-i18n="fac.pt.30to60">30-60 دقيقة</option>
                 <option value="1-2 ساعة" data-i18n="fac.pt.1to2h">1-2 ساعة</option>
                 <option value="أكثر من ساعتين" data-i18n="fac.pt.gt2h">أكثر من ساعتين</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="auto_entrepreneur"><span data-i18n="fac.f.autoEntrepreneur">هل تتوفر على صفة قانونية كمقاول ذاتي (Auto-entrepreneur)؟</span> <span class="req">*</span></label>
+              <select id="auto_entrepreneur" name="auto_entrepreneur" required>
+                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
+                <option value="لا" data-i18n="fac.opt.no">لا</option>
               </select>
             </div>
           </fieldset>
