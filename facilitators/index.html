@@ -129,7 +129,7 @@
           <p class="form-eta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> <span data-i18n="form.eta">3 دقائق تقريباً · يمكنك التوقف والعودة في أي وقت</span></p>
           <ol class="step-dots" id="stepDots" aria-hidden="true"></ol>
           <div class="progress-bar"><span id="progressFill"></span></div>
-          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">6</span> · <span id="stepPct">17%</span></div>
+          <div class="progress-text"><span data-i18n="form.step">الخطوة</span> <strong id="stepNow">1</strong> <span data-i18n="form.of">من</span> <span id="stepTotal">4</span> · <span id="stepPct">25%</span></div>
           <p class="step-hint" id="stepHint"></p>
           <!-- Profile strength: names the single highest-value missing item. -->
           <div class="strength" id="strengthBox" hidden>
@@ -212,42 +212,9 @@
                 <input type="text" id="city_other" name="city_other" />
               </div>
             </div>
-
-            <div class="field">
-              <label for="neighborhood" data-i18n="fac.f.neighborhood">الحي / المنطقة</label>
-              <input type="text" id="neighborhood" name="neighborhood" data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
-            </div>
-
-            <div class="grid-2">
-              <div class="field">
-                <label for="diploma"><span data-i18n="f.diploma">أعلى شهادة حصلت عليها</span> <span class="req">*</span></label>
-                <select id="diploma" name="diploma" required>
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="niveau baccalaureat" data-i18n="dp.bacLevel">مستوى بكالوريا</option><option value="baccalaureat" data-i18n="dp.bac">بكالوريا</option><option value="bac+2" data-i18n="dp.dut">دبلوم سنتين</option>
-                  <option value="licence" data-i18n="dp.lic">إجازة</option><option value="master" data-i18n="dp.master">ماستر</option><option value="ingenieur" data-i18n="dp.eng">مهندس</option><option value="doctorat" data-i18n="dp.phd">دكتوراه</option>
-                  <option value="autre" data-i18n="dp.other">غير ذلك</option>
-                </select>
-              </div>
-              <div class="field conditional" id="diploma-other-wrap" hidden>
-                <label for="diploma_other"><span data-i18n="f.diplomaOther">اذكر اسم الشهادة</span> <span class="req">*</span></label>
-                <input type="text" id="diploma_other" name="diploma_other" />
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="portfolio_url" data-i18n="fac.f.portfolio">LinkedIn / Portfolio / صفحة مهنية</label>
-              <input type="url" id="portfolio_url" name="portfolio_url" inputmode="url" placeholder="https://..." />
-            </div>
-
-            <div class="field consent">
-              <label class="check check-consent">
-                <input type="checkbox" id="consent_contact" name="consent_contact" value="oui" required />
-                <span><span data-i18n="fac.f.consentContact">أوافق على حفظ المعلومات التي أدخلها والتواصل معي بخصوص فرص التأطير، حتى في حالة عدم إكمال التسجيل.</span><span class="req"> *</span></span>
-              </label>
-            </div>
           </fieldset>
 
-          <!-- ===== STEP 2: التخصص ===== -->
+          <!-- ===== STEP 2: التخصص والخبرة ===== -->
           <fieldset class="form-step" data-step="2" hidden>
             <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg><span data-i18n="fac.s2.legend">التخصص والمجالات</span></legend>
 
@@ -334,11 +301,27 @@
                 <label class="check"><input type="checkbox" name="workshop_languages" value="الإنجليزية" /> <span data-i18n="fac.lang.english">الإنجليزية</span></label>
               </div>
             </div>
-          </fieldset>
 
-          <!-- ===== STEP 3: الخبرة والفئات العمرية ===== -->
-          <fieldset class="form-step" data-step="3" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span data-i18n="fac.s3.legend">الخبرة والفئات العمرية</span></legend>
+            <div class="grid-2">
+              <div class="field">
+                <label for="diploma"><span data-i18n="f.diploma">أعلى شهادة حصلت عليها</span> <span class="req">*</span></label>
+                <select id="diploma" name="diploma" required>
+                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                  <option value="niveau baccalaureat" data-i18n="dp.bacLevel">مستوى بكالوريا</option><option value="baccalaureat" data-i18n="dp.bac">بكالوريا</option><option value="bac+2" data-i18n="dp.dut">دبلوم سنتين</option>
+                  <option value="licence" data-i18n="dp.lic">إجازة</option><option value="master" data-i18n="dp.master">ماستر</option><option value="ingenieur" data-i18n="dp.eng">مهندس</option><option value="doctorat" data-i18n="dp.phd">دكتوراه</option>
+                  <option value="autre" data-i18n="dp.other">غير ذلك</option>
+                </select>
+              </div>
+              <div class="field conditional" id="diploma-other-wrap" hidden>
+                <label for="diploma_other"><span data-i18n="f.diplomaOther">اذكر اسم الشهادة</span> <span class="req">*</span></label>
+                <input type="text" id="diploma_other" name="diploma_other" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="neighborhood" data-i18n="fac.f.neighborhood">الحي / المنطقة</label>
+              <input type="text" id="neighborhood" name="neighborhood" data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
+            </div>
 
             <div class="field">
               <span class="label" data-i18n="fac.f.pastVenues">أين سبق لك التأطير؟</span>
@@ -380,8 +363,8 @@
             </div>
           </fieldset>
 
-          <!-- ===== STEP 4: التوفر والتنقل ===== -->
-          <fieldset class="form-step" data-step="4" hidden>
+          <!-- ===== STEP 3: التوفر وشروط العمل ===== -->
+          <fieldset class="form-step" data-step="3" hidden>
             <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span data-i18n="fac.s4.legend">التوفر والتنقل</span></legend>
 
             <!-- Per-day availability: ticking a day reveals the four period choices
@@ -538,11 +521,6 @@
                 <option value="أسبوع" data-i18n="fac.nt.week">أسبوع</option>
               </select>
             </div>
-          </fieldset>
-
-          <!-- ===== STEP 5: التعويض والمعدات ===== -->
-          <fieldset class="form-step" data-step="5" hidden>
-            <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span data-i18n="fac.s5.legend">التعويض والمعدات</span></legend>
 
             <div class="grid-2">
               <div class="field">
@@ -616,8 +594,8 @@
             </div>
           </fieldset>
 
-          <!-- ===== STEP 6: الجودة والملف المهني (short close) ===== -->
-          <fieldset class="form-step" data-step="6" hidden>
+          <!-- ===== STEP 4: الملف والإنهاء ===== -->
+          <fieldset class="form-step" data-step="4" hidden>
             <legend class="step-legend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 8l6 .9-4.5 4.4 1 6.2L12 16.8 6.5 19.5l1-6.2L3 8.9 9 8z"/></svg><span data-i18n="fac.s6.legend">الجودة والملف المهني</span></legend>
 
             <div class="grid-2">
@@ -702,6 +680,17 @@
               <small class="hint" data-i18n="fac.hint.certificate">شهادات أو Certificates تُثبت خبرتك في مجال التأطير. يمكنك رفع أكثر من ملف (أقصى حجم 10MB لكل ملف).</small>
             </div>
 
+            <div class="field">
+              <label for="portfolio_url" data-i18n="fac.f.portfolio">LinkedIn / Portfolio / صفحة مهنية</label>
+              <input type="url" id="portfolio_url" name="portfolio_url" inputmode="url" placeholder="https://..." />
+            </div>
+
+            <div class="field consent">
+              <label class="check check-consent">
+                <input type="checkbox" id="consent_contact" name="consent_contact" value="oui" required />
+                <span><span data-i18n="fac.f.consentContact">أوافق على حفظ المعلومات التي أدخلها والتواصل معي بخصوص فرص التأطير، حتى في حالة عدم إكمال التسجيل.</span><span class="req"> *</span></span>
+              </label>
+            </div>
             <div class="field consent">
               <label class="check check-consent">
                 <input type="checkbox" id="consent_data" name="consent_data" value="oui" required />
