@@ -334,11 +334,6 @@
                 <label class="check"><input type="checkbox" name="workshop_languages" value="الإنجليزية" /> <span data-i18n="fac.lang.english">الإنجليزية</span></label>
               </div>
             </div>
-
-            <div class="field">
-              <label for="workshop_example" data-i18n="fac.f.example">أعطنا مثالاً على Workshop سبق لك تقديمها أو تستطيع تقديمها</label>
-              <textarea id="workshop_example" name="workshop_example" rows="3"></textarea>
-            </div>
           </fieldset>
 
           <!-- ===== STEP 3: الخبرة والفئات العمرية ===== -->
@@ -360,11 +355,6 @@
             </div>
 
             <div class="field">
-              <label for="past_institutions" data-i18n="fac.f.pastInstitutions">اذكر بعض المؤسسات أو المشاريع التي سبق لك العمل معها</label>
-              <input type="text" id="past_institutions" name="past_institutions" />
-            </div>
-
-            <div class="field">
               <span class="label" data-i18n="fac.f.ageGroups">الفئات العمرية التي يمكنك تأطيرها</span>
               <div class="check-grid">
                 <label class="check"><input type="checkbox" name="age_groups" value="4-6 سنوات" /> <span data-i18n="fac.ag.4to6">4–6 سنوات</span></label>
@@ -376,23 +366,17 @@
               </div>
             </div>
 
-            <div class="grid-2">
-              <div class="field">
-                <label for="age_group_best" data-i18n="fac.f.ageGroupBest">ما الفئة العمرية التي ترتاح معها أكثر؟</label>
-                <input type="text" id="age_group_best" name="age_group_best" />
-              </div>
-              <div class="field">
-                <label for="max_participants" data-i18n="fac.f.maxParticipants">ما أكبر عدد من المشاركين تستطيع تأطيره بجودة؟</label>
-                <select id="max_participants" name="max_participants">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="أقل من 10" data-i18n="fac.mp.lt10">أقل من 10</option>
-                  <option value="10-15" data-i18n="fac.mp.10to15">10-15</option>
-                  <option value="16-20" data-i18n="fac.mp.16to20">16-20</option>
-                  <option value="21-25" data-i18n="fac.mp.21to25">21-25</option>
-                  <option value="26-30" data-i18n="fac.mp.26to30">26-30</option>
-                  <option value="أكثر من 30" data-i18n="fac.mp.gt30">أكثر من 30</option>
-                </select>
-              </div>
+            <div class="field">
+              <label for="max_participants" data-i18n="fac.f.maxParticipants">ما أكبر عدد من المشاركين تستطيع تأطيره بجودة؟</label>
+              <select id="max_participants" name="max_participants">
+                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
+                <option value="أقل من 10" data-i18n="fac.mp.lt10">أقل من 10</option>
+                <option value="10-15" data-i18n="fac.mp.10to15">10-15</option>
+                <option value="16-20" data-i18n="fac.mp.16to20">16-20</option>
+                <option value="21-25" data-i18n="fac.mp.21to25">21-25</option>
+                <option value="26-30" data-i18n="fac.mp.26to30">26-30</option>
+                <option value="أكثر من 30" data-i18n="fac.mp.gt30">أكثر من 30</option>
+              </select>
             </div>
           </fieldset>
 
@@ -502,7 +486,7 @@
                 </select>
               </div>
               <div class="field">
-                <label for="workshops_per_week"><span data-i18n="fac.f.perWeek">كم Workshop تقريباً ترغب في تقديمها أسبوعياً؟</span> <span class="req">*</span></label>
+                <label for="workshops_per_week"><span data-i18n="fac.f.perWeek">كم Workshop تقدر تقدّم في الأسبوع؟</span> <span class="req">*</span></label>
                 <input type="number" id="workshops_per_week" name="workshops_per_week" min="0" inputmode="numeric" required />
               </div>
             </div>
@@ -539,37 +523,14 @@
               </div>
             </div>
 
-            <div class="grid-2">
-              <div class="field">
-                <label for="max_commute" data-i18n="fac.f.maxCommute">أقصى مدة تنقل تناسبك عادة</label>
-                <select id="max_commute" name="max_commute">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="15 دقيقة" data-i18n="fac.mc.15">15 دقيقة</option>
-                  <option value="30 دقيقة" data-i18n="fac.mc.30">30 دقيقة</option>
-                  <option value="45 دقيقة" data-i18n="fac.mc.45">45 دقيقة</option>
-                  <option value="ساعة" data-i18n="fac.mc.60">ساعة</option>
-                  <option value="أكثر من ساعة" data-i18n="fac.mc.gt60">أكثر من ساعة</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="notice_needed" data-i18n="fac.f.notice">كم تحتاج من إشعار مسبق لتأكيد مشاركتك في Workshop؟</label>
-                <select id="notice_needed" name="notice_needed">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="24 ساعة" data-i18n="fac.nt.24">24 ساعة</option>
-                  <option value="48 ساعة" data-i18n="fac.nt.48">48 ساعة</option>
-                  <option value="3 أيام" data-i18n="fac.nt.3days">3 أيام</option>
-                  <option value="أسبوع" data-i18n="fac.nt.week">أسبوع</option>
-                </select>
-              </div>
-            </div>
-
             <div class="field">
-              <label for="multi_same_city" data-i18n="fac.f.multiSameCity">إذا وفرت لك Linkify ما بين 2 و3 Workshops في نفس المدينة وفي نفس اليوم، هل يناسبك؟</label>
-              <select id="multi_same_city" name="multi_same_city">
+              <label for="notice_needed" data-i18n="fac.f.notice">كم تحتاج من إشعار مسبق لتأكيد مشاركتك في Workshop؟</label>
+              <select id="notice_needed" name="notice_needed">
                 <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                <option value="نعم جداً" data-i18n="fac.msc.yesVery">نعم جداً</option>
-                <option value="نعم حسب المسافة" data-i18n="fac.msc.yesDistance">نعم حسب المسافة</option>
-                <option value="لا" data-i18n="fac.opt.no">لا</option>
+                <option value="24 ساعة" data-i18n="fac.nt.24">24 ساعة</option>
+                <option value="48 ساعة" data-i18n="fac.nt.48">48 ساعة</option>
+                <option value="3 أيام" data-i18n="fac.nt.3days">3 أيام</option>
+                <option value="أسبوع" data-i18n="fac.nt.week">أسبوع</option>
               </select>
             </div>
           </fieldset>
@@ -581,17 +542,17 @@
             <div class="grid-2">
               <div class="field">
                 <label for="pay_per_workshop" data-i18n="fac.f.payPerWorkshop">التعويض المناسب لـWorkshop مدتها 1.5–2 ساعة (درهم)</label>
-                <input type="number" id="pay_per_workshop" name="pay_per_workshop" min="0" step="50" inputmode="numeric" />
+                <input type="number" id="pay_per_workshop" name="pay_per_workshop" min="0" step="1" inputmode="numeric" />
               </div>
               <div class="field">
                 <label for="pay_full_service" data-i18n="fac.f.payFullService">إذا وفرت Linkify المؤسسة والمحتوى والمواد والجدولة، التعويض المناسب لكل Workshop (درهم)</label>
-                <input type="number" id="pay_full_service" name="pay_full_service" min="0" step="50" inputmode="numeric" />
+                <input type="number" id="pay_full_service" name="pay_full_service" min="0" step="1" inputmode="numeric" />
               </div>
             </div>
 
             <div class="field">
               <label for="pay_full_day_3" data-i18n="fac.f.payFullDay3">إذا وفرت لك Linkify 3 Workshops في نفس اليوم، التعويض الإجمالي المناسب لذلك اليوم (درهم)</label>
-              <input type="number" id="pay_full_day_3" name="pay_full_day_3" min="0" step="50" inputmode="numeric" />
+              <input type="number" id="pay_full_day_3" name="pay_full_day_3" min="0" step="1" inputmode="numeric" />
             </div>
 
             <div class="grid-2">
@@ -660,26 +621,6 @@
                 <select id="ready_demo" name="ready_demo" required>
                   <option value="" disabled selected data-i18n="ph.choose">اختر</option>
                   <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
-                  <option value="لا" data-i18n="fac.opt.no">لا</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="accept_evaluation" data-i18n="fac.f.acceptEval">هل توافق على تقييم Workshop من طرف Linkify والمؤسسة؟</label>
-                <select id="accept_evaluation" name="accept_evaluation">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
-                  <option value="لا" data-i18n="fac.opt.no">لا</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <div class="field">
-                <label for="accept_guide" data-i18n="fac.f.acceptGuide">هل يناسبك العمل وفق Workshop Guide ومعايير جودة تحددها Linkify؟</label>
-                <select id="accept_guide" name="accept_guide">
-                  <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                  <option value="نعم" data-i18n="fac.opt.yes">نعم</option>
-                  <option value="حسب workshop" data-i18n="fac.ag2.depends">حسب Workshop</option>
                   <option value="لا" data-i18n="fac.opt.no">لا</option>
                 </select>
               </div>
