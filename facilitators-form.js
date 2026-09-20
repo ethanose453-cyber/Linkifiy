@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- conditional logic ---------- */
   const cityOther     = document.getElementById("city-other-wrap");
+  const workCityOther = document.getElementById("work-city-other-wrap");
   const domainOther   = document.getElementById("domain-other-wrap");
   const diplomaOther  = document.getElementById("diploma-other-wrap");
   const equipmentWrap = document.getElementById("equipment-list-wrap");
@@ -158,6 +159,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inp) inp.dataset.req = "1";
     toggle(cityOther, show);
   });
+
+  // work_cities "autre ville" -> reveal the free-text city field, required while shown.
+  // Checkbox-driven (mirrors the "مجال آخر" domain-other reveal below): when
+  // unchecked, toggle() clears required and we blank the input so no stale value ships.
+  const workCityOtherCb = document.getElementById("work_city_other");
+  if (workCityOtherCb && workCityOther) {
+    const syncWorkCityOther = () => {
+      const inp = document.getElementById("work_cities_other");
+      if (inp) inp.dataset.req = "1";
+      const show = workCityOtherCb.checked;
+      toggle(workCityOther, show);
+      if (!show && inp) inp.value = "";
+    };
+    workCityOtherCb.addEventListener("change", function () { syncWorkCityOther(); updateStrength(); });
+    syncWorkCityOther();
+  }
 
   // "مجال آخر" -> reveal the free-text domain field, required while shown
   const domainOtherCb = document.getElementById("workshop_domain_other");
@@ -812,6 +829,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     const dcb = document.getElementById("workshop_domain_other");
     if (dcb) dcb.dispatchEvent(new Event("change"));
+    // work_cities "autre ville" checkbox was re-ticked above; fire change so the
+    // free-text wrap reveals. The restored work_cities_other value was already
+    // written by the loop, so re-fire AFTER the value is set (order preserved).
+    const wcb = document.getElementById("work_city_other");
+    if (wcb) wcb.dispatchEvent(new Event("change"));
     if (cvLater) cvLater.dispatchEvent(new Event("change"));
     /* availability is a structured string, not a plain checkbox group: parse it
        so the day + per-day period boxes re-tick, sub-groups reveal, and the
