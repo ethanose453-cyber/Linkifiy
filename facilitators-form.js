@@ -385,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
   })();
 
   /* ---------- profile strength ----------
-     Weights = value to Linkify. cv, top_3_domains, ready_now_specialty and
+     Weights = value to Linkify. cv, ready_now_specialty and
      workshop_domains carry the most weight; photo/certificate are medium.
      No needsExp branches (every field applies to every facilitator), so 100%
      is always reachable. */
@@ -395,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { k: "diploma", w: 2 },
     { k: "portfolio_url", w: 1, tip: "fac.tip.portfolio" },
     { k: "workshop_domains", w: 6, tip: "fac.tip.domains" },
-    { k: "top_3_domains", w: 5, tip: "fac.tip.top3" },
     { k: "ready_now_specialty", w: 5, tip: "fac.tip.readyNow" },
     { k: "years_experience", w: 2 }, { k: "workshops_done", w: 1 },
     { k: "workshop_languages", w: 2, tip: "fac.tip.languages" },
@@ -409,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { k: "notice_needed", w: 1 },
     { k: "pay_per_workshop", w: 1 }, { k: "auto_entrepreneur", w: 1 },
     { k: "has_equipment", w: 1 }, { k: "has_laptop", w: 1 },
-    { k: "can_use_linkify_equipment", w: 1 }, { k: "prep_time", w: 1 },
+    { k: "can_use_linkify_equipment", w: 1 },
     { k: "ready_demo", w: 2 },
     { k: "can_repeat_quality", w: 1 }, { k: "cancel_notice", w: 1 },
     { k: "proposed_workshop_name", w: 2, tip: "fac.tip.proposed" },
