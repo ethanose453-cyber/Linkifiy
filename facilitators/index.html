@@ -212,6 +212,11 @@
                 <input type="text" id="city_other" name="city_other" />
               </div>
             </div>
+
+            <div class="field">
+              <label for="neighborhood" data-i18n="fac.f.neighborhood">الحي / المنطقة</label>
+              <input type="text" id="neighborhood" name="neighborhood" data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
+            </div>
           </fieldset>
 
           <!-- ===== STEP 2: التخصص والخبرة ===== -->
@@ -256,15 +261,9 @@
               <input type="text" id="workshop_domain_other_text" name="workshop_domain_other" />
             </div>
 
-            <div class="grid-2">
-              <div class="field">
-                <label for="top_3_domains"><span data-i18n="fac.f.top3">ما هي أقوى 3 مجالات لديك؟</span> <span class="req">*</span></label>
-                <input type="text" id="top_3_domains" name="top_3_domains" required data-i18n-ph="fac.ph.top3" placeholder="مثال: Robotics, AI, Coding" />
-              </div>
-              <div class="field">
-                <label for="ready_now_specialty"><span data-i18n="fac.f.readyNow">المجال الذي تستطيع تقديم Workshop فيه حالياً بأعلى جودة</span> <span class="req">*</span></label>
-                <input type="text" id="ready_now_specialty" name="ready_now_specialty" required />
-              </div>
+            <div class="field">
+              <label for="ready_now_specialty"><span data-i18n="fac.f.readyNow">المجال الذي تستطيع تقديم Workshop فيه حالياً بأعلى جودة</span> <span class="req">*</span></label>
+              <input type="text" id="ready_now_specialty" name="ready_now_specialty" required />
             </div>
 
             <div class="grid-2">
@@ -316,11 +315,6 @@
                 <label for="diploma_other"><span data-i18n="f.diplomaOther">اذكر اسم الشهادة</span> <span class="req">*</span></label>
                 <input type="text" id="diploma_other" name="diploma_other" />
               </div>
-            </div>
-
-            <div class="field">
-              <label for="neighborhood" data-i18n="fac.f.neighborhood">الحي / المنطقة</label>
-              <input type="text" id="neighborhood" name="neighborhood" data-i18n-ph="ph.neigh" placeholder="مثال: حي القدس، شارع محمد الخامس..." />
             </div>
 
             <div class="field">
@@ -530,6 +524,7 @@
               <div class="field">
                 <label for="pay_full_service" data-i18n="fac.f.payFullService">إذا وفرت Linkify المؤسسة والمحتوى والمواد والجدولة، التعويض المناسب لكل Workshop (درهم)</label>
                 <input type="number" id="pay_full_service" name="pay_full_service" min="0" step="1" inputmode="numeric" />
+                <small class="hint" data-i18n="fac.f.payFullServiceHint">بما في ذلك المعدات المتخصصة عند الحاجة (مثلاً: الروبوتات لورشة روبوتيك، الأدوات الفنية لورشة فنون...) — أنت تقدّم الورشة فقط.</small>
               </div>
             </div>
 
@@ -571,17 +566,6 @@
                   <option value="لا" data-i18n="fac.opt.no">لا</option>
                 </select>
               </div>
-            </div>
-
-            <div class="field">
-              <label for="prep_time" data-i18n="fac.f.prepTime">إذا وفرنا لك المحتوى والمواد جاهزة، كم من الوقت تحتاج عادة للتحضير قبل Workshop؟</label>
-              <select id="prep_time" name="prep_time">
-                <option value="" disabled selected data-i18n="ph.choose">اختر</option>
-                <option value="أقل من 30 دقيقة" data-i18n="fac.pt.lt30">أقل من 30 دقيقة</option>
-                <option value="30-60 دقيقة" data-i18n="fac.pt.30to60">30-60 دقيقة</option>
-                <option value="1-2 ساعة" data-i18n="fac.pt.1to2h">1-2 ساعة</option>
-                <option value="أكثر من ساعتين" data-i18n="fac.pt.gt2h">أكثر من ساعتين</option>
-              </select>
             </div>
 
             <div class="field">

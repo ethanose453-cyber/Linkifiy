@@ -81,7 +81,7 @@ var FAC_HEADERS = [
   "submittedAt", "full_name", "whatsapp", "email", "age", "gender", "city", "city_other", "neighborhood",
   "diploma", "diploma_other",
   "portfolio_url", "profile_type", "consent_contact",
-  "workshop_domains", "workshop_domain_other", "top_3_domains", "ready_now_specialty",
+  "workshop_domains", "workshop_domain_other", "ready_now_specialty",
   "years_experience", "workshops_done", "past_venues",
   "age_groups", "max_participants", "workshop_languages",
   "available_days", "availability", "available_holidays", "workshops_per_week", "workshops_per_day",
@@ -89,7 +89,7 @@ var FAC_HEADERS = [
   "pay_per_workshop", "pay_full_service", "pay_full_day_3",
   "auto_entrepreneur",
   "has_equipment", "equipment_list", "has_laptop", "can_use_linkify_equipment",
-  "prep_time", "ready_demo", "can_repeat_quality", "cancel_notice",
+  "ready_demo", "can_repeat_quality", "cancel_notice",
   "proposed_workshop_name", "proposed_workshop_age", "proposed_workshop_duration",
   "proposed_workshop_goal", "proposed_workshop_activities", "proposed_workshop_materials",
   "consent_data", "consent_truth", "consent_no_guarantee",
@@ -99,12 +99,12 @@ var FAC_HEADERS = [
 ];
 /* Non-partial (final submit) required set. Mirrors the client-side required
    fields recorded in FEAT-002 (full_name/whatsapp/email/city/consent_contact +
-   top_3_domains/ready_now_specialty/years_experience + ready_demo + the three
+   ready_now_specialty/years_experience + ready_demo + the three
    final consents). The CV file is required too, unless cv_pending === "oui"
    (the "I'll send it later" escape hatch); that is checked separately in
    validateFacilitator because it depends on the uploaded file, not a text field. */
 var FAC_REQUIRED = ["full_name", "whatsapp", "email", "gender", "city", "consent_contact",
-  "diploma", "top_3_domains", "ready_now_specialty", "years_experience", "ready_demo",
+  "diploma", "ready_now_specialty", "years_experience", "ready_demo",
   "auto_entrepreneur",
   "workshops_per_week", "workshops_per_day",
   "consent_data", "consent_truth", "consent_no_guarantee"];
@@ -266,7 +266,6 @@ var ENUM_FACILITATOR = {
     max_participants: ["10-15", "16-20", "21-25", "26-30", "أقل من 10", "أكثر من 30"],
     notice_needed: ["24 ساعة", "3 أيام", "48 ساعة", "أسبوع"],
     past_venues: ["events", "جامعات", "جمعيات", "مخيمات", "مدارس خاصة", "مدارس عمومية", "مراكز تكوين", "مراكز لغات"],
-    prep_time: ["1-2 ساعة", "30-60 دقيقة", "أقل من 30 دقيقة", "أكثر من ساعتين"],
     ready_demo: ["لا", "نعم"],
     transport: ["أخرى", "دراجة نارية", "سيارة", "لا أتوفر على وسيلة نقل خاصة"],
     work_cities: ["autre ville", "casablanca", "kenitra", "mohammedia", "rabat", "sale", "skhirat", "temara"],
