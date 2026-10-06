@@ -23,7 +23,7 @@ var CONFIG = {
   SHEET_NAME: "",                        // "" = use the FIRST sheet (your existing data sheet)
   // Live site domain used to build resume + retargeting links.
   // A Script Property named SITE_URL overrides this default if set.
-  SITE_URL_DEFAULT: "https://linkify.ma",
+  SITE_URL_DEFAULT: "https://portal.linkify.ma",
   NUDGE_HOURS: [1, 24, 72],              // retargeting schedule (hours)
   MAX_FIELD_LEN: 5000,
   MAX_FILE_BYTES: 11 * 1024 * 1024,   // 10MB client limit + base64 rounding headroom
@@ -158,7 +158,7 @@ function safeResumeUrl(u, sid) {
   var fallback = siteUrl() + "?resume=" + encodeURIComponent(sid);
   if (!u || typeof u !== "string") return fallback;
   if (u.indexOf("resume=") === -1) return fallback;
-  if (/^https?:\/\/(www\.)?linkify\.ma\//i.test(u)) return u;
+  if (/^https?:\/\/([a-z0-9-]+\.)?linkify\.ma\//i.test(u)) return u;
   if (siteUrl() && u.indexOf(siteUrl()) === 0) return u;
   return fallback;
 }
@@ -168,7 +168,7 @@ function setupSecrets() {
     SHEET_ID: "",
     DRIVE_FOLDER_ID: "",
     NOTIFY_EMAIL: "",
-    SITE_URL: "https://linkify.ma",
+    SITE_URL: "https://portal.linkify.ma",
     GREENAPI_ID: "",
     GREENAPI_TOKEN: "",
     ADMIN_PHONE: ""
